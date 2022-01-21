@@ -231,3 +231,71 @@ SMAP_graph(chilipepper$Recruit_0, stock, E1 = 5, E2 = 6) # not great evidence at
 EDM_forecasts(chilipepper, stock, E1 = 5, E2 = 6, min_year) # relatively good
 
 
+# Darkblotched ------------------------------------------------------------
+index <- which(years$stock_names == "darkblotched")
+stock <- "Darkblotched"
+min_year <- years$min_yr[index]
+
+darkblotched <- darkblotched %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(darkblotched$Yr, darkblotched$Recruit_0, type = "l")
+acf(darkblotched$Recruit_0) # no autocorrelation
+
+EDM_graph(darkblotched$Recruit_0, stock) #E1 = 4, E2 = 2
+SMAP_graph(darkblotched$Recruit_0, stock, E1 = 4, E2 = 2) # theta >0, not great rho
+EDM_forecasts(darkblotched, stock, E1 = 4, E2 = 2, min_year) # didn't do great for the peaks
+
+
+# Dover Sole --------------------------------------------------------------
+index <- which(years$stock_names == "dover_sole")
+stock <- "Dover Sole"
+min_year <- years$min_yr[index]
+
+dover_sole <- dover_sole %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(dover_sole$Yr, dover_sole$Recruit_0, type = "l")
+acf(dover_sole$Recruit_0) # fair amount of autocorrelation, especially lag = 5
+
+EDM_graph(dover_sole$Recruit_0, stock) #E1 = 5 (went w/ simpler model), E2 = 5
+SMAP_graph(dover_sole$Recruit_0, stock, E1 = 5, E2 = 5) # no nonlinearity at 20 year, not great for 10 year
+EDM_forecasts(dover_sole, stock, E1 = 5, E2 = 5, min_year) # high sd
+
+
+# Kelp Greenling ----------------------------------------------------------
+index <- which(years$stock_names == "kelp_greenling")
+stock <- "Kelp Greenling"
+min_year <- years$min_yr[index]
+
+kelp_greenling <- kelp_greenling %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(kelp_greenling$Yr, kelp_greenling$Recruit_0, type = "l")
+acf(kelp_greenling$Recruit_0) # autocorrelation at lag = 1
+
+EDM_graph(kelp_greenling$Recruit_0, stock) #E1 = 3, E2 = 1
+SMAP_graph(kelp_greenling$Recruit_0, stock, E1 = 3, E2 = 1) # not great evidence of nonlinearity
+EDM_forecasts(kelp_greenling, stock, E1 = 3, E2 = 1, min_year) # high sd, better at following shape 
+
+
+# Lingcod North -----------------------------------------------------------
+index <- which(years$stock_names == "lingcod_n")
+stock <- "Lingcod North"
+min_year <- years$min_yr[index]
+
+lingcod_n <- lingcod_n %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(lingcod_n$Yr, lingcod_n$Recruit_0, type = "l")
+acf(lingcod_n$Recruit_0) # autocorrelation at lag = 1
+
+EDM_graph(lingcod_n$Recruit_0, stock) #E1 = 2, E2 = 2 (rho really bad for both)
+SMAP_graph(lingcod_n$Recruit_0, stock, E1 = 2, E2 = 2) # not great evidence of nonlinearity
+EDM_forecasts(lingcod_n, stock, E1 = 2, E2 = 2, min_year) # high sd, better at following shape 
+
+
