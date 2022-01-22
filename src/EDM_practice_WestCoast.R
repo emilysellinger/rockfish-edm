@@ -296,6 +296,109 @@ acf(lingcod_n$Recruit_0) # autocorrelation at lag = 1
 
 EDM_graph(lingcod_n$Recruit_0, stock) #E1 = 2, E2 = 2 (rho really bad for both)
 SMAP_graph(lingcod_n$Recruit_0, stock, E1 = 2, E2 = 2) # not great evidence of nonlinearity
-EDM_forecasts(lingcod_n, stock, E1 = 2, E2 = 2, min_year) # high sd, better at following shape 
+EDM_forecasts(lingcod_n, stock, E1 = 2, E2 = 2, min_year) # weirdly some of the better predictions??
 
+
+# Lingcod South -----------------------------------------------------------
+index <- which(years$stock_names == "lingcod_s")
+stock <- "Lingcod South"
+min_year <- years$min_yr[index]
+
+lingcod_s <- lingcod_s %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(lingcod_s$Yr, lingcod_s$Recruit_0, type = "l")
+acf(lingcod_s$Recruit_0) # autocorrelation at lag = 1, 4
+
+EDM_graph(lingcod_s$Recruit_0, stock) #E1 = 1 (other peaks), E2 = 3 (rho really bad for 10 years)
+SMAP_graph(lingcod_s$Recruit_0, stock, E1 = 1, E2 = 3) # no evidence of nonlinearity
+EDM_forecasts(lingcod_s, stock, E1 = 1, E2 = 3, min_year) # again, not great simplex metrics, but not bad fit
+
+
+# Petrale Sole ------------------------------------------------------------
+index <- which(years$stock_names == "petrale_sole")
+stock <- "Petrale Sole"
+min_year <- years$min_yr[index]
+
+petrale_sole <- petrale_sole %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(petrale_sole$Yr, petrale_sole$Recruit_0, type = "l")
+acf(petrale_sole$Recruit_0) # autocorrelation at lag = 1
+
+EDM_graph(petrale_sole$Recruit_0, stock) #E1 = 1 (other peaks), E2 = 1 
+SMAP_graph(petrale_sole$Recruit_0, stock, E1 = 1, E2 = 1) # no evidence of nonlinearity at 20yrs, strong at 10 yrs
+EDM_forecasts(petrale_sole, stock, E1 = 1, E2 = 1, min_year) # not a great fit
+
+
+# Sablefish ---------------------------------------------------------------
+index <- which(years$stock_names == "sablefish")
+stock <- "Sablefish"
+min_year <- years$min_yr[index]
+
+sablefish <- sablefish %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(sablefish$Yr, sablefish$Recruit_0, type = "l")
+acf(sablefish$Recruit_0) # no autocorrelation 
+
+EDM_graph(sablefish$Recruit_0, stock) #E1 = 3 (bad rho), E2 = 3 (better rho) 
+SMAP_graph(sablefish$Recruit_0, stock, E1 = 3, E2 = 3) # no evidence of nonlinearity at 20yrs, weak at 10 yrs
+EDM_forecasts(sablefish, stock, E1 = 3, E2 = 3, min_year) # not terrible fit
+
+
+# Splitnose ---------------------------------------------------------------
+index <- which(years$stock_names == "splitnose")
+stock <- "Splitnose"
+min_year <- years$min_yr[index]
+
+splitnose <- splitnose %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(splitnose$Yr, splitnose$Recruit_0, type = "l")
+acf(splitnose$Recruit_0) # autocorrelation at lag = 1, 2
+
+EDM_graph(splitnose$Recruit_0, stock) #E1 = 1, E2 = 7  
+SMAP_graph(splitnose$Recruit_0, stock, E1 = 1, E2 = 7) # no evidence of nonlinearity at 20yrs, weak at 10 yrs
+EDM_forecasts(splitnose, stock, E1 = 1, E2 = 7, min_year) # terrible fit
+
+
+# Widow -------------------------------------------------------------------
+index <- which(years$stock_names == "widow")
+stock <- "Widow"
+min_year <- years$min_yr[index]
+
+widow <- widow %>%
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(widow$Yr, widow$Recruit_0, type = "l")
+acf(widow$Recruit_0) # no autocorrelation
+
+EDM_graph(widow$Recruit_0, stock) #E1 = 10, E2 = 1  (both really bad fits)
+SMAP_graph(widow$Recruit_0, stock, E1 = 10, E2 = 1) # rho > 0 only at large theta for 20 yrs, theta>0 for 10 yrs
+EDM_forecasts(widow, stock, E1 = 10, E2 = 1, min_year) # very bad fit 
+
+
+# Yelloweye ---------------------------------------------------------------
+# only going to use area 1
+index <- which(years$stock_names == "yelloweye")
+stock <- "Yelloweye"
+min_year <- years$min_yr[index]
+
+yelloweye1 <- yelloweye %>%
+  filter(Area == 1) %>% 
+  filter(Yr >= years$min_yr[index]) %>% 
+  filter(Yr <= years$max_yr[index])
+
+plot(yelloweye1$Yr, yelloweye1$Recruit_0, type = "l")
+acf(yelloweye1$Recruit_0) # autocorrelation at lag = 1
+
+EDM_graph(yelloweye1$Recruit_0, stock) #E1 = 2, E2 = 1  
+SMAP_graph(yelloweye1$Recruit_0, stock, E1 = 2, E2 = 1) # nonlinearity high for both sets
+EDM_forecasts(yelloweye1, stock, E1 = 2, E2 = 1, min_year) # relatively decent fit
 
