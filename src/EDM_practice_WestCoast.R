@@ -381,7 +381,7 @@ acf(widow$Recruit_0) # no autocorrelation
 
 EDM_graph(widow$Recruit_0, stock) #E1 = 10, E2 = 1  (both really bad fits)
 SMAP_graph(widow$Recruit_0, stock, E1 = 10, E2 = 1) # rho > 0 only at large theta for 20 yrs, theta>0 for 10 yrs
-EDM_forecasts(widow, stock, E1 = 10, E2 = 1, min_year) # very bad fit 
+EDM_forecasts(widow, stock, E1 = 10, E2 = 1, min_year)Z # very bad fit 
 
 
 # Yelloweye ---------------------------------------------------------------
