@@ -1,9 +1,9 @@
 library(stats4)
-spawn_ts <- data.frame(y = runif(60, 50, 150))
-rec_ts <- 0.8*spawn_ts/(1 + 1.2*spawn_ts)
+spawn_ts <- seq(0.1, 5000, length.out = 199)
+rec_ts <- (1.1*spawn_ts/(1 + 0.002*spawn_ts))*exp(rnorm(length(spawn_ts), 0, 0.2))
 
 
-plot(rec_ts$y, type = "b")
+plot(spawn_ts, rec_ts)
 
 # Functions ---------------------------------------------------------------
 # going to first define the forecasting functions
@@ -68,3 +68,35 @@ for(i in 1:length(test)){
 
 
 
+BHminusLL <- function(loga, logb, logsigmaR){
+  # extract parameters
+  a <- exp(loga); b <- exp(logb); sigmaR <- exp(logsigmaR)
+  
+  # make predictions
+  pred <- a*spawn_ts/(1 + b*spawn_ts)
+  
+  #calculate negative log like
+  NegLogL <- (-1)*sum(dnorm(rec_ts, pred, sigmaR, log = TRUE))
+  return(NegLogL)
+}
+
+starts <- list(loga = log(1.1), logb = log(0.02), logsigmaR = 1)
+mle_out <- mle(BHminusLL, start = starts)
+
+a <- exp(coef(mle_out)[1])
+b <- exp(coef(mle_out)[2])
+
+preds <- a*spawn_ts/(1+b*spawn_ts)
+dat <- tibble(biomass = spawn_ts,
+              recruits = rec_ts,
+              preds = preds)
+
+ggplot(data = dat)+
+  geom_point(aes(x = biomass, y = recruits)) +
+  geom_line(aes(x = biomass, y = preds), color = "red")
+
+library(FSA)
+
+bevholt <- log(rec_ts)~log((a*spawn_ts)/(1+b*spawn_ts))
+bhstarts <- srStarts(rec_ts~spawn_ts, type = "BevertonHolt", param = 1)
+bhfit <- nls(bevholt, start = bhstarts)
