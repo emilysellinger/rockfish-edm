@@ -1,11 +1,13 @@
 library(stats4)
 library(tidyverse)
-spawn_ts <- seq(10, 5000, length.out = 199)
+library(forecast)
+spawn_ts <- seq(10, 5000, length.out = 50)
 rec_ts <- (1.1*spawn_ts/(1 + 0.002*spawn_ts))*exp(rnorm(length(spawn_ts), 0, 0.2))
 
 
 plot(spawn_ts, rec_ts)
 
+time_vec <- seq(40, 50, 1)
 # Forecast Method Functions ---------------------------------------------------------------
 # x = test set vector, df1 = recruitment time series, df2 = spawning biomass time series
 
@@ -25,15 +27,16 @@ rec_mean <- function(x, df1){
 }
 
 rec_AR <- function(x, df1){
+  
   # subset data to window size
   dat <- df1[1:(x-1)]
   
-  # fit AR model and calculate standard deviation (atm doing separately)
-  mod <- arima0(log(dat), order = c(1,0,0))
-  sigmaR <- sd(log(dat))
+  # fit AR model, will use sd estimate from model estimates
+  mod <- Arima(log(dat), order = c(1,0,0))
+  sigmaR <- sqrt(mod$sigma2)
   
-  one_ahead <- predict(mod, n.head = 1)
-  pred <- exp(one_ahead$pred[1] + rnorm(1, 0, sigmaR))
+  # calculate prediction
+  pred <- exp((forecast(mod, h = 1)$mean)[1] + rnorm(1, 0, sigmaR))
   return(pred)
 }
 
@@ -83,21 +86,26 @@ rec_BH <- function(x, df1, df2){
 # recruits = recruitment time series
 # sbiomass = spawning biomass time series
 
-expanding_window <- function(nsims, time_vec, recruits, sbiomass){
+expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   
-  sim_preds <- array(NA, dim = c(length(time_vec), 4, nsims))
+  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
   
-  for(i in 1:nsims){
-    preds <- matrix(NA, nrow = length(time_vec), ncol = 4)
+  for(i in 1:length(fmethods)){
+    fmethod <- fmethods[i]
     
-    for(j in 1:length(time_vec)){
-      # first column is observed recruitment
-      preds[j, 1] <- recruits[time_vec[j]]
+    preds <- matrix(NA, nrow = length(time_vec), ncol = (nsims+1))
+    # first column is observed recruitment
+    preds[,1] <- recruits[time_vec]
+    
+    for(j in 2:(nsims+1)){
+      for(k in 1:length(time_vec)){
+        preds[k, j] <- switch(
+          fmethod,
+          "m" = rec_mean(time_vec[k], recruits),
+          "ar" = rec_AR(time_vec[k], recruits),
+          "bh" = rec_BH(time_vec[k], recruits, sbiomass))
+      }
       
-      # columns for each of the forecasting methods
-      preds[j, 2] <- rec_mean(time_vec[j], recruits)
-      preds[j, 3] <- rec_AR(time_vec[j], recruits)
-      preds[j, 4] <- rec_BH(time_vec[j], recruits, sbiomass)
     }
     
     sim_preds[,,i] <- preds
@@ -107,8 +115,25 @@ expanding_window <- function(nsims, time_vec, recruits, sbiomass){
 }
 
 # Predictions -------------------------------------------------------------
+sims1 <- expanding_window(fmethods = c("m", "ar", "bh"), 100, time_vec, rec_ts, spawn_ts)
+
+m_preds <- sims1[,,1]
+ar_preds <- sims1[,,2]
+bh_preds <- sims1[,,3]
 
 
+# Performance Stat Functions ----------------------------------------------
+sim_mae <- function(sim_results){
+  mae_df <- rep(NA, (dim(sim_results)[2]) - 1)
+  for(i in 1:(dim(sim_results)[2] - 1)){
+    mae_df[i] <- mean(abs(sim_results[,(i+1)] - sim_results[,1]))
+  }
+  
+  hist(mae_df)
+  mae_quants <- quantile(mae_df, probs = c(0.025, 0.975))
+  return(mae_quants)
+  
+}
 
 
 
