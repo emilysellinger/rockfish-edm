@@ -135,6 +135,28 @@ sim_mae <- function(sim_results){
   
 }
 
+# NOT WORKING YET
+sim_CI_prob <- function(sim_results, ci){
+  # initialize counter
+  ci_prob <- 0
+  
+  # calculate values for quantile function
+  ci1 <- ci - (1 - ci)/2
+  ci2 <- ci + (1 - ci)/2
+  
+  for(i in 1:dim(sim_results)[1]){
+    sim_quants <- quantile(sim_results[i,2:dim(sim_results)[2]], probs = c(ci1, ci2))
+    
+    # add 1 to counter if the observed recruitment at year t is within the specified quantile
+    # across simulation results for year t
+    if(sim_results[i, 1] >= sim_quants[1] && sim_results[i, 1] <= sim_quants[2]){
+      ci_prob <- ci_prob + 1
+    }
+  }
+  
+  prob <- ci_prob/dim(sim_results)[1]
+  return(prob)
+}
 
 
 
