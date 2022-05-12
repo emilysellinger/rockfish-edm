@@ -135,23 +135,21 @@ sim_mae <- function(sim_results){
   
 }
 
-# NOT WORKING YET
 sim_CI_prob <- function(sim_results, ci){
   # initialize counter
   ci_prob <- 0
   
   # calculate values for quantile function
-  ci1 <- ci - (1 - ci)/2
+  ci1 <- (1 - ci)/2
   ci2 <- ci + (1 - ci)/2
   
   for(i in 1:dim(sim_results)[1]){
     sim_quants <- quantile(sim_results[i,2:dim(sim_results)[2]], probs = c(ci1, ci2))
-    
     # add 1 to counter if the observed recruitment at year t is within the specified quantile
     # across simulation results for year t
-    if(sim_results[i, 1] >= sim_quants[1] && sim_results[i, 1] <= sim_quants[2]){
-      ci_prob <- ci_prob + 1
-    }
+     if(sim_results[i, 1] >= sim_quants[1] && sim_results[i, 1] <= sim_quants[2]){
+       ci_prob <- ci_prob + 1
+     }
   }
   
   prob <- ci_prob/dim(sim_results)[1]
@@ -159,7 +157,18 @@ sim_CI_prob <- function(sim_results, ci){
 }
 
 
+# want to get quantiles for bh
+bh_quants <- matrix(NA, nrow = 11, ncol = 3)
+for(i in 1:dim(bh_preds)[1]){
+  sim_quants <- quantile(bh_preds[i,2:dim(bh_preds)[2]], probs = c(0.25, 0.75))
+  
+  bh_quants[i, 1] <- bh_preds[i,1]
+  bh_quants[i, 2] <- unname(sim_quants[1])
+  bh_quants[i, 3] <- unname(sim_quants[2])
+}
 
-
-
+bh_quants <- as.data.frame(bh_quants)
+ggplot(data = bh_quants) + geom_point(aes(x = seq(1, 11, 1), y = V1)) +
+  geom_line(aes(x = seq(1, 11, 1), y = V2), color = "blue") +
+  geom_line(aes(x = seq(1, 11, 1), y = V3), color = "blue")
 
