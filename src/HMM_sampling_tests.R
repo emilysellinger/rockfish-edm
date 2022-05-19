@@ -30,7 +30,7 @@ run.mc.sim <- function( P, num.iters = 50 ){
 }
   
 
-P <- t(matrix(c(0.9, 0.1, 0.15, 0.85), nrow = 2, ncol = 2))
+P <- t(matrix(c(0.85, 0.15, 0.2, 0.8), nrow = 2, ncol = 2))
 states <- run.mc.sim(P, num.iters = 50)
 plot(states)
 
@@ -42,16 +42,16 @@ rec_ts <- rep(NA, length(states))
 # fill in based on state
 for(i in 1:length(states)){
   if(states[i] == 1){
-    spawn_ts[i] <- runif(1, 1000, 5000)
-    rec_ts[i] <- (1.1*spawn_ts[i]/(1 + 0.002*spawn_ts[i]))
+    spawn_ts[i] <- runif(1, 10, 500)
+    rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
   }else{
-    spawn_ts[i] <- runif(1, 1000, 5000)
-    rec_ts[i] <- (0.9*spawn_ts[i]/(1 + 0.002*spawn_ts[i]))
+    spawn_ts[i] <- runif(1, 10, 500)
+    rec_ts[i] <- 2*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
   }
 }
 
 # plot
-a <- tibble(state = states, rec = rec_ts, spawn = spawn_ts)
+a <- tibble(state = states, rec = rec_ts, spawn = spawn_ts, logRS = log(rec_ts/spawn_ts))
 
 ggplot(a) + geom_point(aes(x = seq(1,50), y = rec, color = as.factor(state)), size = 3) + 
   geom_line(aes(x= seq(1,50), y = rec)) + 
@@ -64,13 +64,15 @@ ggplot(a) + geom_point(aes(x = seq(1,50), y = spawn, color = as.factor(state)), 
   labs(y = "spawning biomass", x = "year") +
   scale_color_discrete(name = "state")
 
-ggplot(a) + geom_point(aes(x = spawn, y = rec, color = as.factor(state)), size = 3) +
+ggplot(a) + geom_point(aes(x = spawn, y = logRS, color = as.factor(state)), size = 3) +
   labs(x = "spawning biomass", y = "recruitment") +
   scale_color_discrete(name = "state")
 
 
+
+
 # fit HMM
-mod <- depmix(rec ~ 1, data = a, nstates = 2, family = gaussian())
+mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
 fit_mod <- fit(mod)
 summary(fit_mod)
 fit_post <- posterior(fit_mod)
