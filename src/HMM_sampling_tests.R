@@ -30,7 +30,7 @@ run.mc.sim <- function( P, num.iters = 50 ){
 }
   
 
-P <- t(matrix(c(0.85, 0.15, 0.2, 0.8), nrow = 2, ncol = 2))
+P <- t(matrix(c(0.8, 0.2, 0.15, 0.85), nrow = 2, ncol = 2))
 states <- run.mc.sim(P, num.iters = 50)
 plot(states)
 
@@ -46,7 +46,7 @@ for(i in 1:length(states)){
     rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
   }else{
     spawn_ts[i] <- runif(1, 10, 500)
-    rec_ts[i] <- 2*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
+    rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
   }
 }
 
@@ -82,3 +82,7 @@ df <- tibble(state = states,
 
 ggplot(data = df) + geom_point(aes(x = seq(1,50), y = state), col = "red") +
   geom_point(aes(x = seq(1,50), y = est_state), col = "blue", alpha = 0.3)
+
+# Note: seems that some of the initial problems with label switching were because
+# the parameters for the two regimes were too similar, changing the b value improved
+# model fitting.
