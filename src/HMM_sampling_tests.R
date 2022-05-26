@@ -39,17 +39,21 @@ plot(states)
 spawn_ts <- rep(NA, length(states))
 rec_ts <- rep(NA, length(states))
 
+# will fill out initial spawning biomass
+spawn_ts[1] <- runif(1, 10, 500)
+
 # fill in based on state
 for(i in 1:length(states)){
   if(states[i] == 1){
-    spawn_ts[i] <- runif(1, 10, 500)
     rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
+    spawn_ts[i+1] <- -(lambertW0(-0.002*rec_ts[i]/5))/0.002
   }else{
-    spawn_ts[i] <- runif(1, 10, 500)
     rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
+    spawn_ts[i+1] <- -(lambertW0(-0.004*rec_ts[i]/5))/0.004
   }
 }
 
+spawn_ts <- spawn_ts[-51]
 # plot
 a <- tibble(state = states, rec = rec_ts, spawn = spawn_ts, logRS = log(rec_ts/spawn_ts))
 
