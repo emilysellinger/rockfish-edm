@@ -135,6 +135,8 @@ sim_mae <- function(sim_results){
   
 }
 
+
+# probably not the best way to do this
 sim_CI_prob <- function(sim_results, ci){
   # initialize counter
   ci_prob <- 0
