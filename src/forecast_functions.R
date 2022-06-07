@@ -115,7 +115,7 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
 }
 
 # Predictions -------------------------------------------------------------
-sims1 <- expanding_window(fmethods = c("m", "ar", "bh"), 100, time_vec, rec_ts, spawn_ts)
+sims1 <- expanding_window(fmethods = c("m"), 100, time_vec, rec_ts, spawn_ts)#"ar", "bh"), 100, time_vec, rec_ts, spawn_ts)
 
 m_preds <- sims1[,,1]
 ar_preds <- sims1[,,2]
@@ -136,7 +136,7 @@ sim_mae <- function(sim_results){
 }
 
 
-# probably not the best way to do this
+# Actually fine, called bayesian coverage probability - should double check
 sim_CI_prob <- function(sim_results, ci){
   # initialize counter
   ci_prob <- 0
@@ -157,6 +157,29 @@ sim_CI_prob <- function(sim_results, ci){
   prob <- ci_prob/dim(sim_results)[1]
   return(prob)
 }
+
+sim_mare <- function(sim_results, df, time_vec){
+  # data frame for mare stats
+  mare_df <- rep(NA, dim(sim_results)[1])
+  
+  for(i in 1:length(time_vec)){
+    # subset to training data
+    dat <- df[1:(time_vec[i]-1)]
+    train_n <- (time_vec[i] - 1)
+    # calculate denominator
+    denom <- sum(abs(diff(dat)))/(train_n - 1)
+    
+    # calculate numerator vector
+    num_vec <- abs(sim_results[i, 2:dim(sim_results)[2]] - sim_results[i, 1])
+    
+    # calculate value
+    mare_df[i] <- mean(num_vec/denom)
+  }
+  return(mare_df)
+}
+
+# going to test
+mare_results <- sim_mare(m_preds, rec_ts, time_vec)
 
 
 # want to get quantiles for bh
