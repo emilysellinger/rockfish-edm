@@ -2,13 +2,14 @@
 library(depmixS4)
 library(Rlab)
 library(tidyverse)
+library(lamW)
 
 # simulate data
 # I'm going to simulate data 2 different ways, the first will just be a recruitment
 # time series using normal - got simulation function from 
 
 # simulate discrete Markov chains according to transition matrix P
-run.mc.sim <- function( P, num.iters = 50 ){
+run.mc.sim <- function(P, num.iters = 50){
   
   # number of possible states
   num.states <- nrow(P)
@@ -151,3 +152,37 @@ df <- tibble(state = states,
 
 ggplot(data = df) + geom_point(aes(x = seq(1,50), y = state), col = "red") +
   geom_point(aes(x = seq(1,50), y = est_state), col = "blue", alpha = 0.3)
+
+
+
+# Second try --------------------------------------------------------------
+mc.sr.sim <- function(transition_p, num_sims){
+  rec_ts <- rep(NA, num_sims)
+  spawn_ts <- rep(NA, num_sims)
+  states <- rep(NA, num_sims)
+  
+  # initialize state and spawning biomass at t = 1
+  states[1] <- 0
+  spawn_ts[1] <- runif(1, 100, 500)
+  
+  for(i in 1:num_sims){
+    if(states[i] == 0){
+      # calculate recruitment and following year spawning biomass
+      rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
+      spawn_ts[i+1] <- log(5*spawn_ts[i]/rec_ts[i])/-0.002
+    
+      # calculate state for next year
+      states[i+1] <- rbern(1, transition_p[1])
+    }else{
+      # calculate recruitment and following year spawning biomass
+      rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
+      spawn_ts[i+1] <- log(2*spawn_ts[i]/rec_ts[i])/-0.004
+      # calculate state for following year
+      states[i+1] <- rbern(1, transition_p[2])
+      }
+  }
+  return(list(states, spawn_ts[-num_sims+1], rec_ts))
+  
+}
+
+dat <- mc.sr.sim(c(0.8, 0.85), num_sims = 50)
