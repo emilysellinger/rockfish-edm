@@ -50,7 +50,7 @@ for(i in 1:length(states)){
     spawn_ts[i+1] <- -(lambertW0(-0.002*rec_ts[i]/5))/0.002
   }else{
     rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
-    spawn_ts[i+1] <- -(lambertW0(-0.004*rec_ts[i]/5))/0.004
+    spawn_ts[i+1] <- -(lambertW0(-0.004*rec_ts[i]/2))/0.004
   }
 }
 
@@ -111,10 +111,10 @@ for(i in 1:length(states)){
   if(states[i] == 1){
     spawn_ts2[i] <- runif(1, 100, 500)
     # each state has the same functional form, but different spawning biomass levels
-    rec_ts2[i] <- 2*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
+    rec_ts2[i] <- 2*spawn_ts2[i]*exp(-0.002*spawn_ts2[i])*exp(rnorm(1,0,0.2))
   }else{
-    spawn_ts2[i] <- runif(1, 10, 100)
-    rec_ts2[i] <- 2*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
+    spawn_ts2[i] <- runif(1, 10, 500)
+    rec_ts2[i] <- 2*spawn_ts2[i]*exp(-0.002*spawn_ts2[i])*exp(rnorm(1,0,0.2))
   }
 }
 
@@ -155,34 +155,3 @@ ggplot(data = df) + geom_point(aes(x = seq(1,50), y = state), col = "red") +
 
 
 
-# Second try --------------------------------------------------------------
-mc.sr.sim <- function(transition_p, num_sims){
-  rec_ts <- rep(NA, num_sims)
-  spawn_ts <- rep(NA, num_sims)
-  states <- rep(NA, num_sims)
-  
-  # initialize state and spawning biomass at t = 1
-  states[1] <- 0
-  spawn_ts[1] <- runif(1, 100, 500)
-  
-  for(i in 1:num_sims){
-    if(states[i] == 0){
-      # calculate recruitment and following year spawning biomass
-      rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
-      spawn_ts[i+1] <- log(5*spawn_ts[i]/rec_ts[i])/-0.002
-    
-      # calculate state for next year
-      states[i+1] <- rbern(1, transition_p[1])
-    }else{
-      # calculate recruitment and following year spawning biomass
-      rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
-      spawn_ts[i+1] <- log(2*spawn_ts[i]/rec_ts[i])/-0.004
-      # calculate state for following year
-      states[i+1] <- rbern(1, transition_p[2])
-      }
-  }
-  return(list(states, spawn_ts[-num_sims+1], rec_ts))
-  
-}
-
-dat <- mc.sr.sim(c(0.8, 0.85), num_sims = 50)
