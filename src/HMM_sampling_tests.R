@@ -32,8 +32,8 @@ run.mc.sim <- function(P, num.iters = 50){
 }
   
 
-P <- t(matrix(c(0.9, 0.1, 0.15, 0.85), nrow = 2, ncol = 2))
-states <- run.mc.sim(P, num.iters = 70)
+P <- t(matrix(c(0.95, 0.05, 0.1, 0.9), nrow = 2, ncol = 2))
+states <- run.mc.sim(P, num.iters = 500)
 plot(states)
 
 #rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
@@ -41,17 +41,17 @@ plot(states)
 # Age Matrix
 # I adapted this code from Trevor's 458 class
 nages <- 10      #number of ages in the model
-nyears <- 70    #number of years in the model
+nyears <- 500    #number of years in the model
 
 Nat <- matrix(nrow=nyears, ncol=nages)
 # egg production each year
 Et <- vector(length = nyears)
 
 # alpha and beta parameters for S-R function
-alpha1 <- 10
-beta1 <- 0.02
-alpha2 <- 5
-beta2 <- 0.01
+alpha1 <- 5
+beta1 <- 0.001
+alpha2 <- 3
+beta2 <- 0.0004
 
 # survival by age
 sa <- c(0.7,0.85,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9)
@@ -64,7 +64,7 @@ ut <- c(0, rep(x=0.1, times=nyears-1))
 
 # Age projection
 #initial recruitment
-Nat[1,1] <- 100
+Nat[1,1] <- 4000
 
 #initial numbers at ages 2 to n-1
 for (a in 1:(nages-2)) {
@@ -115,21 +115,21 @@ for (yr in 1:nyears) {
 recs <- Nat[,1]
 
 plot(Btot, recs)
-plot(seq(1,70), Btot, type = "l")
-plot(seq(1,70), recs, type = "l")
+plot(seq(201,500), Btot[-c(1:200)], type = "l")
+plot(seq(1, 500), recs, type = "l")
 
 
 # plot
 a <- tibble(state = states, rec = recs, spawn = Btot, logRS = log(recs/Btot))
 
-ggplot(a) + geom_point(aes(x = seq(1,70), y = rec, color = as.factor(state)), size = 3) + 
-  geom_line(aes(x= seq(1,70), y = rec)) + 
+ggplot(a) + geom_point(aes(x = seq(1,500), y = rec, color = as.factor(state)), size = 3) + 
+  geom_line(aes(x= seq(1,500), y = rec)) + 
   labs(y = "recruitment", x = "year") +
   scale_color_discrete(name = "state")
 
 
-ggplot(a) + geom_point(aes(x = seq(1,70), y = spawn, color = as.factor(state)), size = 3) + 
-  geom_line(aes(x= seq(1,70), y = spawn)) + 
+ggplot(a) + geom_point(aes(x = seq(1,500), y = spawn, color = as.factor(state)), size = 3) + 
+  geom_line(aes(x= seq(1,500), y = spawn)) + 
   labs(y = "spawning biomass", x = "year") +
   scale_color_discrete(name = "state")
 
@@ -137,25 +137,25 @@ ggplot(a) + geom_point(aes(x = spawn, y = rec, color = as.factor(state)), size =
   labs(x = "spawning biomass", y = "recruitment") +
   scale_color_discrete(name = "state")
 
-ggplot(a) + geom_point(aes(x = spawn, y = logRS, color = as.factor(state)), size = 3) +
+ggplot(a_short) + geom_point(aes(x = spawn, y = logRS, color = as.factor(state)), size = 3) +
   labs(x = "spawning biomass", y = "log recruitment") +
   scale_color_discrete(name = "state")
 
 
-a_short <- a[-c(1:20),]
+a_short <- a[-c(1:200),]
 
 
 # fit HMM
-mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
+mod <- depmix(logRS ~ spawn, data = a_short, nstates = 2, family = gaussian())
 fit_mod <- fit(mod)
 summary(fit_mod)
 fit_post <- posterior(fit_mod)
 
-df <- tibble(state = states[-c(1:20)],
+df <- tibble(state = states[-c(1:200)],
              est_state = fit_post$state)
 
-ggplot(data = df) + geom_point(aes(x = seq(1,50), y = state), col = "red") +
-  geom_point(aes(x = seq(1,50), y = est_state), col = "blue", alpha = 0.3)
+ggplot(data = df) + geom_point(aes(x = seq(1,300), y = state), col = "red") +
+  geom_point(aes(x = seq(1,300), y = est_state), col = "blue", alpha = 0.3)
 
 # Note: I seem to have the age-structured model working, however, I am
 # having a hard time recovering the correct parameters using the depmix model
