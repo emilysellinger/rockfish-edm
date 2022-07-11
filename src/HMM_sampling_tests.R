@@ -36,8 +36,7 @@ P <- t(matrix(c(0.95, 0.05, 0.1, 0.9), nrow = 2, ncol = 2))
 states <- run.mc.sim(P, num.iters = 500)
 plot(states)
 
-#rec_ts[i] <- 5*spawn_ts[i]*exp(-0.002*spawn_ts[i])*exp(rnorm(1,0,0.2))
-#rec_ts[i] <- 2*spawn_ts[i]*exp(-0.004*spawn_ts[i])*exp(rnorm(1,0,0.2))
+
 # Age Matrix
 # I adapted this code from Trevor's 458 class
 nages <- 10      #number of ages in the model
@@ -48,7 +47,7 @@ Nat <- matrix(nrow=nyears, ncol=nages)
 Et <- vector(length = nyears)
 
 # alpha and beta parameters for S-R function
-alpha1 <- 5
+alpha1 <- 6.8
 beta1 <- 0.001
 alpha2 <- 3
 beta2 <- 0.0004
@@ -64,7 +63,7 @@ ut <- c(0, rep(x=0.1, times=nyears-1))
 
 # Age projection
 #initial recruitment
-Nat[1,1] <- 4000
+Nat[1,1] <- 400
 
 #initial numbers at ages 2 to n-1
 for (a in 1:(nages-2)) {
@@ -102,13 +101,13 @@ for (yr in 1:(nyears-1)) {
 }
 
 
-# Calculate Spawning Biomass
+# Calculate biomass
 # weight at age 
-weighta <- c(3.2,4.4,5.6,7.2,8.8,10,11.2,12)
+weighta <- c(0.16,1.6,3.2,4.4,5.6,7.2,8.8,10,11.2,12)
 Btot <- vector(length=nyears)
 
 for (yr in 1:nyears) {  
-  Btot[yr] <- sum(Nat[yr,3:nages] * weighta)
+  Btot[yr] <- sum(Nat[yr,] * weighta)
 }
 
 # Plot spawning biomass by recruits
@@ -137,7 +136,7 @@ ggplot(a) + geom_point(aes(x = spawn, y = rec, color = as.factor(state)), size =
   labs(x = "spawning biomass", y = "recruitment") +
   scale_color_discrete(name = "state")
 
-ggplot(a_short) + geom_point(aes(x = spawn, y = logRS, color = as.factor(state)), size = 3) +
+ggplot(a) + geom_point(aes(x = spawn, y = logRS, color = as.factor(state)), size = 3) +
   labs(x = "spawning biomass", y = "log recruitment") +
   scale_color_discrete(name = "state")
 
@@ -157,8 +156,12 @@ df <- tibble(state = states[-c(1:200)],
 ggplot(data = df) + geom_point(aes(x = seq(1,300), y = state), col = "red") +
   geom_point(aes(x = seq(1,300), y = est_state), col = "blue", alpha = 0.3)
 
-# Note: I seem to have the age-structured model working, however, I am
-# having a hard time recovering the correct parameters using the depmix model
-# I will work on this more later
+# Seems to do a reasonable job at recovering parameters, so I'm going to start working on a sampling method
+library(cluster)
 
+sbclus <- kmeans(Btot, centers = 2)
+#clusplot(Btot, sbclus$cluster, color = T, shade = T, labels = 2, lines = 0)
 
+plot(sbclus$cluster, Btot)
+
+recclus <- kmeans(recs, centers = 2)
