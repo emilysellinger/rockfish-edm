@@ -1,9 +1,10 @@
-# practice with HMMs
+# forecast sampling procedure development
 
 # Load packages -----------------------------------------------------------
 library(depmixS4)
 library(Rlab)
 library(tidyverse)
+library(truncnorm)
 
 # Simulate data -----------------------------------------------------------
 # to simulate the data I will use a function to determine the state 
@@ -33,14 +34,14 @@ run.mc.sim <- function(P, num.iters = 50){
   
 
 P <- t(matrix(c(0.95, 0.05, 0.1, 0.9), nrow = 2, ncol = 2))
-states <- run.mc.sim(P, num.iters = 500)
+states <- run.mc.sim(P, num.iters = 50)
 plot(states)
 
 
 # Age Matrix
 # I adapted this code from Trevor's 458 class
 nages <- 10      #number of ages in the model
-nyears <- 500    #number of years in the model
+nyears <- 50    #number of years in the model
 
 Nat <- matrix(nrow=nyears, ncol=nages)
 # egg production each year
@@ -58,12 +59,12 @@ sa <- c(0.7,0.85,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9)
 va <- c(0.0,0.2, 0.5,0.8,1.0,1.0,1.0,1.0,1.0,1.0)
 # fecundity by age
 feca <- c(0,0,0.1,0.5,0.9,1,1,1,1,1)
-# exploitation rate by year, first year is 0 (unfished)
-ut <- c(0, rep(x=0.1, times=nyears-1))
+# exploitation rate by year
+ut <- c(rep(x=0.1, times=nyears))
 
 # Age projection
 #initial recruitment
-Nat[1,1] <- 40
+Nat[1,1] <- 1500
 
 #initial numbers at ages 2 to n-1
 for (a in 1:(nages-2)) {
@@ -146,14 +147,17 @@ summary(fit_mod)
 fit_post <- posterior(fit_mod)
 
 df <- tibble(state = states,
-             est_state = fit_post$state)
+             est_state = fit_post$state,
+             year = seq(1, nyears))
 
+df2 <- df %>% pivot_longer(cols = !(year), names_to = c("generation"), values_to = "state")
 # this code is if the labels appear switched
 # df <- df %>% 
 #   mutate(state = ifelse(state == 2, 1, 2))
+df2 <- df2 %>% 
+  mutate(generation = ifelse(generation == "state", "actual", "predicted"))
 
-ggplot(data = df) + geom_point(aes(x = seq(1,nrow(df)), y = state), col = "red") +
-  geom_point(aes(x = seq(1,nrow(df)), y = est_state), col = "blue", alpha = 0.3)
+ggplot(data = df2) + geom_point(aes(x = year, y = state, color = generation)) + theme(legend.title = element_blank())
 
 # Seems to do a reasonable job at recovering parameters, so I'm going to start working on a sampling method
 a <- a %>% 
@@ -162,23 +166,18 @@ a <- a %>%
 ggplot(a) + geom_histogram(aes(x = spawn, fill = as.factor(state)), binwidth = 1000)
 ggplot(a) + geom_histogram(aes(x = rec, fill = as.factor(state)), binwidth = 100)
 
-ggplot(a) + geom_point(aes(x = state, y = rec, color = as.factor(est_state)))
+ggplot(a) + geom_density(aes(x = rec, fill = as.factor(est_state)), alpha = 0.8) +
+  labs(x = "recruitment", fill = "predicted state")
 ggplot(a) + geom_point(aes(x = state, y = spawn, color = as.factor(est_state)))
 
 
-# so I think the first thing to do is figure out a distribution to sample from
-library(fitdistrplus)
+
+# Sampling Procedure ------------------------------------------------------
 est_state_1 <- a %>% 
   filter(est_state == 1)
 
 est_state_2 <- a %>% 
   filter(est_state == 2)
-
-
-# the normal distribution seems to be the best for both recruitment regimes and for spawning biomass 
-# regime 2
-
-# will think how to sample
 # first step - determine the estimated state at the last time step
 final_state <- pull(a[nrow(a), "est_state"])
 
@@ -207,12 +206,8 @@ run.pred.mc.sim <- function(P, num.iters = 50){
   return(states)
 }
 
-future_states <- run.pred.mc.sim(est_P, num.iters = 500)
+future_states <- run.pred.mc.sim(est_P, num.iters = 50)
 
-hist(log(est_state_1$rec))
-hist(log(est_state_2$rec))
-
-library(truncnorm)
 pred.rec <- function(future_states, mu1, mu2, sd1, sd2){
   preds <- rep(NA, length(future_states))
   
@@ -231,5 +226,12 @@ pred.rec <- function(future_states, mu1, mu2, sd1, sd2){
 rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
                       sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
 
-recs_new_ts <- c(a$rec, rec_preds)
-plot(recs_new_ts, type = "l")
+rec_pred_df <- tibble(year = seq(1, 100),
+                      recruitment = c(a$rec, rec_preds),
+                      state = c(a$state, future_states),
+                      yr_type = c(rep("simulated", 50), rep("forecasted", 50)))
+
+ggplot(rec_pred_df, aes(x = year, y = recruitment)) +
+  geom_line() +
+  geom_point(aes(color = as.factor(state), shape = yr_type), size = 3) +
+  labs(shape = "data generation", color = "state")
