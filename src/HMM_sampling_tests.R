@@ -167,44 +167,13 @@ ggplot(a) + geom_point(aes(x = state, y = spawn, color = as.factor(est_state)))
 
 
 # so I think the first thing to do is figure out a distribution to sample from
-sb_est1 <- a %>% 
+library(fitdistrplus)
+est_state_1 <- a %>% 
   filter(est_state == 1)
-plotdist(sb_est1$spawn)
 
-fit1 <- fitdist(sb_est1$spawn, "norm")
-fit2 <- fitdist(sb_est1$spawn, "lnorm") # better
-denscomp(list(fit1, fit2))
-qqcomp(list(fit1, fit2))
-cdfcomp(list(fit1, fit2))
-ppcomp(list(fit1, fit2))
-
-
-
-plotdist(sb_est1$rec)
-fit3 <- fitdist(sb_est1$rec, "norm") # better
-fit4 <- fitdist(sb_est1$rec, "lnorm")
-
-denscomp(list(fit3, fit4))
-
-st_est2 <- a %>% 
+est_state_2 <- a %>% 
   filter(est_state == 2)
-plotdist(st_est2$spawn)
-plotdist(st_est2$rec)
 
-st2fit1 <- fitdist(st_est2$spawn, "norm")
-st2fit2 <- fitdist(st_est2$spawn, "lnorm")
-denscomp(list(st2fit1, st2fit2))
-qqcomp(list(st2fit1, st2fit2))
-cdfcomp(list(st2fit1, st2fit2))
-ppcomp(list(st2fit1, st2fit2))
-
-
-st2fit3 <- fitdist(st_est2$rec, "norm")
-st2fit4 <- fitdist(st_est2$rec, "lnorm")
-denscomp(list(st2fit3, st2fit4))
-qqcomp(list(st2fit3, st2fit4))
-cdfcomp(list(st2fit3, st2fit4))
-ppcomp(list(st2fit3, st2fit4))
 
 # the normal distribution seems to be the best for both recruitment regimes and for spawning biomass 
 # regime 2
@@ -238,37 +207,29 @@ run.pred.mc.sim <- function(P, num.iters = 50){
   return(states)
 }
 
-future_states <- run.pred.mc.sim(est_P, num.iters = 5)
+future_states <- run.pred.mc.sim(est_P, num.iters = 500)
 
-# Fill in remaining years
-for (yr in 1:(nyears-1)) {
-  #recruits
-  if(states[yr+1] == 1){
-    Nat[yr+1,1] <- alpha1*Et[yr]*exp(-beta1*Et[yr])*exp(rnorm(1,0,0.2))
-  }else{
-    Nat[yr+1,1] <- alpha2*Et[yr]*exp(-beta2*Et[yr])*exp(rnorm(1,0,0.2))
+hist(log(est_state_1$rec))
+hist(log(est_state_2$rec))
+
+library(truncnorm)
+pred.rec <- function(future_states, mu1, mu2, sd1, sd2){
+  preds <- rep(NA, length(future_states))
+  
+  for(i in 1:length(future_states)){
+    if(future_states[i] == 1){
+      preds[i] <- rtruncnorm(1, a = 10, b= Inf, mu1, sd1)
+    }else{
+      preds[i] <- rtruncnorm(1, a = 10, b = Inf, mu2, sd2)
+    }
   }
   
-  
-  #numbers at other age groups except plus group
-  for (a in 1:(nages-2)) {
-    Nat[yr+1,a+1] <- (1-va[a]*ut[yr])*sa[a]*Nat[yr,a]
-  }
-  
-  #numbers in plus group
-  Nat[yr+1,nages] <- (1-va[nages]*ut[yr])*sa[nages]*
-    (Nat[yr,nages]+Nat[yr,nages-1])
-  
-  #egg production
-  Et[yr+1] <- sum(feca*Nat[yr+1,])
+  return(preds)
 }
 
 
-# Calculate biomass
-# weight at age 
-weighta <- c(0.16,1.6,3.2,4.4,5.6,7.2,8.8,10,11.2,12)
-Btot <- vector(length=nyears)
+rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
+                      sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
 
-for (yr in 1:nyears) {  
-  Btot[yr] <- sum(Nat[yr,] * weighta)
-}
+recs_new_ts <- c(a$rec, rec_preds)
+plot(recs_new_ts, type = "l")
