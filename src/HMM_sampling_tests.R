@@ -5,6 +5,7 @@ library(depmixS4)
 library(Rlab)
 library(tidyverse)
 library(truncnorm)
+library(gridExtra)
 
 # Simulate data -----------------------------------------------------------
 # to simulate the data I will use a function to determine the state 
@@ -50,8 +51,8 @@ Et <- vector(length = nyears)
 # alpha and beta parameters for S-R function
 alpha1 <- 6.8
 beta1 <- 0.001
-alpha2 <- 3
-beta2 <- 0.0004
+alpha2 <- 6.8
+beta2 <- 0.001
 
 # survival by age
 sa <- c(0.7,0.85,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9)
@@ -61,6 +62,21 @@ va <- c(0.0,0.2, 0.5,0.8,1.0,1.0,1.0,1.0,1.0,1.0)
 feca <- c(0,0,0.1,0.5,0.9,1,1,1,1,1)
 # exploitation rate by year
 ut <- c(rep(x=0.1, times=nyears))
+
+# plot of parameters for Andre
+parameter_df <- tibble(age = seq(1, 10),
+                       survival = sa,
+                       vulnerability = va,
+                       fecundity = feca)
+
+figA <- ggplot(parameter_df) + geom_line(aes(x = age, y = survival)) + 
+  labs(subtitle = "(a)", x = "Age", y = "Survival")
+figB <- ggplot(parameter_df) + geom_line(aes(x = age, y = vulnerability)) + 
+  labs(subtitle = "(b)", x = "Age", y = "Vulnerability to fishery")
+figC <- ggplot(parameter_df) + geom_line(aes(x = age, y = fecundity)) + 
+  labs(subtitle = "(c)", x = "Age", y = "Fecundity")
+grid.arrange(figA, figB, figC, nrow = 3)
+
 
 # Age projection
 #initial recruitment
@@ -152,8 +168,8 @@ df <- tibble(state = states,
 
 df2 <- df %>% pivot_longer(cols = !(year), names_to = c("generation"), values_to = "state")
 # this code is if the labels appear switched
-# df <- df %>% 
-#   mutate(state = ifelse(state == 2, 1, 2))
+df2 <- df2 %>% 
+  mutate(state = ifelse(state == 2, 1, 2))
 df2 <- df2 %>% 
   mutate(generation = ifelse(generation == "state", "actual", "predicted"))
 

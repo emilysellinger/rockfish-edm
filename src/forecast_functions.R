@@ -74,6 +74,83 @@ rec_BH <- function(x, df1, df2){
   return(unname(one_ahead))
 }
 
+# functions for sampling method
+run.pred.mc.sim <- function(P, num.iters = 2){
+  
+  # number of possible states
+  num.states <- nrow(P)
+  # create vector for states
+  states <- rep(NA, num.iters)
+  
+  # initialize variable for first state 
+  states[1] <- final_state
+  
+  for(t in 2:num.iters) {
+    
+    # probability vector to simulate next state X_{t+1}
+    p  <- P[states[t-1], ]
+    
+    ## draw from multinomial and determine state
+    states[t] <-  which(rmultinom(1, 1, p) == 1)
+  }
+  return(states)
+}
+# sampling method recruitment forecast
+pred.rec <- function(future_states, mu1, mu2, sd1, sd2){
+  preds <- rep(NA, length(future_states))
+  
+  for(i in 1:length(future_states)){
+    if(future_states[i] == 1){
+      preds[i] <- rtruncnorm(1, a = 10, b= Inf, mu1, sd1)
+    }else{
+      preds[i] <- rtruncnorm(1, a = 10, b = Inf, mu2, sd2)
+    }
+  }
+  
+  return(preds)
+}
+
+rec_HMM_sample <- function(x, df1, df2){
+  # subset spawning and recruit data to window size
+  datr <- df1[1:(x-1)]
+  dats <- df2[1:(x-1)]
+  
+  # make a data frame for depmix package
+  a <- tibble(rec = datr,
+              spawn = dats,
+              logRS = log(datr/dats))
+  # fit hidden markov model
+  mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
+  fit_mod <- fit(mod)
+  #summary(fit_mod)
+  fit_post <- posterior(fit_mod)
+  
+  # update data frame with posterior state classification
+  a <- a %>% 
+    add_column(est_state = fit_post$state)
+  # Filter dataframe by state
+  est_state_1 <- a %>% 
+    filter(est_state == 1)
+  est_state_2 <- a %>% 
+    filter(est_state == 2)
+  
+  # Determine the estimated state at the last time step
+  final_state <- pull(a[nrow(a), "est_state"])
+  
+  # Extract estimated transition matrix
+  est_P <- t(matrix(getpars(fit_mod)[3:6], nrow = 2, ncol = 2))
+  
+  # predict states for forecast years
+  future_states <- run.pred.mc.sim(est_P, num.iters = 2)
+  
+  # forecast recruitment
+  rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
+                        sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
+  
+  # return forecasts
+  return(rec_preds)
+}
+
 
 # Projection Function -----------------------------------------------------
 # A function that passes in the data files and calculates 1-step forecasts for an 
@@ -103,7 +180,8 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
           fmethod,
           "m" = rec_mean(time_vec[k], recruits),
           "ar" = rec_AR(time_vec[k], recruits),
-          "bh" = rec_BH(time_vec[k], recruits, sbiomass))
+          "bh" = rec_BH(time_vec[k], recruits, sbiomass),
+          "hmm" = )
       }
       
     }
