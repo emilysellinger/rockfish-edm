@@ -1,5 +1,7 @@
 library(tidyverse)
 library(here)
+library(NatParksPalettes)
+
 
 # load data ---------------------------------------------------------------
 
@@ -76,12 +78,58 @@ dev.off()
 
 
 # filter model run in time ------------------------------------------------
-# for the EDM, going to need to remove model run in time, as well as the forecasting period for each
-# species
-# will likely prioritize the species with the longest time series for analysis
-
-years <- tibble(stock_names = snames,
+west_coast_years <- tibble(stock_names = snames,
                 min_yr = c(1963, 1963, 1963, 1960, 1962, 1980, 1975, 1960, 1966, 1975, 1975, 1980, 1960, 1970,
                            1950, 1960, 1975, 1965, 1960),
                 max_yr = c(2012, 2014, 2014, 2015, 2018, 2018, 2018, 2014, 2014, 2016, 2020, 2014, 2020, 2020,
                            2018, 2020, 2008, 2018, 2016))
+
+filter_sr_data <- function(df){
+  stock_name <- pull(df[1, "stock_name"])
+  row_num <- which(west_coast_years[, "stock_names"] == stock_name)
+  
+  min_year <- pull(west_coast_years[row_num, "min_yr"])
+  max_year <- pull(west_coast_years[row_num, "max_yr"])
+  
+  df <- df %>% 
+    filter(Yr >= min_year) %>% 
+    filter(Yr <= max_year)
+  
+  return(df)
+}
+
+
+
+# Time Series Characteristics -------------------------------------------------------------------------
+ts_range <- west_coast_years[,"max_yr"] - west_coast_years[,"min_yr"]
+quantile(ts_range[,"max_yr"], probs = c(0.25, 0.5, 0.75))
+
+west_coast_ts_characteristics <- tibble(stock_name = snames,
+                    depletion = rep(NA, length(snames)),
+                    autocorrS = rep(NA, length(snames)),
+                    autocorrR = rep(NA, length(snames)),
+                    num_yrs = ts_range[,"max_yr"])
+
+for(i in snames){
+  row1 <- which(depletion[, "stock_name"] == i)
+  stock <- stocks %>% 
+    filter(stock_name == i)
+  
+  stock <- filter_sr_data(stock)
+  
+  quants <- stock %>% 
+    group_by(Area) %>% 
+    summarise(dep = quantile(SpawnBio, probs = 0.05)/quantile(SpawnBio, probs = 0.95),
+              acS = pacf(SpawnBio, plot = F)$acf[1],
+              acR = pacf(Recruit_0, plot = F)$acf[1])
+  
+  dep <- mean(quants$dep)
+  acS <- mean(quants$acS)
+  acR <- mean(quants$acR)
+  
+  west_coast_ts_characteristics[row1, "depletion"] <- dep
+  west_coast_ts_characteristics[row1, "autocorrS"] <- acS
+  west_coast_ts_characteristics[row1, "autocorrR"] <- acR
+}
+
+write_csv(west_coast_ts_characteristics, here("data", "west_coast_stock_characteristics.csv"))
