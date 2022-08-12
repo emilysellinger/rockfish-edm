@@ -1,13 +1,12 @@
 library(stats4)
-library(tidyverse)
 library(forecast)
-spawn_ts <- seq(10, 5000, length.out = 50)
-rec_ts <- (1.1*spawn_ts/(1 + 0.002*spawn_ts))*exp(rnorm(length(spawn_ts), 0, 0.2))
+library(depmixS4)
+library(NatParksPalettes)
+library(here)
+library(tidyverse)
+library(dplyr)
+library(truncnorm)
 
-
-plot(spawn_ts, rec_ts)
-
-time_vec <- seq(40, 50, 1)
 # Forecast Method Functions ---------------------------------------------------------------
 # x = test set vector, df1 = recruitment time series, df2 = spawning biomass time series
 
@@ -75,7 +74,7 @@ rec_BH <- function(x, df1, df2){
 }
 
 # functions for sampling method
-run.pred.mc.sim <- function(P, num.iters = 2){
+run.pred.mc.sim <- function(P, num.iters = 2, final_state){
   
   # number of possible states
   num.states <- nrow(P)
@@ -141,14 +140,14 @@ rec_HMM_sample <- function(x, df1, df2){
   est_P <- t(matrix(getpars(fit_mod)[3:6], nrow = 2, ncol = 2))
   
   # predict states for forecast years
-  future_states <- run.pred.mc.sim(est_P, num.iters = 2)
+  future_states <- run.pred.mc.sim(est_P, num.iters = 2, final_state)
   
   # forecast recruitment
   rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
                         sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
   
   # return forecasts
-  return(rec_preds)
+  return(rec_preds[2])
 }
 
 
@@ -181,7 +180,7 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
           "m" = rec_mean(time_vec[k], recruits),
           "ar" = rec_AR(time_vec[k], recruits),
           "bh" = rec_BH(time_vec[k], recruits, sbiomass),
-          "hmm" = )
+          "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass))
       }
       
     }
@@ -236,6 +235,8 @@ sim_CI_prob <- function(sim_results, ci){
   return(prob)
 }
 
+
+# Mean absolute relative error - need to update draft
 sim_mare <- function(sim_results, df, time_vec){
   # data frame for mare stats
   mare_df <- rep(NA, dim(sim_results)[1])

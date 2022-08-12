@@ -35,7 +35,7 @@ snames <- c("aurora", "black_ca", "black_wa", "bocaccio", "cabezon_ncs", "cabezo
 remove_excess <- function(df){
   name <- deparse(substitute(df))
   df <- df %>% 
-    select(Area, Yr, Era, SpawnBio, Recruit_0) %>% 
+    dplyr::select(Area, Yr, Era, SpawnBio, Recruit_0) %>% 
     add_column(stock_name = name)
   return(df)
 }
