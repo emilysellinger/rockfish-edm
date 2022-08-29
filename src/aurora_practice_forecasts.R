@@ -26,3 +26,14 @@ m_preds_mare <- sim_mare(m_preds, rec_ts, time_vec)
 ar_preds_mare <- sim_mare(ar_preds, rec_ts, time_vec)
 bh_preds_mare <- sim_mare(bh_preds, rec_ts, time_vec)
 hmm_preds_mare <- sim_mare(hmm_preds, rec_ts, time_vec)
+
+
+# going to try to modify the simplex program
+lib1 <- c(1, 39)
+pred1 <- c(40, 50)
+
+simplex_output <- simplex(rec_ts, lib1, pred1)
+plot(simplex_output$E, simplex_output$rho, type = "l",
+     xlab = "Embedding Dimension (E)", ylab = "Forecast Skill (rho)")
+
+rho_vals <- unlist(simplex_output$rho)
