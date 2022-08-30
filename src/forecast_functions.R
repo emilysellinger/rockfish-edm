@@ -150,7 +150,30 @@ rec_HMM_sample <- function(x, df1, df2){
   return(rec_preds[2])
 }
 
-
+rec_simplex <- function(x, y, df1){
+  
+  sim_lib <- c(1, x-1)
+  sim_pred <- c(x-1, length(df1))
+  
+  # calculate standard deviation for subsetted data frame
+  dat <- df1[1:(x-1)]
+  sigmaR <- sd(log(dat))
+  
+  # determine optimal embedding dimension
+  simplex_output1 <- simplex(log(df1), sim_lib, sim_pred)
+  
+  rho_vals <- unlist(simplex_output$rho)
+  E_val <- unname(which.max(rho_vals))
+  
+  # forecast recruitment
+  simplex_output2 <- simplex(log(df1), sim_lib, sim_pred, E = E_val, stats_only = FALSE)
+  
+  preds <- na.omit(simplex_output2$model_output[[1]])
+  
+  # return forecast
+  pred <- exp(preds[(y - x + 1), 3] + rnorm(1, 0, sigmaR))
+  return(pred)
+}
 # Projection Function -----------------------------------------------------
 # A function that passes in the data files and calculates 1-step forecasts for an 
 # expanding window. For each simulation, the function returns a matrix of the observed 
@@ -180,7 +203,8 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
           "m" = rec_mean(time_vec[k], recruits),
           "ar" = rec_AR(time_vec[k], recruits),
           "bh" = rec_BH(time_vec[k], recruits, sbiomass),
-          "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass))
+          "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass),
+          "simplex" = rec_simplex(time_vec[1], time_vec[k], recruits))
       }
       
     }
@@ -191,12 +215,66 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   return(sim_preds)
 }
 
-# Predictions -------------------------------------------------------------
-sims1 <- expanding_window(fmethods = c("m"), 100, time_vec, rec_ts, spawn_ts)#"ar", "bh"), 100, time_vec, rec_ts, spawn_ts)
-
-m_preds <- sims1[,,1]
-ar_preds <- sims1[,,2]
-bh_preds <- sims1[,,3]
+# Long-term forecast functions -------------------------------------------------------------
+lrec_mean <- function(x, df1){
+  # subset data to window size
+  dat <- df1[1:(x-1)]
+  
+  # calculate mean and standard deviation of time series window
+  mu <- mean(log(dat))
+  #print(mu)
+  sigmaR <- sd(log(dat))
+  
+  # calculate prediction
+  preds <- exp(mu + rnorm(5, 0, sigmaR))
+  return(preds)
+}
+lrec_AR <- function(x, df1){
+  
+  # subset data to window size
+  dat <- df1[1:(x-1)]
+  
+  # fit AR model, will use sd estimate from model estimates
+  mod <- Arima(log(dat), order = c(1,0,0))
+  sigmaR <- sqrt(mod$sigma2)
+  
+  # calculate prediction
+  preds <- exp((forecast(mod, h = 5)$mean)[1] + rnorm(1, 0, sigmaR))
+  return(preds)
+}
+rec_BH <- function(x, df1, df2){
+  # subset spawning and recruit data to window size
+  datr <- df1[1:(x-1)]
+  dats <- df2[1:(x-1)]
+  s_x <- df2[x]
+  
+  # Likelihood function
+  BHminusLL <- function(loga, logb, logsigmaR){
+    # extract parameters
+    a <- exp(loga); b <- exp(logb); sigmaR <- exp(logsigmaR)
+    
+    # make predictions
+    pred <- log(a*dats/(1 + b*dats))
+    
+    #calculate negative log like
+    NegLogL <- (-1)*sum(dnorm(log(datr), pred, sigmaR, log = TRUE))
+    return(NegLogL)
+  }
+  
+  
+  starts <- list(loga = log(2), logb = log(0.2), logsigmaR = 5)
+  mle_out <- mle(BHminusLL, start = starts)
+  
+  # extract parameters
+  a <- exp(coef(mle_out)[1])
+  b <- exp(coef(mle_out)[2])
+  sigmaR <- exp(coef(mle_out)[3])
+  
+  # predict one step ahead
+  one_ahead <- a*s_x/(1 + b*s_x)*exp(rnorm(1,0,sigmaR))
+  
+  return(unname(one_ahead))
+}
 
 
 # Performance Stat Functions ----------------------------------------------
