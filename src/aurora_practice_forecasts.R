@@ -112,3 +112,16 @@ simplex_plot <- ggplot(data = simplex_df) + geom_line(aes(x = year, y = obs)) +
   xlab("Year") + ylab("Recruitment") + labs(subtitle = "(e) Simplex projection")
 
 grid.arrange(mean_plot, ar_plot, bh_plot, hmm_plot, simplex_plot, nrow = 3, ncol = 2)
+
+
+# Long-term forecast practice ---------------------------------------------
+
+a <- lrec_BH(time_vec[1], rec_ts, spawn_ts)
+time_vec2 <- seq(30, (50-4), 1)
+
+
+
+long_sims <- expanding_window_5yr(c("bh"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
+bh_long_sims <- long_sims[,,1]
+
+bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
