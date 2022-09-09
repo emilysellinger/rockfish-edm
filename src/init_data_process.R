@@ -1,7 +1,3 @@
-library(tidyverse)
-library(here)
-library(NatParksPalettes)
-
 
 # load data ---------------------------------------------------------------
 
