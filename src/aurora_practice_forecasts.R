@@ -125,3 +125,16 @@ long_sims <- expanding_window_5yr(c("bh"), 10, time_vec = time_vec, time_vec2 = 
 bh_long_sims <- long_sims[,,1]
 
 bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
+
+bh_5yr_trend <- matrix(NA, nrow = length(time_vec2), ncol = (dim(bh_long_sims)[2] - 1))
+
+for(i in 1:length(time_vec2)){
+  for(j in 1:ncol(bh_5yr_trend)){
+    df <- tibble(yr = seq(1,5),
+                 preds = bh_long_sims[i:(i+4), j+1])
+    
+    rec_lm <- lm(preds ~ yr, data = df)
+    
+    bh_5yr_trend[i,j] <- unname(rec_lm$coefficients[2])
+  }
+}

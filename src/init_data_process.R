@@ -1,5 +1,4 @@
-
-# load data ---------------------------------------------------------------
+# Load data ---------------------------------------------------------------
 
 aurora <- read_table(here("data", "aurora_2013.txt"))
 black_ca <- read_table(here("data", "black_ca_2015.txt"))
@@ -93,8 +92,6 @@ filter_sr_data <- function(df){
   
   return(df)
 }
-
-
 
 # Time Series Characteristics -------------------------------------------------------------------------
 ts_range <- west_coast_years[,"max_yr"] - west_coast_years[,"min_yr"]

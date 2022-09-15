@@ -1,3 +1,4 @@
+# Load packages -----------------------------------------------------------
 library(stats4)
 library(forecast)
 library(depmixS4)
@@ -7,7 +8,7 @@ library(tidyverse)
 library(dplyr)
 library(truncnorm)
 library(rEDM)
-# Forecast Method Functions ---------------------------------------------------------------
+# Short-term Forecast Functions ---------------------------------------------------------------
 # x = test set vector, df1 = recruitment time series, df2 = spawning biomass time series
 
 rec_mean <- function(x, df1){
@@ -174,87 +175,6 @@ rec_simplex <- function(x, y, df1){
   pred <- exp(preds[(y - x + 1), 3] + rnorm(1, 0, sigmaR))
   return(pred)
 }
-# Projection Function -----------------------------------------------------
-# A function that passes in the data files and calculates 1-step forecasts for an 
-# expanding window. For each simulation, the function returns a matrix of the observed 
-# recruitment and 1-step ahead forecasts for each of the methods above at time t in 
-# the test set.
-
-# nsims = # of simulations with the given test set of recruits and sbiomass
-# time_vec = vector of test data for 1 step ahead forecasts
-# recruits = recruitment time series
-# sbiomass = spawning biomass time series
-
-expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
-  
-  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
-  
-  for(i in 1:length(fmethods)){
-    fmethod <- fmethods[i]
-    
-    preds <- matrix(NA, nrow = length(time_vec), ncol = (nsims+1))
-    # first column is observed recruitment
-    preds[,1] <- recruits[time_vec]
-    
-    for(j in 2:(nsims+1)){
-      for(k in 1:length(time_vec)){
-        preds[k, j] <- switch(
-          fmethod,
-          "m" = rec_mean(time_vec[k], recruits),
-          "ar" = rec_AR(time_vec[k], recruits),
-          "bh" = rec_BH(time_vec[k], recruits, sbiomass),
-          "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass),
-          "simplex" = rec_simplex(time_vec[1], time_vec[k], recruits))
-      }
-      
-    }
-    
-    sim_preds[,,i] <- preds
-  }
-
-  return(sim_preds)
-}
-
-expanding_window_5yr <- function(fmethods, nsims, time_vec, time_vec2, recruits, sbiomass){
-  
-  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
-  
-  for(i in 1:length(fmethods)){
-    fmethod <- fmethods[i]
-    
-    preds <- matrix(NA, nrow = length(time_vec), ncol = (nsims+1))
-    # first column is observed recruitment
-    preds[,1] <- recruits[time_vec]
-    
-    for(j in 2:(nsims+1)){
-      # create a matrix for each 5 year expanding window sim
-      raw_preds <- matrix(data = NA, nrow = length(time_vec), ncol = length(time_vec2))
-      for(k in 1:length(time_vec2)){
-        
-        if(fmethod == "m"){
-          raw_preds[k:(k+4), k] <- lrec_mean(time_vec2[k], recruits)
-        }else if(fmethod == "ar"){
-          raw_preds[k:(k+4), k] <- lrec_AR(time_vec2[k], recruits)
-        }else{
-          raw_preds[k:(k+4), k] <- lrec_BH(time_vec2[k], recruits, sbiomass)
-        }#else if(fmethod == "hmm"){
-          #raw_preds[k:(k+4), k] <- lrec_HMM_sample(time_vec2[k],recruits, sbiomass)
-        #}#else{
-          #raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[1], time_vec2[k], recruits)
-        #}
-        
-      }
-      print(raw_preds)
-      # take mean of overlapping predictions, save simulation to sim dataframe
-      preds[,j] <- apply(raw_preds, 1, mean, na.rm = TRUE)
-    }
-    
-    sim_preds[,,i] <- preds
-  }
-  
-  return(sim_preds)
-}
-
 # Long-term forecast functions -------------------------------------------------------------
 lrec_mean <- function(x, df1){
   # subset data to window size
@@ -383,6 +303,88 @@ rec_simplex <- function(x, y, df1){
   pred <- exp(preds[(y - x + 1), 3] + rnorm(1, 0, sigmaR))
   return(pred)
 }
+# Projection Functions -----------------------------------------------------
+# A function that passes in the data files and calculates 1-step forecasts for an 
+# expanding window. For each simulation, the function returns a matrix of the observed 
+# recruitment and 1-step (or 5-step) ahead forecasts for each of the methods above at time t in 
+# the test set.
+
+# nsims = # of simulations with the given test set of recruits and sbiomass
+# time_vec = vector of test data for 1 step ahead forecasts
+# recruits = recruitment time series
+# sbiomass = spawning biomass time series
+
+expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
+  
+  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
+  
+  for(i in 1:length(fmethods)){
+    fmethod <- fmethods[i]
+    
+    preds <- matrix(NA, nrow = length(time_vec), ncol = (nsims+1))
+    # first column is observed recruitment
+    preds[,1] <- recruits[time_vec]
+    
+    for(j in 2:(nsims+1)){
+      for(k in 1:length(time_vec)){
+        preds[k, j] <- switch(
+          fmethod,
+          "m" = rec_mean(time_vec[k], recruits),
+          "ar" = rec_AR(time_vec[k], recruits),
+          "bh" = rec_BH(time_vec[k], recruits, sbiomass),
+          "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass),
+          "simplex" = rec_simplex(time_vec[1], time_vec[k], recruits))
+      }
+      
+    }
+    
+    sim_preds[,,i] <- preds
+  }
+
+  return(sim_preds)
+}
+
+expanding_window_5yr <- function(fmethods, nsims, time_vec, time_vec2, recruits, sbiomass){
+  
+  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
+  
+  for(i in 1:length(fmethods)){
+    fmethod <- fmethods[i]
+    
+    preds <- matrix(NA, nrow = length(time_vec), ncol = (nsims+1))
+    # first column is observed recruitment
+    preds[,1] <- recruits[time_vec]
+    
+    for(j in 2:(nsims+1)){
+      # create a matrix for each 5 year expanding window sim
+      raw_preds <- matrix(data = NA, nrow = length(time_vec), ncol = length(time_vec2))
+      for(k in 1:length(time_vec2)){
+        
+        if(fmethod == "m"){
+          raw_preds[k:(k+4), k] <- lrec_mean(time_vec2[k], recruits)
+        }else if(fmethod == "ar"){
+          raw_preds[k:(k+4), k] <- lrec_AR(time_vec2[k], recruits)
+        }else{
+          raw_preds[k:(k+4), k] <- lrec_BH(time_vec2[k], recruits, sbiomass)
+        }#else if(fmethod == "hmm"){
+          #raw_preds[k:(k+4), k] <- lrec_HMM_sample(time_vec2[k],recruits, sbiomass)
+        #}#else{
+          #raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[1], time_vec2[k], recruits)
+        #}
+        
+      }
+      print(raw_preds)
+      # take mean of overlapping predictions, save simulation to sim dataframe
+      preds[,j] <- apply(raw_preds, 1, mean, na.rm = TRUE)
+    }
+    
+    sim_preds[,,i] <- preds
+  }
+  
+  return(sim_preds)
+}
+
+
 # Performance Stat Functions ----------------------------------------------
 sim_mae <- function(sim_results){
   mae_df <- rep(NA, (dim(sim_results)[2]) - 1)
@@ -441,22 +443,6 @@ sim_mare <- function(sim_results, df, time_vec){
   return(mare_df)
 }
 
-# going to test
-mare_results <- sim_mare(m_preds, rec_ts, time_vec)
-
-
-# want to get quantiles for bh
-bh_quants <- matrix(NA, nrow = 11, ncol = 3)
-for(i in 1:dim(bh_preds)[1]){
-  sim_quants <- quantile(bh_preds[i,2:dim(bh_preds)[2]], probs = c(0.25, 0.75))
-  
-  bh_quants[i, 1] <- bh_preds[i,1]
-  bh_quants[i, 2] <- unname(sim_quants[1])
-  bh_quants[i, 3] <- unname(sim_quants[2])
+sim_5yr_trend <- function(sim_results, time_vec){
+  # think I want to fit a lm to the 5 year data, then return slope estimate
 }
-
-bh_quants <- as.data.frame(bh_quants)
-ggplot(data = bh_quants) + geom_point(aes(x = seq(1, 11, 1), y = V1)) +
-  geom_line(aes(x = seq(1, 11, 1), y = V2), color = "blue") +
-  geom_line(aes(x = seq(1, 11, 1), y = V3), color = "blue")
-
