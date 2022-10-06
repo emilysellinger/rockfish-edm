@@ -121,7 +121,7 @@ time_vec2 <- seq(30, (50-4), 1)
 
 
 
-long_sims <- expanding_window_5yr(c("bh"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
+long_sims <- expanding_window_5yr(c("hmm"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
 bh_long_sims <- long_sims[,,1]
 
 bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
@@ -138,3 +138,17 @@ for(i in 1:length(time_vec2)){
     bh_5yr_trend[i,j] <- unname(rec_lm$coefficients[2])
   }
 }
+
+long_hmm_quants <- apply(hmm_long_sims[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+
+
+long_hmm_df <- tibble(year = aurora$Yr,
+               obs = aurora$Recruit_0,
+               med_pred = c(rep(NA, 29), long_hmm_quants[2,]),
+               low_ci = c(rep(NA, 29), long_hmm_quants[1,]),
+               up_ci = c(rep(NA, 29), long_hmm_quants[3,]))
+
+hmm_plot <- ggplot(data = long_hmm_df) + geom_line(aes(x = year, y = obs)) +
+  geom_line(aes(x = year, y = med_pred), color = "blue",) +
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
+  xlab("Year") + ylab("Recruitment") + labs(subtitle = "(d) HMM sampling")

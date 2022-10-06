@@ -238,7 +238,7 @@ lrec_BH <- function(x, df1, df2){
   return(unname(five_ahead))
 }
 
-rec_HMM_sample <- function(x, df1, df2){
+lrec_HMM_sample <- function(x, df1, df2){
   # subset spawning and recruit data to window size
   datr <- df1[1:(x-1)]
   dats <- df2[1:(x-1)]
@@ -276,10 +276,10 @@ rec_HMM_sample <- function(x, df1, df2){
                         sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
   
   # return forecasts
-  return(rec_preds[2])
+  return(rec_preds[-1])
 }
 
-rec_simplex <- function(x, y, df1){
+lrec_simplex <- function(x, y, df1){
   
   sim_lib <- c(1, x-1)
   sim_pred <- c(x-1, length(df1))
@@ -291,7 +291,7 @@ rec_simplex <- function(x, y, df1){
   # determine optimal embedding dimension
   simplex_output1 <- simplex(log(df1), sim_lib, sim_pred)
   
-  rho_vals <- unlist(simplex_output$rho)
+  rho_vals <- unlist(simplex_output1$rho)
   E_val <- unname(which.max(rho_vals))
   
   # forecast recruitment
@@ -300,7 +300,7 @@ rec_simplex <- function(x, y, df1){
   preds <- na.omit(simplex_output2$model_output[[1]])
   
   # return forecast
-  pred <- exp(preds[(y - x + 1), 3] + rnorm(1, 0, sigmaR))
+  pred <- exp(preds[(y - x + 1), 3] + rnorm(5, 0, sigmaR))
   return(pred)
 }
 # Projection Functions -----------------------------------------------------
@@ -364,13 +364,13 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, time_vec2, recruits,
           raw_preds[k:(k+4), k] <- lrec_mean(time_vec2[k], recruits)
         }else if(fmethod == "ar"){
           raw_preds[k:(k+4), k] <- lrec_AR(time_vec2[k], recruits)
-        }else{
+        }else if(fmethod == "bh"){
           raw_preds[k:(k+4), k] <- lrec_BH(time_vec2[k], recruits, sbiomass)
-        }#else if(fmethod == "hmm"){
-          #raw_preds[k:(k+4), k] <- lrec_HMM_sample(time_vec2[k],recruits, sbiomass)
-        #}#else{
-          #raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[1], time_vec2[k], recruits)
-        #}
+        }else if(fmethod == "hmm"){
+          raw_preds[k:(k+4), k] <- lrec_HMM_sample(time_vec2[k],recruits, sbiomass)
+        }else {
+          raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[1], time_vec2[k], recruits)
+        }
         
       }
       print(raw_preds)
