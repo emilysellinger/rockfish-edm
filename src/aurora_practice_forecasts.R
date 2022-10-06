@@ -121,23 +121,22 @@ time_vec2 <- seq(30, (50-4), 1)
 
 
 
-long_sims <- expanding_window_5yr(c("hmm"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
-bh_long_sims <- long_sims[,,1]
+long_sims <- expanding_window_5yr(c("simplex"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
 
-bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
-
-bh_5yr_trend <- matrix(NA, nrow = length(time_vec2), ncol = (dim(bh_long_sims)[2] - 1))
-
-for(i in 1:length(time_vec2)){
-  for(j in 1:ncol(bh_5yr_trend)){
-    df <- tibble(yr = seq(1,5),
-                 preds = bh_long_sims[i:(i+4), j+1])
-    
-    rec_lm <- lm(preds ~ yr, data = df)
-    
-    bh_5yr_trend[i,j] <- unname(rec_lm$coefficients[2])
-  }
-}
+# bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
+# 
+# bh_5yr_trend <- matrix(NA, nrow = length(time_vec2), ncol = (dim(bh_long_sims)[2] - 1))
+# 
+# for(i in 1:length(time_vec2)){
+#   for(j in 1:ncol(bh_5yr_trend)){
+#     df <- tibble(yr = seq(1,5),
+#                  preds = bh_long_sims[i:(i+4), j+1])
+#     
+#     rec_lm <- lm(preds ~ yr, data = df)
+#     
+#     bh_5yr_trend[i,j] <- unname(rec_lm$coefficients[2])
+#   }
+# }
 
 long_hmm_quants <- apply(hmm_long_sims[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
 
@@ -152,3 +151,17 @@ hmm_plot <- ggplot(data = long_hmm_df) + geom_line(aes(x = year, y = obs)) +
   geom_line(aes(x = year, y = med_pred), color = "blue",) +
   geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
   xlab("Year") + ylab("Recruitment") + labs(subtitle = "(d) HMM sampling")
+## Simplex practice ----
+long_simplex_quants <- apply(simplex_long_sims[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+
+
+long_simplex_df <- tibble(year = aurora$Yr,
+                      obs = aurora$Recruit_0,
+                      med_pred = c(rep(NA, 29), long_simplex_quants[2,]),
+                      low_ci = c(rep(NA, 29), long_simplex_quants[1,]),
+                      up_ci = c(rep(NA, 29), long_simplex_quants[3,]))
+
+simplex_plot <- ggplot(data = long_simplex_df) + geom_line(aes(x = year, y = obs)) +
+  geom_line(aes(x = year, y = med_pred), color = "blue",) +
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
+  xlab("Year") + ylab("Recruitment") + labs(subtitle = "(e) Simplex projection")
