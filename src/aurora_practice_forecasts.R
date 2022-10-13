@@ -1,4 +1,5 @@
-# aurora forecast tests
+
+# Aurora 1-step forecasts -------------------------------------------------
 aurora <- filter_sr_data(aurora)
 
 plot(aurora$Yr, aurora$Recruit_0, type = "l")
@@ -8,7 +9,10 @@ rec_ts <- aurora$Recruit_0
 spawn_ts <- aurora$SpawnBio
 
 time_vec <- seq(30, 50, 1)
-aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "hmm", "simplex"), 100, time_vec, rec_ts, spawn_ts)
+
+# 1 step ahead sims
+set.seed(112)
+aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "hmm", "simplex"), 1000, time_vec, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- aurora_sims[,,1]
@@ -114,54 +118,119 @@ simplex_plot <- ggplot(data = simplex_df) + geom_line(aes(x = year, y = obs)) +
 grid.arrange(mean_plot, ar_plot, bh_plot, hmm_plot, simplex_plot, nrow = 3, ncol = 2)
 
 
-# Long-term forecast practice ---------------------------------------------
+# Save 1 step data --------------------------------------------------------
+m_preds1 <- as.data.frame(m_preds)
+write_csv(m_preds1, file = here("results/aurora_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/aurora_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/aurora_1stp_bh.csv"))
+write_csv(as.data.frame(hmm_preds), file = here("results/aurora_1stp_hmm.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/aurora_1stp_simplex.csv"))
 
-a <- lrec_BH(time_vec[1], rec_ts, spawn_ts)
+
+# Long-term forecast practice ---------------------------------------------
 time_vec2 <- seq(30, (50-4), 1)
 
+long_sims <- expanding_window_5yr(c("m", "ar", "bh", "hmm", "simplex"), 1000, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- long_sims[,,1]
+ar_preds_long <- long_sims[,,2]
+bh_preds_long <- long_sims[,,3]
+hmm_preds_long <- long_sims[,,4]
+simplex_preds_long <- long_sims[,,5]
+
+# Caluculate performance metrics
+m_preds_ci2 <- sim_CI_prob(m_preds_long, 0.95)
+ar_preds_ci2 <- sim_CI_prob(ar_preds_long, 0.95)
+bh_preds_ci2 <- sim_CI_prob(bh_preds_long, 0.95)
+hmm_preds_ci2 <- sim_CI_prob(hmm_preds_long, 0.95)
+simplex_preds_ci2 <- sim_CI_prob(simplex_preds_long, 0.95)
+
+# plot bayesian coverage probability
+bayes_prob_df2 <- tibble(method = c("mean", "AR(1)", "beverton-holt", "HMM sampling", "simplex projection"),
+                        coverage_prob = c(m_preds_ci2, ar_preds_ci2, bh_preds_ci2, hmm_preds_ci2, simplex_preds_ci2))
+
+ggplot(bayes_prob_df2) + geom_point(aes(x = method, y = coverage_prob), size = 3) + 
+  ylim(0, 1) + ylab("Coverage probability") + xlab("Recruitment forecast method")
+
+# will plot simulation quantiles
+
+m_quants2 <- apply(m_preds_long[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+ar_quants2 <- apply(ar_preds_long[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+bh_quants2 <- apply(bh_preds_long[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+hmm_quants2 <- apply(hmm_preds_long[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+simplex_quants2 <- apply(simplex_preds_long[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
 
 
-long_sims <- expanding_window_5yr(c("simplex"), 100, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
-
-# bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
-# 
-# bh_5yr_trend <- matrix(NA, nrow = length(time_vec2), ncol = (dim(bh_long_sims)[2] - 1))
-# 
-# for(i in 1:length(time_vec2)){
-#   for(j in 1:ncol(bh_5yr_trend)){
-#     df <- tibble(yr = seq(1,5),
-#                  preds = bh_long_sims[i:(i+4), j+1])
-#     
-#     rec_lm <- lm(preds ~ yr, data = df)
-#     
-#     bh_5yr_trend[i,j] <- unname(rec_lm$coefficients[2])
-#   }
-# }
-
-long_hmm_quants <- apply(hmm_long_sims[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
-
-
-long_hmm_df <- tibble(year = aurora$Yr,
+m_df2 <- tibble(year = aurora$Yr,
                obs = aurora$Recruit_0,
-               med_pred = c(rep(NA, 29), long_hmm_quants[2,]),
-               low_ci = c(rep(NA, 29), long_hmm_quants[1,]),
-               up_ci = c(rep(NA, 29), long_hmm_quants[3,]))
+               med_pred = c(rep(NA, 29), m_quants2[2,]),
+               low_ci = c(rep(NA, 29), m_quants2[1,]),
+               up_ci = c(rep(NA, 29), m_quants2[3,]))
 
-hmm_plot <- ggplot(data = long_hmm_df) + geom_line(aes(x = year, y = obs)) +
+mean_plot2 <- ggplot(data = m_df2) + geom_line(aes(x = year, y = obs)) +
+  geom_line(aes(x = year, y = med_pred), color = "blue",) +
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
+  xlab("Year") + ylab("Recruitment") + labs(subtitle = "(a) Mean")
+
+ar_df2 <- tibble(year = aurora$Yr,
+                obs = aurora$Recruit_0,
+                med_pred = c(rep(NA, 29), ar_quants2[2,]),
+                low_ci = c(rep(NA, 29), ar_quants2[1,]),
+                up_ci = c(rep(NA, 29), ar_quants2[3,]))
+
+ar_plot2 <- ggplot(data = ar_df2) + geom_line(aes(x = year, y = obs)) +
+  geom_line(aes(x = year, y = med_pred), color = "blue",) +
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
+  xlab("Year") + ylab("Recruitment") + labs(subtitle = "(b) AR(1)")
+
+bh_df2 <- tibble(year = aurora$Yr,
+                obs = aurora$Recruit_0,
+                med_pred = c(rep(NA, 29), bh_quants2[2,]),
+                low_ci = c(rep(NA, 29), bh_quants2[1,]),
+                up_ci = c(rep(NA, 29), bh_quants2[3,]))
+
+bh_plot2 <- ggplot(data = bh_df2) + geom_line(aes(x = year, y = obs)) +
+  geom_line(aes(x = year, y = med_pred), color = "blue",) +
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
+  xlab("Year") + ylab("Recruitment") + labs(subtitle = "(c) Beverton-Holt")
+
+hmm_df2 <- tibble(year = aurora$Yr,
+                 obs = aurora$Recruit_0,
+                 med_pred = c(rep(NA, 29), hmm_quants2[2,]),
+                 low_ci = c(rep(NA, 29), hmm_quants2[1,]),
+                 up_ci = c(rep(NA, 29), hmm_quants2[3,]))
+
+hmm_plot2 <- ggplot(data = hmm_df2) + geom_line(aes(x = year, y = obs)) +
   geom_line(aes(x = year, y = med_pred), color = "blue",) +
   geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
   xlab("Year") + ylab("Recruitment") + labs(subtitle = "(d) HMM sampling")
-## Simplex practice ----
-long_simplex_quants <- apply(simplex_long_sims[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
 
+simplex_df2 <- tibble(year = aurora$Yr,
+                     obs = aurora$Recruit_0,
+                     med_pred = c(rep(NA, 29), simplex_quants2[2,]),
+                     low_ci = c(rep(NA, 29), simplex_quants2[1,]),
+                     up_ci = c(rep(NA, 29), simplex_quants2[3,]))
 
-long_simplex_df <- tibble(year = aurora$Yr,
-                      obs = aurora$Recruit_0,
-                      med_pred = c(rep(NA, 29), long_simplex_quants[2,]),
-                      low_ci = c(rep(NA, 29), long_simplex_quants[1,]),
-                      up_ci = c(rep(NA, 29), long_simplex_quants[3,]))
-
-simplex_plot <- ggplot(data = long_simplex_df) + geom_line(aes(x = year, y = obs)) +
+simplex_plot2 <- ggplot(data = simplex_df2) + geom_line(aes(x = year, y = obs)) +
   geom_line(aes(x = year, y = med_pred), color = "blue",) +
   geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
   xlab("Year") + ylab("Recruitment") + labs(subtitle = "(e) Simplex projection")
+
+grid.arrange(mean_plot, ar_plot, bh_plot, hmm_plot, simplex_plot, nrow = 3, ncol = 2)
+
+# plot 5 yr trend data
+m_trend <- sim_5yr_trend(m_preds_long, time_vec2)
+ar_trend <- sim_5yr_trend(ar_preds_long, time_vec2)
+bh_trend <- sim_5yr_trend(bh_preds_long, time_vec2)
+hmm_trend <- sim_5yr_trend(hmm_preds_long, time_vec2)
+simplex_trend <- sim_5yr_trend(simplex_preds_long, time_vec2)
+
+
+# Save sim data -----------------------------------------------------------
+write_csv(as.data.frame(m_preds_long), file = here("results/aurora_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/aurora_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/aurora_5stp_bh.csv"))
+write_csv(as.data.frame(hmm_preds_long), file = here("results/aurora_5stp_hmm.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/aurora_5stp_simplex.csv"))
+

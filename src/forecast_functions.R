@@ -8,6 +8,7 @@ library(tidyverse)
 library(dplyr)
 library(truncnorm)
 library(rEDM)
+library(gridExtra)
 # Short-term Forecast Functions ---------------------------------------------------------------
 # x = test set vector, df1 = recruitment time series, df2 = spawning biomass time series
 
@@ -448,6 +449,24 @@ sim_mare <- function(sim_results, df, time_vec){
   return(mare_df)
 }
 
+
+
 sim_5yr_trend <- function(sim_results, time_vec){
-  # think I want to fit a lm to the 5 year data, then return slope estimate
+  # create matrix for 5 yr slopes
+  yr_trend <- matrix(NA, nrow = length(time_vec), ncol = (dim(sim_results)[2] - 1))
+  
+  for(i in 1:nrow(yr_trend)){
+    for(j in 1:ncol(yr_trend)){
+      
+      rec_lm <- lm(sim_results[i:(i+4), (j+1)] ~ seq(1,5))
+      
+      yr_trend[i,j] <- unname(rec_lm$coefficients[2])
+    }
+  }
+  # calculate quantiles
+  yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
+  return(yr_trend_quants)
 }
+
+
+
