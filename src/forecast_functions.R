@@ -151,9 +151,14 @@ rec_HMM_sample <- function(x, df1, df2){
   return(rec_preds[2])
 }
 
-rec_simplex <- function(x, y, df1){
+rec_simplex <- function(x, df1){
   
   sim_lib <- c(1, x-1)
+  # limit on updating E, simplex needs at least 2 data points to predict
+  if((x-1) >= (length(df1) - 1)){
+    sim_lib <- c(1, (length(df1) - 2))
+  }
+  
   sim_pred <- c(x-1, length(df1))
   
   # calculate standard deviation for subsetted data frame
@@ -161,7 +166,7 @@ rec_simplex <- function(x, y, df1){
   sigmaR <- sd(log(dat))
   
   # determine optimal embedding dimension
-  simplex_output1 <- simplex(log(df1), sim_lib, sim_pred)
+  simplex_output <- simplex(log(df1), sim_lib, sim_pred)
   
   rho_vals <- unlist(simplex_output$rho)
   E_val <- unname(which.max(rho_vals))
@@ -172,7 +177,7 @@ rec_simplex <- function(x, y, df1){
   preds <- na.omit(simplex_output2$model_output[[1]])
   
   # return forecast
-  pred <- exp(preds[(y - x + 1), 3] + rnorm(1, 0, sigmaR))
+  pred <- exp(preds[1, 3] + rnorm(1, 0, sigmaR))
   return(pred)
 }
 # Long-term forecast functions -------------------------------------------------------------
@@ -279,7 +284,7 @@ lrec_HMM_sample <- function(x, df1, df2){
   return(rec_preds[-1])
 }
 
-lrec_simplex <- function(x, y, df1){
+lrec_simplex <- function(x, df1){
   
   sim_lib <- c(1, x-1)
   sim_pred <- c(x-1, length(df1))
@@ -300,7 +305,7 @@ lrec_simplex <- function(x, y, df1){
   preds <- na.omit(simplex_output2$model_output[[1]])
   
   # return forecast
-  pred <- exp(preds[(y - x + 1), 3] + rnorm(5, 0, sigmaR))
+  pred <- exp(preds[1:5, 3] + rnorm(5, 0, sigmaR))
   return(pred)
 }
 # Projection Functions -----------------------------------------------------
@@ -333,7 +338,7 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
           "ar" = rec_AR(time_vec[k], recruits),
           "bh" = rec_BH(time_vec[k], recruits, sbiomass),
           "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass),
-          "simplex" = rec_simplex(time_vec[1], time_vec[k], recruits))
+          "simplex" = rec_simplex(time_vec[k], recruits))
       }
       
     }
@@ -369,13 +374,13 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, time_vec2, recruits,
         }else if(fmethod == "hmm"){
           raw_preds[k:(k+4), k] <- lrec_HMM_sample(time_vec2[k],recruits, sbiomass)
         }else {
-          raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[1], time_vec2[k], recruits)
+          raw_preds[k:(k+4), k] <- lrec_simplex(time_vec2[k], recruits)
         }
         
       }
-      print(raw_preds)
+      #print(raw_preds)
       # take mean of overlapping predictions, save simulation to sim dataframe
-      preds[,j] <- apply(raw_preds, 1, mean, na.rm = TRUE)
+      preds[,j] <- apply(raw_preds, 1, median, na.rm = TRUE)
     }
     
     sim_preds[,,i] <- preds
@@ -399,7 +404,7 @@ sim_mae <- function(sim_results){
 }
 
 
-# Actually fine, called bayesian coverage probability - should double check
+# Actually fine, called coverage probability
 sim_CI_prob <- function(sim_results, ci){
   # initialize counter
   ci_prob <- 0

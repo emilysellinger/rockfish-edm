@@ -121,7 +121,7 @@ time_vec2 <- seq(30, (50-4), 1)
 
 
 
-long_sims <- expanding_window_5yr(c("simplex"), 10, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
+long_sims <- expanding_window_5yr(c("simplex"), 100, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
 
 # bh_preds_ci <- sim_CI_prob(bh_long_sims, 0.95)
 # 
