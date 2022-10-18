@@ -253,7 +253,7 @@ ggplot() + geom_area(data = aurora, aes(x = Yr, y = Recruit_0), alpha = 0.4, fil
   geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = real)) +
   geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = med)) +
   
-
+# try with geom_segment
 
 ar_preds_trend <- tibble(real = aurora_rec_trend,
                          med = ar_trend[2,],
