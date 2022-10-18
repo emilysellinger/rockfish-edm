@@ -248,6 +248,13 @@ mean_trend_plot <- ggplot(m_preds_trend) + geom_line(aes(x = seq(1, nrow(m_preds
   geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(m_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
   labs(y = "Five year trend", subtitle = "(a) Mean", x = "Years added to training set")
 
+ggplot() + geom_area(data = aurora, aes(x = Yr, y = Recruit_0), alpha = 0.4, fill = "#69b3a2") + 
+  geom_point(data = aurora, aes(x = Yr, y = Recruit_0), color = "#69b3a2", size = 2) +
+  geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = real)) +
+  geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = med)) +
+  
+
+
 ar_preds_trend <- tibble(real = aurora_rec_trend,
                          med = ar_trend[2,],
                          low_ci = ar_trend[1,],

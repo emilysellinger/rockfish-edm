@@ -9,6 +9,7 @@ library(dplyr)
 library(truncnorm)
 library(rEDM)
 library(gridExtra)
+library(zoo)
 # Short-term Forecast Functions ---------------------------------------------------------------
 # x = test set vector, df1 = recruitment time series, df2 = spawning biomass time series
 
@@ -469,4 +470,14 @@ sim_5yr_trend <- function(sim_results, time_vec){
 }
 
 
-
+sim_5yr_trend <- function(sim_results, time_vec){
+  # create matrix for 5 yr slopes
+  yr_trend <- matrix(NA, nrow = (dim(sim_results)[1] - 4), ncol = (dim(sim_results)[2] - 1))
+  
+  for(i in 1:ncol(yr_tred)){
+    yr_trend[,i] <- rollmean(sim_results[,i+1], 5)
+  }
+  # calculate quantiles
+  yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
+  return(yr_trend_quants)
+}
