@@ -452,29 +452,29 @@ sim_mare <- function(sim_results, df, time_vec){
 
 
 
-sim_5yr_trend <- function(sim_results, time_vec){
-  # create matrix for 5 yr slopes
-  yr_trend <- matrix(NA, nrow = length(time_vec), ncol = (dim(sim_results)[2] - 1))
-  
-  for(i in 1:nrow(yr_trend)){
-    for(j in 1:ncol(yr_trend)){
-      
-      rec_lm <- lm(sim_results[i:(i+4), (j+1)] ~ seq(1,5))
-      
-      yr_trend[i,j] <- unname(rec_lm$coefficients[2])
-    }
-  }
-  # calculate quantiles
-  yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
-  return(yr_trend_quants)
-}
+# sim_5yr_trend <- function(sim_results, time_vec){
+#   # create matrix for 5 yr slopes
+#   yr_trend <- matrix(NA, nrow = length(time_vec), ncol = (dim(sim_results)[2] - 1))
+#   
+#   for(i in 1:nrow(yr_trend)){
+#     for(j in 1:ncol(yr_trend)){
+#       
+#       rec_lm <- lm(sim_results[i:(i+4), (j+1)] ~ seq(1,5))
+#       
+#       yr_trend[i,j] <- unname(rec_lm$coefficients[2])
+#     }
+#   }
+#   # calculate quantiles
+#   yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
+#   return(yr_trend_quants)
+# }
 
 
 sim_5yr_trend <- function(sim_results, time_vec){
   # create matrix for 5 yr slopes
   yr_trend <- matrix(NA, nrow = (dim(sim_results)[1] - 4), ncol = (dim(sim_results)[2] - 1))
   
-  for(i in 1:ncol(yr_tred)){
+  for(i in 1:ncol(yr_trend)){
     yr_trend[,i] <- rollmean(sim_results[,i+1], 5)
   }
   # calculate quantiles

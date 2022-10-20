@@ -220,16 +220,8 @@ simplex_plot2 <- ggplot(data = simplex_df2) + geom_line(aes(x = year, y = obs)) 
 grid.arrange(mean_plot, ar_plot, bh_plot, hmm_plot, simplex_plot, nrow = 3, ncol = 2)
 
 # plot 5 yr trend data
-# going to calculate the actual 5 year trend data for the aurora time series
-aurora_rec_trend <- rep(NA, length(time_vec2))
-for(i in 1:length(time_vec2)){
-  t1 <- time_vec[i]
-  t2 <- time_vec[i+4]
-  rec_lm <- lm(rec_ts[t1:t2] ~ seq(1,5))
-  
-  aurora_rec_trend[i] <- unname(rec_lm$coefficients[2])
-}
-
+# going to calculate the actual 5 year rolling average data for the aurora time series
+aurora_rec_trend <- rollmean(rec_ts[30:50], 5)
 
 
 m_trend <- sim_5yr_trend(m_preds_long, time_vec2)
@@ -245,15 +237,9 @@ m_preds_trend <- tibble(real = aurora_rec_trend,
 
 mean_trend_plot <- ggplot(m_preds_trend) + geom_line(aes(x = seq(1, nrow(m_preds_trend)), y = real))+
   geom_line(aes(x = seq(1, nrow(m_preds_trend)), y = med), color = "blue") + 
-  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(m_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
-  labs(y = "Five year trend", subtitle = "(a) Mean", x = "Years added to training set")
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(m_preds_trend))), fill = "blue", alpha = 0.1) +
+  labs(y = "Five-year rolling average", subtitle = "(a) Mean", x = "Years added to training set")
 
-ggplot() + geom_area(data = aurora, aes(x = Yr, y = Recruit_0), alpha = 0.4, fill = "#69b3a2") + 
-  geom_point(data = aurora, aes(x = Yr, y = Recruit_0), color = "#69b3a2", size = 2) +
-  geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = real)) +
-  geom_line(data = m_preds_trend, aes(x = seq(1996, 2012), y = med)) +
-  
-# try with geom_segment
 
 ar_preds_trend <- tibble(real = aurora_rec_trend,
                          med = ar_trend[2,],
@@ -262,8 +248,8 @@ ar_preds_trend <- tibble(real = aurora_rec_trend,
 
 ar_trend_plot <- ggplot(ar_preds_trend) + geom_line(aes(x = seq(1, nrow(ar_preds_trend)), y = real)) +
   geom_line(aes(x = seq(1, nrow(ar_preds_trend)), y = med), color = "blue") + 
-  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(ar_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
-  labs(y = "Five year trend", subtitle = "(b) AR(1)", x = "Years added to training set")
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(ar_preds_trend))), fill = "blue", alpha = 0.1) +
+  labs(y = "Five-year rolling average", subtitle = "(b) AR(1)", x = "Years added to training set")
 
 bh_preds_trend <- tibble(real = aurora_rec_trend,
                          med = bh_trend[2,],
@@ -272,24 +258,33 @@ bh_preds_trend <- tibble(real = aurora_rec_trend,
 
 bh_trend_plot <- ggplot(bh_preds_trend) + geom_line(aes(x = seq(1, nrow(bh_preds_trend)), y = real)) +
   geom_line(aes(x = seq(1, nrow(bh_preds_trend)), y = med), color = "blue") + 
-  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(bh_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
-  labs(y = "Five year trend", subtitle = "(c) Beverton-Holt", x = "Years added to training set")
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(bh_preds_trend))), fill = "blue", alpha = 0.1) +
+  labs(y = "Five-year rolling average", subtitle = "(c) Beverton-Holt", x = "Years added to training set")
 
-hmm_preds_trend <- tibble(med = hmm_trend[2,],
-                        low_ci = hmm_trend[1,],
-                        up_ci = hmm_trend[3,])
+hmm_preds_trend <- tibble(real = aurora_rec_trend,
+                         med = hmm_trend[2,],
+                         low_ci = hmm_trend[1,],
+                         up_ci = hmm_trend[3,])
 
-hmm_trend_plot <- ggplot(hmm_preds_trend) + geom_line(aes(x = seq(1, nrow(hmm_preds_trend)), y = med), color = "blue") + 
-  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(hmm_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
-  labs(y = "Five year trend", subtitle = "(d) HMM Sampling", x = "Years added to training set")
+hmm_trend_plot <- ggplot(hmm_preds_trend) + geom_line(aes(x = seq(1, nrow(hmm_preds_trend)), y = real)) +
+  geom_line(aes(x = seq(1, nrow(hmm_preds_trend)), y = med), color = "blue") + 
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(hmm_preds_trend))), fill = "blue", alpha = 0.1) +
+  labs(y = "Five-year rolling average", subtitle = "(d) HMM sampling", x = "Years added to training set")
 
-m_preds_trend <- tibble(med = m_trend[2,],
-                        low_ci = m_trend[1,],
-                        up_ci = m_trend[3,])
+simplex_preds_trend <- tibble(real = aurora_rec_trend,
+                         med = simplex_trend[2,],
+                         low_ci = simplex_trend[1,],
+                         up_ci = simplex_trend[3,])
 
-simplex_trend <- ggplot(m_preds_trend) + geom_line(aes(x = seq(1, nrow(m_preds_trend)), y = med), color = "blue") + 
-  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(m_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
-  labs(y = "Five year trend", subtitle = "(a) Mean", x = "Years added to training set")
+simplex_trend_plot <- ggplot(simplex_preds_trend) + geom_line(aes(x = seq(1, nrow(simplex_preds_trend)), y = real)) +
+  geom_line(aes(x = seq(1, nrow(simplex_preds_trend)), y = med), color = "blue") + 
+  geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(simplex_preds_trend))), fill = "blue", alpha = 0.1, linetype = "dashed") +
+  labs(y = "Five-year rolling average", subtitle = "(e) Simplex projection", x = "Years added to training set")
+
+
+
+grid.arrange(mean_trend_plot, ar_trend_plot, bh_trend_plot, hmm_trend_plot, simplex_trend_plot, nrow = 3, ncol = 2)
+
 
 # Save sim data -----------------------------------------------------------
 write_csv(as.data.frame(m_preds_long), file = here("results/aurora_5stp_mean.csv"))
