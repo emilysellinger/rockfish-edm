@@ -122,35 +122,50 @@ rec_HMM_sample <- function(x, df1, df2){
               spawn = dats,
               logRS = log(datr/dats))
   # fit hidden markov model
-  mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
-  fit_mod <- fit(mod)
-  #summary(fit_mod)
-  fit_post <- posterior(fit_mod)
+  mod1 <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
+  fit_mod1 <- fit(mod1, em = em.control(maxit = 500))
+
+  mod2 <- depmix(logRS ~ spawn, data = a, nstates = 1, family = gaussian())
+  fit_mod2 <- fit(mod2)
   
-  # update data frame with posterior state classification
-  a <- a %>% 
-    add_column(est_state = fit_post$state)
-  # Filter dataframe by state
-  est_state_1 <- a %>% 
-    filter(est_state == 1)
-  est_state_2 <- a %>% 
-    filter(est_state == 2)
-  
-  # Determine the estimated state at the last time step
-  final_state <- pull(a[nrow(a), "est_state"])
-  
-  # Extract estimated transition matrix
-  est_P <- t(matrix(getpars(fit_mod)[3:6], nrow = 2, ncol = 2))
-  
-  # predict states for forecast years
-  future_states <- run.pred.mc.sim(est_P, num.iters = 2, final_state)
-  
-  # forecast recruitment
-  rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
-                        sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
-  
-  # return forecasts
-  return(rec_preds[2])
+  if(AIC(fit_mod2) < AIC(fit_mod1)){
+    print("one state best")
+    mu1 <- mean(a$rec)
+    sd1 <- sd(a$spawn)
+    pred <- rtruncnorm(1, a = 10, b= Inf, mu1, sd1)
+    
+    # return forecasts
+    return(pred)
+    
+  }else{
+    print("two state best")
+    fit_post <- posterior(fit_mod1)
+    
+    # update data frame with posterior state classification
+    a <- a %>% 
+      add_column(est_state = fit_post$state)
+    # Filter dataframe by state
+    est_state_1 <- a %>% 
+      filter(est_state == 1)
+    est_state_2 <- a %>% 
+      filter(est_state == 2)
+    
+    # Determine the estimated state at the last time step
+    final_state <- pull(a[nrow(a), "est_state"])
+    
+    # Extract estimated transition matrix
+    est_P <- t(matrix(getpars(fit_mod1)[3:6], nrow = 2, ncol = 2))
+    
+    # predict states for forecast years
+    future_states <- run.pred.mc.sim(est_P, num.iters = 2, final_state)
+    
+    
+    rec_preds <- pred.rec(future_states, mu1 = mean(est_state_1$rec), mu2 = mean(est_state_2$rec),
+                          sd1 = sd(est_state_1$rec), sd2 = sd(est_state_2$rec))
+    # return forecasts
+    return(rec_preds[2])
+    
+  }
 }
 
 rec_simplex <- function(x, df1){
@@ -171,6 +186,7 @@ rec_simplex <- function(x, df1){
   simplex_output <- simplex(log(df1), sim_lib, sim_pred)
   
   rho_vals <- unlist(simplex_output$rho)
+  #print(rho_vals)
   E_val <- unname(which.max(rho_vals))
   
   # forecast recruitment
@@ -333,6 +349,7 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
     preds[,1] <- recruits[time_vec]
     
     for(j in 2:(nsims+1)){
+      print((j-1))
       for(k in 1:length(time_vec)){
         preds[k, j] <- switch(
           fmethod,
