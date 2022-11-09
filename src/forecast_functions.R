@@ -120,7 +120,8 @@ rec_HMM_sample <- function(x, df1, df2){
   # make a data frame for depmix package
   a <- tibble(rec = datr,
               spawn = dats,
-              logRS = log(datr/dats))
+              logRS = log(datr/dats),
+              logR = log(datr))
   # fit hidden markov model
   mod1 <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
   fit_mod1 <- fit(mod1, em = em.control(maxit = 500))
@@ -400,6 +401,9 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, time_vec2, recruits,
       #print(raw_preds)
       # take mean of overlapping predictions, save simulation to sim dataframe
       preds[,j] <- apply(raw_preds, 1, median, na.rm = TRUE)
+      
+      # print out number of sims completed
+      print(j)
     }
     
     sim_preds[,,i] <- preds

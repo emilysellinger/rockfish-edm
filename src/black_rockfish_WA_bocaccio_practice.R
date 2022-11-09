@@ -116,6 +116,22 @@ simplex_plot <- ggplot(data = simplex_df) + geom_line(aes(x = year, y = obs)) +
 
 grid.arrange(mean_plot, ar_plot, bh_plot, simplex_plot, nrow = 2, ncol = 2)
 
+
+# Long-term forecasts -----------------------------------------------------
+black_wa_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- black_wa_sims_long[,,1]
+ar_preds_long <- black_wa_sims_long[,,2]
+bh_preds_long <- black_wa_sims_long[,,3]
+simplex_preds_long <- black_wa_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/blackWA_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/blackWA_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/blackWA_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/blackWA_5stp_simplex.csv"))
+
 # Bocaccio rockfish forecasts ###################################
 # Set Up ------------------------------------------------------------------
 bocaccio <- filter_sr_data(bocaccio)
@@ -243,3 +259,274 @@ simplex_plot <- ggplot(data = simplex_df) + geom_line(aes(x = year, y = obs)) +
   xlab("Year") + ylab("Recruitment") + labs(subtitle = "(e) Simplex projection")
 
 grid.arrange(mean_plot, ar_plot, bh_plot, simplex_plot, nrow = 2, ncol = 2)
+
+
+# Long-term forecasts -----------------------------------------------------
+bocaccio_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- bocaccio_sims_long[,,1]
+ar_preds_long <- bocaccio_sims_long[,,2]
+bh_preds_long <- bocaccio_sims_long[,,3]
+simplex_preds_long <- bocaccio_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/bocaccio_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/bocaccio_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/bocaccio_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/bocaccio_5stp_simplex.csv"))
+
+# Cabezon NCS forecasts ##########################################################################
+cabezon_ncs <- filter_sr_data(cabezon_ncs)
+
+plot(cabezon_ncs$Yr, cabezon_ncs$Recruit_0, type = "l")
+plot(cabezon_ncs$SpawnBio, cabezon_ncs$Recruit_0)
+
+rec_ts <- cabezon_ncs$Recruit_0
+spawn_ts <- cabezon_ncs$SpawnBio
+# create time vectors
+time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
+time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
+
+# Short-term forecasts ----------------------------------------------------
+cabezon_ncs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds <- cabezon_ncs_sims_short[,,1]
+ar_preds <- cabezon_ncs_sims_short[,,2]
+bh_preds <- cabezon_ncs_sims_short[,,3]
+simplex_preds <- cabezon_ncs_sims_short[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds), file = here("results/cabezon_ncs_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/cabezon_ncs_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/cabezon_ncs_1stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/cabezon_ncs_1stp_simplex.csv"))
+
+# Visualize short-term forecasts ------------------------------------------
+## Caluculate coverage proability -----------------------------------------
+m_preds_ci <- sim_CI_prob(m_preds, 0.95)
+ar_preds_ci <- sim_CI_prob(ar_preds, 0.95)
+bh_preds_ci <- sim_CI_prob(bh_preds, 0.95)
+simplex_preds_ci <- sim_CI_prob(simplex_preds, 0.95)
+
+# Long-term forecasts ----------------------------------------------------
+cabezon_ncs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- cabezon_ncs_sims_long[,,1]
+ar_preds_long <- cabezon_ncs_sims_long[,,2]
+bh_preds_long <- cabezon_ncs_sims_long[,,3]
+simplex_preds_long <- cabezon_ncs_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/cabezon_ncs_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/cabezon_ncs_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/cabezon_ncs_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/cabezon_ncs_5stp_simplex.csv"))
+
+
+
+# Cabezon OCS forecasts ##########################################################################
+cabezon_ocs <- filter_sr_data(cabezon_ocs)
+
+plot(cabezon_ocs$Yr, cabezon_ocs$Recruit_0, type = "l")
+plot(cabezon_ocs$SpawnBio, cabezon_ocs$Recruit_0)
+
+rec_ts <- cabezon_ocs$Recruit_0
+spawn_ts <- cabezon_ocs$SpawnBio
+# create time vectors
+time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
+time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
+
+# Short-term forecasts ----------------------------------------------------
+cabezon_ocs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds <- cabezon_ocs_sims_short[,,1]
+ar_preds <- cabezon_ocs_sims_short[,,2]
+bh_preds <- cabezon_ocs_sims_short[,,3]
+simplex_preds <- cabezon_ocs_sims_short[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds), file = here("results/cabezon_ocs_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/cabezon_ocs_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/cabezon_ocs_1stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/cabezon_ocs_1stp_simplex.csv"))
+
+# Visualize short-term forecasts ------------------------------------------
+## Caluculate coverage proability -----------------------------------------
+m_preds_ci <- sim_CI_prob(m_preds, 0.95)
+ar_preds_ci <- sim_CI_prob(ar_preds, 0.95)
+bh_preds_ci <- sim_CI_prob(bh_preds, 0.95)
+simplex_preds_ci <- sim_CI_prob(simplex_preds, 0.95)
+
+# Long-term forecasts ----------------------------------------------------
+cabezon_ocs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- cabezon_ocs_sims_long[,,1]
+ar_preds_long <- cabezon_ocs_sims_long[,,2]
+bh_preds_long <- cabezon_ocs_sims_long[,,3]
+simplex_preds_long <- cabezon_ocs_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/cabezon_ocs_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/cabezon_ocs_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/cabezon_ocs_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/cabezon_ocs_5stp_simplex.csv"))
+
+
+
+# Cabezon SCS forecasts ##########################################################################
+cabezon_scs <- filter_sr_data(cabezon_scs)
+
+plot(cabezon_scs$Yr, cabezon_scs$Recruit_0, type = "l")
+plot(cabezon_scs$SpawnBio, cabezon_scs$Recruit_0)
+
+rec_ts <- cabezon_scs$Recruit_0
+spawn_ts <- cabezon_scs$SpawnBio
+# create time vectors
+time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
+time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
+
+# Short-term forecasts ----------------------------------------------------
+cabezon_scs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds <- cabezon_scs_sims_short[,,1]
+ar_preds <- cabezon_scs_sims_short[,,2]
+bh_preds <- cabezon_scs_sims_short[,,3]
+simplex_preds <- cabezon_scs_sims_short[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds), file = here("results/cabezon_scs_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/cabezon_scs_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/cabezon_scs_1stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/cabezon_scs_1stp_simplex.csv"))
+
+# Visualize short-term forecasts ------------------------------------------
+## Caluculate coverage proability -----------------------------------------
+m_preds_ci <- sim_CI_prob(m_preds, 0.95)
+ar_preds_ci <- sim_CI_prob(ar_preds, 0.95)
+bh_preds_ci <- sim_CI_prob(bh_preds, 0.95)
+simplex_preds_ci <- sim_CI_prob(simplex_preds, 0.95)
+
+# Long-term forecasts ----------------------------------------------------
+cabezon_scs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- cabezon_scs_sims_long[,,1]
+ar_preds_long <- cabezon_scs_sims_long[,,2]
+bh_preds_long <- cabezon_scs_sims_long[,,3]
+simplex_preds_long <- cabezon_scs_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/cabezon_scs_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/cabezon_scs_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/cabezon_scs_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/cabezon_scs_5stp_simplex.csv"))
+
+
+# Canary rockfish forecasts ##########################################################################
+canary <- filter_sr_data(canary)
+canary1 <- canary %>% filter(Area == 1)
+canary2 <- canary %>% filter(Area == 2)
+canary3 <- canary %>% filter(Area == 3)
+
+# going to do these forecasts for Area 1 first
+plot(canary1$Yr, canary1$Recruit_0, type = "l")
+plot(canary1$SpawnBio, canary1$Recruit_0)
+
+rec_ts <- canary1$Recruit_0
+spawn_ts <- canary1$SpawnBio
+# create time vectors
+time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
+time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
+
+# Short-term forecasts ----------------------------------------------------
+canary1_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds <- canary1_sims_short[,,1]
+ar_preds <- canary1_sims_short[,,2]
+bh_preds <- canary1_sims_short[,,3]
+simplex_preds <- canary1_sims_short[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds), file = here("results/canary1_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/canary1_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/canary1_1stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/canary1_1stp_simplex.csv"))
+
+# Visualize short-term forecasts ------------------------------------------
+## Caluculate coverage proability -----------------------------------------
+m_preds_ci <- sim_CI_prob(m_preds, 0.95)
+ar_preds_ci <- sim_CI_prob(ar_preds, 0.95)
+bh_preds_ci <- sim_CI_prob(bh_preds, 0.95)
+simplex_preds_ci <- sim_CI_prob(simplex_preds, 0.95)
+
+# Long-term forecasts ----------------------------------------------------
+canary1_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- canary1_sims_long[,,1]
+ar_preds_long <- canary1_sims_long[,,2]
+bh_preds_long <- canary1_sims_long[,,3]
+simplex_preds_long <- canary1_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/canary1_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/canary1_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/canary1_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/canary1_5stp_simplex.csv"))
+
+# Chilipepper rockfish forecasts ##########################################################################
+chilipepper <- filter_sr_data(chilipepper)
+
+# going to do these forecasts for Area 1 first
+plot(chilipepper$Yr, chilipepper$Recruit_0, type = "l")
+plot(chilipepper$SpawnBio, chilipepper$Recruit_0)
+
+rec_ts <- chilipepper$Recruit_0
+spawn_ts <- chilipepper$SpawnBio
+# create time vectors
+time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
+time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
+
+# Short-term forecasts ----------------------------------------------------
+chilipepper_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds <- chilipepper_sims_short[,,1]
+ar_preds <- chilipepper_sims_short[,,2]
+bh_preds <- chilipepper_sims_short[,,3]
+simplex_preds <- chilipepper_sims_short[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds), file = here("results/chilipepper_1stp_mean.csv"))
+write_csv(as.data.frame(ar_preds), file = here("results/chilipepper_1stp_ar.csv"))
+write_csv(as.data.frame(bh_preds), file = here("results/chilipepper_1stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds), file = here("results/chilipepper_1stp_simplex.csv"))
+
+# Visualize short-term forecasts ------------------------------------------
+## Caluculate coverage proability -----------------------------------------
+m_preds_ci <- sim_CI_prob(m_preds, 0.95)
+ar_preds_ci <- sim_CI_prob(ar_preds, 0.95)
+bh_preds_ci <- sim_CI_prob(bh_preds, 0.95)
+simplex_preds_ci <- sim_CI_prob(simplex_preds, 0.95)
+
+# Long-term forecasts ----------------------------------------------------
+chilipepper_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+
+# extract forecasts
+m_preds_long <- chilipepper_sims_long[,,1]
+ar_preds_long <- chilipepper_sims_long[,,2]
+bh_preds_long <- chilipepper_sims_long[,,3]
+simplex_preds_long <- chilipepper_sims_long[,,4]
+
+# save to csv
+write_csv(as.data.frame(m_preds_long), file = here("results/chilipepper_5stp_mean.csv"))
+write_csv(as.data.frame(ar_preds_long), file = here("results/chilipepper_5stp_ar.csv"))
+write_csv(as.data.frame(bh_preds_long), file = here("results/chilipepper_5stp_bh.csv"))
+write_csv(as.data.frame(simplex_preds_long), file = here("results/chilipepper_5stp_simplex.csv"))
