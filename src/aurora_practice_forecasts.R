@@ -295,14 +295,14 @@ write_csv(as.data.frame(simplex_preds_long), file = here("results/aurora_5stp_si
 
 
 # Load Simulation Data ----------------------------------------------------
-m_preds <- as.matrix(read_csv(here("results", "aurora_1stp_mean.csv")))
-ar_preds <- as.matrix(read_csv(here("results", "aurora_1stp_ar.csv")))
-bh_preds <- as.matrix(read_csv(here("results", "aurora_1stp_bh.csv")))
-hmm_preds <- as.matrix(read_csv(here("results", "aurora_1stp_hmm.csv")))
-simplex_preds <- as.matrix(read_csv(here("results", "aurora_1stp_simplex.csv")))
+m_preds <- as.matrix(read_csv(here("results/simulation_results/west_coast/short_forecasts", "aurora_1stp_mean.csv")))
+ar_preds <- as.matrix(read_csv(here("results/simulation_results/west_coast/short_forecasts", "aurora_1stp_ar.csv")))
+bh_preds <- as.matrix(read_csv(here("results/simulation_results/west_coast/short_forecasts", "aurora_1stp_bh.csv")))
+hmm_preds <- as.matrix(read_csv(here("results/simulation_results/west_coast/short_forecasts", "aurora_1stp_hmm.csv")))
+simplex_preds <- as.matrix(read_csv(here("results/simulation_results/west_coast/short_forecasts", "aurora_1stp_simplex.csv")))
 
-m_preds_long <- as.matrix(read_csv(here("results", "aurora_5stp_mean.csv")))
-ar_preds_long <- as.matrix(read_csv(here("results", "aurora_5stp_ar.csv")))
-bh_preds_long <- as.matrix(read_csv(here("results", "aurora_5stp_bh.csv")))
-hmm_preds_long <- as.matrix(read_csv(here("results", "aurora_5stp_hmm.csv")))
-simplex_preds_long <- as.matrix(read_csv(here("results", "aurora_5stp_simplex.csv")))
+m_preds_long <- as.matrix(read_csv(here("results/simulation_results/west_coast/long_forecasts", "aurora_5stp_mean.csv")))
+ar_preds_long <- as.matrix(read_csv(here("results/simulation_results/west_coast/long_forecasts", "aurora_5stp_ar.csv")))
+bh_preds_long <- as.matrix(read_csv(here("results/simulation_results/west_coast/long_forecasts", "aurora_5stp_bh.csv")))
+hmm_preds_long <- as.matrix(read_csv(here("results/simulation_results/west_coast/long_forecasts", "aurora_5stp_hmm.csv")))
+simplex_preds_long <- as.matrix(read_csv(here("results/simulation_results/west_coast/long_forecasts", "aurora_5stp_simplex.csv")))

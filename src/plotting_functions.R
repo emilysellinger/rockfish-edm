@@ -14,7 +14,7 @@ coverage_prob_plot <- function(preds){
     ylim(0, 1) + ylab("Coverage probability") + 
     xlab("Recruitment forecast method")
   
-  return(cplot)
+  return(list(cplot, as.data.frame(bayes_prob_df)))
 }
 
 mrae_plot <- function(preds, obs, ts_vec){
@@ -33,7 +33,7 @@ mrae_plot <- function(preds, obs, ts_vec){
   plot_mrae <- ggplot(mrae_df) + geom_line(aes(x = year, y = mrae, color = method)) + 
     ylab("Mean relative absolute error") + xlab("Years added to training set")
   
-  return(plot_mrae)
+  return(list(plot_mrae, as.data.frame(mrae_df)))
 }
 
 
@@ -42,6 +42,7 @@ sim_quants_plots <- function(preds, yrs, obs, type){
   fmethod <- dim(preds)[3]
   methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM")
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)")
+  total_yrs <- length(yrs)
   
   for(i in 1:fmethod){
     predsi <- preds[,,i]
@@ -50,9 +51,9 @@ sim_quants_plots <- function(preds, yrs, obs, type){
     
     quant_df <- tibble(year = yrs,
                    obs = obs,
-                   med_pred = c(rep(NA, 29), quants[2,]),
-                   low_ci = c(rep(NA, 29), quants[1,]),
-                   up_ci = c(rep(NA, 29), quants[3,]))
+                   med_pred = c(rep(NA, (total_yrs - 30)), quants[2,]),
+                   low_ci = c(rep(NA, (total_yrs - 30)), quants[1,]),
+                   up_ci = c(rep(NA, (total_yrs - 30)), quants[3,]))
     
     plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs)) +
       geom_line(aes(x = year, y = med_pred), color = "blue",) +
@@ -95,21 +96,75 @@ yr_trend_plot <- function(preds, obs, ts_vec){
 }
 
 
-aurora_preds <- array(c(m_preds, ar_preds, bh_preds, simplex_preds, hmm_preds),
-                      dim = c(21,1001,5))
-aurora_preds_long <- array(c(m_preds_long, ar_preds_long, bh_preds_long, 
-                           simplex_preds_long, hmm_preds_long), dim = c(21,1001,5))
 
 print_plots <- function(preds1, preds2, obs, yrs, t1, t2){
   print(sim_quants_plots(preds1, yrs, obs, type = "short"))
-  print(coverage_prob_plot(preds1))
-  print(mrae_plot(preds1, obs, t1))
+  print(coverage_prob_plot(preds1)[[1]])
+  print(mrae_plot(preds1, obs, t1)[[1]])
   print(sim_quants_plots(preds2, yrs, obs, type = "long"))
-  print(coverage_prob_plot(preds2))
+  print(coverage_prob_plot(preds2)[[1]])
   print(yr_trend_plot(preds2, obs, t2))
 }
 
-pdf(here("results/figures/aurora_forecast_figs.pdf"))
-print_plots(aurora_preds, aurora_preds_long, aurora$Recruit_0, aurora$Yr,
-            time_vec, time_vec2)
-dev.off()
+
+sim_quants_df <- function(preds){
+  fmethod <- dim(preds)[3]
+  yrs <- dim(preds)[1]
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM")
+  
+  sim_quants_df <- tibble(method = rep(NA, fmethod*yrs),
+                          low_ci = rep(NA, fmethod*yrs),
+                          median = rep(NA, fmethod*yrs),
+                          up_ci = rep(NA, fmethod*yrs))
+  
+  for(i in 1:fmethod){
+    predsi <- preds[,,i]
+    quants <- apply(predsi[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+    
+    sim_quants_df[((yrs*i-(yrs-1)):(yrs*i)), 1] <- rep(methods[i], yrs)
+    sim_quants_df[((yrs*i-(yrs-1)):(yrs*i)), 2] <- quants[1,]
+    sim_quants_df[((yrs*i-(yrs-1)):(yrs*i)), 3] <- quants[2,]
+    sim_quants_df[((yrs*i-(yrs-1)):(yrs*i)), 4] <- quants[3,]
+    
+  }
+  
+  return(as.data.frame(sim_quants_df))
+}
+
+yr_trend_df <- function(preds, ts_vec){
+  fmethod <- dim(preds)[3]
+  yrs <- length(ts_vec)
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM")
+  
+  sim_trend_df <- tibble(method = rep(NA, fmethod*yrs),
+                          low_ci = rep(NA, fmethod*yrs),
+                          median = rep(NA, fmethod*yrs),
+                          up_ci = rep(NA, fmethod*yrs))
+  
+  for(i in 1:fmethod){
+    predsi <- preds[,,i]
+    sim_trend <- sim_5yr_trend(preds[,,i], ts_vec)
+    
+    sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 1] <- rep(methods[i], yrs)
+    sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 2] <- sim_trend[1,]
+    sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 3] <- sim_trend[2,]
+    sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 4] <- sim_trend[3,]
+    
+  }
+  
+  return(as.data.frame(sim_trend_df))
+}
+
+
+save_performance_stats <- function(preds1, preds2, obs, yrs, t1, t2){
+  performance_list <- list(short_forecast_quants = sim_quants_df(preds1),
+                           short_cov_prob = coverage_prob_plot(preds1)[[2]],
+                           mrae = mrae_plot(preds1, obs, t1)[[2]],
+                           long_forecast_quants = sim_quants_df(preds2),
+                           long_cov_prob = coverage_prob_plot(preds2)[[2]],
+                           yr_trend = yr_trend_df(preds2, t2))
+  
+  return(performance_list)
+}
+
+
