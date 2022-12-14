@@ -291,16 +291,16 @@ sink()
 
 
 
-# Cabezon OCS rockfish forecasts ###################################
+# Cabezon ORS rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-cabezon_ocs <- filter_sr_data(cabezon_ocs)
+cabezon_ors <- filter_sr_data(cabezon_ors)
 
-plot(cabezon_ocs$Yr, cabezon_ocs$Recruit_0, type = "l")
-plot(cabezon_ocs$SpawnBio, cabezon_ocs$Recruit_0)
+plot(cabezon_ors$Yr, cabezon_ors$Recruit_0, type = "l")
+plot(cabezon_ors$SpawnBio, cabezon_ors$Recruit_0)
 
 # create recruitment/spawning biomass vectors
-rec_ts <- cabezon_ocs$Recruit_0
-spawn_ts <- cabezon_ocs$SpawnBio
+rec_ts <- cabezon_ors$Recruit_0
+spawn_ts <- cabezon_ors$SpawnBio
 # create time vectors
 time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
 time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
@@ -337,13 +337,13 @@ write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/
 write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_simplex.csv"))
 
 ## Visualize forecasts ----------------------------------------------------------
-pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/cabezon_ocs_forecast_figs.pdf"))
-print_plots(cabezon_ocs_sims_short, cabezon_ocs_sims_long, cabezon_ocs$Recruit_0, cabezon_ocs$Yr, time_vec1, time_vec2)
+pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/cabezon_ors_forecast_figs.pdf"))
+print_plots(cabezon_ors_sims_short, cabezon_ors_sims_long, cabezon_ors$Recruit_0, cabezon_ors$Yr, time_vec1, time_vec2)
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
-sink(here("results/simulation_results/west_coast/performance_stats/cabezon_ocs_stats.txt"))
-print(save_performance_stats(cabezon_ocs_sims_short, cabezon_ocs_sims_long, cabezon_ocs$Recruit_0, cabezon_ocs$Yr, time_vec1, time_vec2))
+sink(here("results/simulation_results/west_coast/performance_stats/cabezon_ors_stats.txt"))
+print(save_performance_stats(cabezon_ors_sims_short, cabezon_ors_sims_long, cabezon_ors$Recruit_0, cabezon_ors$Yr, time_vec1, time_vec2))
 sink()
 
 

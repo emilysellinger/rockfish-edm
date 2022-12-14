@@ -51,9 +51,9 @@ sim_quants_plots <- function(preds, yrs, obs, type){
     
     quant_df <- tibble(year = yrs,
                    obs = obs,
-                   med_pred = c(rep(NA, (total_yrs - 30)), quants[2,]),
-                   low_ci = c(rep(NA, (total_yrs - 30)), quants[1,]),
-                   up_ci = c(rep(NA, (total_yrs - 30)), quants[3,]))
+                   med_pred = c(rep(NA, (total_yrs - dim(quants)[2])), quants[2,]),
+                   low_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[1,]),
+                   up_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[3,]))
     
     plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs)) +
       geom_line(aes(x = year, y = med_pred), color = "blue",) +
