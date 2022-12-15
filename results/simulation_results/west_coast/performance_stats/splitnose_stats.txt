@@ -1,0 +1,90 @@
+$short_forecast_quants
+               method    low_ci    median     up_ci
+1                Mean  2006.428  9748.576  45170.77
+2                Mean  2167.309 10279.115  49662.71
+3                Mean  2102.631 10454.001  50361.24
+4                Mean  2117.895 11459.999  63255.28
+5                Mean  1914.194 12089.677  75221.63
+6               AR(1)  5189.053 17304.716  57847.41
+7               AR(1)  5208.109 16763.721  54188.78
+8               AR(1)  9298.129 28399.644  92966.26
+9               AR(1) 11189.178 36059.250 127279.84
+10              AR(1) 18014.260 56741.213 182225.85
+11      Beverton-Holt  2217.144 10240.343  42810.14
+12      Beverton-Holt  2210.942  9948.610  43667.02
+13      Beverton-Holt  2242.140 10102.520  51681.93
+14      Beverton-Holt  2352.131 11492.866  61431.85
+15      Beverton-Holt  2069.029 12056.297  74477.38
+16 Simplex projection  4253.860 18705.199  97865.38
+17 Simplex projection  5840.859 27257.416 122178.93
+18 Simplex projection  5856.226 29158.253 133403.98
+19 Simplex projection  6781.108 36673.040 171136.37
+20 Simplex projection  6717.372 35792.050 218506.80
+
+$short_cov_prob
+              method coverage_prob
+1               mean           0.6
+2              AR(1)           0.8
+3      Beverton-Holt           0.6
+4 simplex projection           1.0
+
+$mrae
+   year             method     mrae
+1     1               mean 1.672646
+2     2               mean 3.857333
+3     3               mean 5.185496
+4     4               mean 8.199819
+5     5               mean 1.553811
+6     1              AR(1) 1.386594
+7     2              AR(1) 3.097372
+8     3              AR(1) 3.336847
+9     4              AR(1) 5.369676
+10    5              AR(1) 6.854126
+11    1      Beverton-Holt 1.628417
+12    2      Beverton-Holt 3.859428
+13    3      Beverton-Holt 5.162259
+14    4      Beverton-Holt 8.143454
+15    5      Beverton-Holt 1.444903
+16    1 simplex projection 2.163354
+17    2 simplex projection 3.466626
+18    3 simplex projection 4.038042
+19    4 simplex projection 5.976652
+20    5 simplex projection 5.255104
+
+$long_forecast_quants
+               method   low_ci    median     up_ci
+1                Mean 1912.403  9117.872  53739.80
+2                Mean 2088.316 10191.430  46426.13
+3                Mean 1889.470  9823.457  46892.24
+4                Mean 2074.666  9817.203  47353.72
+5                Mean 1895.849  9606.279  44031.69
+6               AR(1) 5688.681 17088.858  51809.56
+7               AR(1) 4650.176 14467.727  45462.51
+8               AR(1) 4048.479 12533.842  40983.09
+9               AR(1) 3920.078 11616.317  35160.05
+10              AR(1) 3479.443 11086.540  32650.94
+11      Beverton-Holt 1999.680  9532.570  39817.22
+12      Beverton-Holt 1934.897  9270.383  49689.51
+13      Beverton-Holt 2018.329  9937.989  49634.49
+14      Beverton-Holt 2319.614 10028.629  45599.61
+15      Beverton-Holt 2147.351  9915.172  43020.77
+16 Simplex projection 4360.681 18850.384  91926.58
+17 Simplex projection 4109.269 18443.120  79060.58
+18 Simplex projection 3955.443 18144.067  98609.82
+19 Simplex projection 5452.311 23471.355 112781.84
+20 Simplex projection 4194.209 19056.473  99624.33
+
+$long_cov_prob
+              method coverage_prob
+1               mean           0.6
+2              AR(1)           0.6
+3      Beverton-Holt           0.6
+4 simplex projection           1.0
+
+$yr_trend
+              method    low_ci   median    up_ci
+1               Mean  5682.964 12250.36 27403.32
+2              AR(1)  9064.030 15112.03 26022.33
+3      Beverton-Holt  6007.907 12411.75 28524.77
+4 Simplex projection 11667.930 25184.19 56387.91
+
