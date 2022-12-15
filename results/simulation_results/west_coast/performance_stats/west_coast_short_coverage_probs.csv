@@ -1,0 +1,77 @@
+stock,method,coverage_prob
+aurora,mean,0.6666667
+aurora,AR(1),0.6666667
+aurora,Beverton-Holt,0.7142857
+aurora,simplex projection,0.8571429
+black_CA,mean,0.9130435
+black_CA,AR(1),0.9565217
+black_CA,Beverton-Holt,0.9130435
+black_CA,simplex projection,0.9565217
+black_WA,mean,0.826087
+black_WA,AR(1),0.7826087
+black_WA,Beverton-Holt,0.7826087
+black_WA,simplex projection,0.7826087
+bocaccio,mean,1
+bocaccio,AR(1),0.962963
+bocaccio,Beverton-Holt,1
+bocaccio,simplex projection,1
+cabezon_ncs,mean,0.8148148
+cabezon_ncs,AR(1),0.8518519
+cabezon_ncs,Beverton-Holt,0.7777778
+cabezon_ncs,simplex projection,0.9259259
+cabezon_ors,mean,1
+cabezon_ors,AR(1),1
+cabezon_ors,Beverton-Holt,1
+cabezon_ors,simplex projection,1
+cabezon_scs,mean,1
+cabezon_scs,AR(1),1
+cabezon_scs,Beverton-Holt,1
+cabezon_scs,simplex projection,0.9333333
+canary1,mean,0.8076923
+canary1,AR(1),0.8076923
+canary1,Beverton-Holt,0.7692308
+canary1,simplex projection,0.8461538
+chilipepper,mean,0.95
+chilipepper,AR(1),0.95
+chilipepper,Beverton-Holt,0.95
+chilipepper,simplex projection,0.95
+darkblotched,mean,0.8461538
+darkblotched,AR(1),0.8461538
+darkblotched,Beverton-Holt,0.9230769
+darkblotched,simplex projection,0.9230769
+dover_sole,mean,0.8823529
+dover_sole,AR(1),1
+dover_sole,Beverton-Holt,0.8823529
+dover_sole,simplex projection,1
+kelp_greenling,mean,0.5
+kelp_greenling,AR(1),0.6666667
+kelp_greenling,Beverton-Holt,0.6666667
+kelp_greenling,simplex projection,0.6666667
+lingcod_n,mean,0.96875
+lingcod_n,AR(1),0.875
+lingcod_n,Beverton-Holt,0.96875
+lingcod_n,simplex projection,0.90625
+lingcod_s,mean,1
+lingcod_s,AR(1),1
+lingcod_s,Beverton-Holt,0.9090909
+lingcod_s,simplex projection,1
+petrale_sole,mean,0.875
+petrale_sole,AR(1),0.875
+petrale_sole,Beverton-Holt,0.85
+petrale_sole,simplex projection,0.875
+sablefish,mean,0.84375
+sablefish,AR(1),0.84375
+sablefish,Beverton-Holt,0.84375
+sablefish,simplex projection,0.8125
+splitnose,mean,0.6
+splitnose,AR(1),0.8
+splitnose,Beverton-Holt,0.6
+splitnose,simplex projection,1
+widow,mean,0.84
+widow,AR(1),0.8
+widow,Beverton-Holt,0.84
+widow,simplex projection,0.84
+yelloweye1,mean,0.8571429
+yelloweye1,AR(1),0.8214286
+yelloweye1,Beverton-Holt,0.8928571
+yelloweye1,simplex projection,0.9642857
