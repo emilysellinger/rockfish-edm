@@ -101,28 +101,53 @@ west_coast_ts_characteristics <- tibble(stock_name = snames,
                     depletion = rep(NA, length(snames)),
                     autocorrS = rep(NA, length(snames)),
                     autocorrR = rep(NA, length(snames)),
-                    num_yrs = ts_range[,"max_yr"])
+                    num_yrs = ts_range[,"max_yr"],
+                    log_sigmaR_full = rep(NA, length(snames)),
+                    log_sigmaR_test = rep(NA, length(snames)),
+                    regime_shift= rep(NA, length(snames)),
+                    detectable_SR = rep(NA, length(snames)))
 
 for(i in snames){
-  row1 <- which(depletion[, "stock_name"] == i)
+  row1 <- which(west_coast_ts_characteristics[, "stock_name"] == i)
   stock <- stocks %>% 
     filter(stock_name == i)
   
   stock <- filter_sr_data(stock)
   
+  
+  
   quants <- stock %>% 
     group_by(Area) %>% 
     summarise(dep = quantile(SpawnBio, probs = 0.05)/quantile(SpawnBio, probs = 0.95),
               acS = pacf(SpawnBio, plot = F)$acf[1],
-              acR = pacf(Recruit_0, plot = F)$acf[1])
+              acR = pacf(Recruit_0, plot = F)$acf[1],
+              sigmaR_full = sd(log(Recruit_0)),
+              sigmaR_test = sd(log(Recruit_0[30:length(Recruit_0)])))
   
   dep <- mean(quants$dep)
   acS <- mean(quants$acS)
   acR <- mean(quants$acR)
+  sigmaR_full <- mean(quants$sigmaR_full)
+  sigmaR_test <- mean(quants$sigmaR_test)
+  
+  stock <- stock %>% filter(Area == 1)
+  
+  # calculate change points
+  fitPelt	<-cpt.mean(log(stock$Recruit_0),method="PELT",test.stat="Normal",penalty="Manual",
+                     pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=6)
+  changes	<- fitPelt@cpts
+  
+  if(length(changes)> 1){
+    west_coast_ts_characteristics[row1, "regime_shift"] <- 1
+  }else{
+    west_coast_ts_characteristics[row1, "regime_shift"] <- 0
+  }
   
   west_coast_ts_characteristics[row1, "depletion"] <- dep
   west_coast_ts_characteristics[row1, "autocorrS"] <- acS
   west_coast_ts_characteristics[row1, "autocorrR"] <- acR
+  west_coast_ts_characteristics[row1, "log_sigmaR_full"] <- sigmaR_full
+  west_coast_ts_characteristics[row1, "log_sigmaR_test"] <- sigmaR_test
 }
 
 write_csv(west_coast_ts_characteristics, here("data", "west_coast_stock_characteristics.csv"))
