@@ -13,7 +13,7 @@ time_vec2 <- seq(30, (50-4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
 set.seed(112)
-aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec, rec_ts, spawn_ts)
+aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- aurora_sims[,,1]
@@ -136,7 +136,7 @@ time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 ## Short-term forecasts ----------------------------------------------------
 set.seed(1112)
-black_wa_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+black_wa_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- black_wa_sims_short[,,1]
