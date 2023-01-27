@@ -11,7 +11,9 @@ coverage_prob_plot <- function(preds){
   
   cplot <- ggplot(bayes_prob_df) + 
     geom_point(aes(x = method, y = coverage_prob), size = 3) + 
-    ylim(0, 1) + ylab("Coverage probability") + 
+    ylim(0, 1) + geom_hline(yintercept = 0.80, linetype = "dashed") +
+    geom_hline(yintercept = 0.95, linetype = "dashed") +
+    ylab("Coverage probability") + 
     xlab("Recruitment forecast method")
   
   return(list(cplot, as.data.frame(bayes_prob_df)))
@@ -55,8 +57,10 @@ sim_quants_plots <- function(preds, yrs, obs, type){
                    low_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[1,]),
                    up_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[3,]))
     
-    plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs)) +
-      geom_line(aes(x = year, y = med_pred), color = "blue",) +
+    plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs), alpha = 0.5) +
+      geom_point(aes(x = year, y = obs)) +
+      geom_point(aes(x = year, y = med_pred), color = "blue") +
+      geom_line(aes(x = year, y = med_pred), color = "blue", alpha = 0.5) +
       geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
       xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i]))
   }
@@ -86,7 +90,8 @@ yr_trend_plot <- function(preds, obs, ts_vec){
                             up_ci = sim_trend[3,])
     
     plist[[i]] <- ggplot(trend_df) + geom_line(aes(x = seq(1, nrow(trend_df)), y = real))+
-      geom_line(aes(x = seq(1, nrow(trend_df)), y = med), color = "blue") + 
+      geom_line(aes(x = seq(1, nrow(trend_df)), y = med), color = "blue", alpha = 0.5) + 
+      geom_point(aes(x = seq(1, nrow(trend_df)), y = med), color = "blue") +
       geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = seq(1, nrow(trend_df))), fill = "blue", alpha = 0.1) +
       labs(y = "Five-year rolling average", subtitle = paste(plot_num[i], methods[i]), x = "Years added to training set")
     

@@ -13,7 +13,7 @@ time_vec2 <- seq(30, (50-4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
 set.seed(112)
-aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec, rec_ts, spawn_ts)
+aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- aurora_sims[,,1]
@@ -30,7 +30,7 @@ write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west
 write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_simplex.csv"))
 
 ## Long-term forecasts ---------------------------------------------------------
-long_sims <- expanding_window_5yr(c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec = time_vec, time_vec2 = time_vec2, rec_ts, spawn_ts)
+long_sims <- expanding_window_5yr(c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds_long <- long_sims[,,1]
@@ -52,10 +52,8 @@ print_plots(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
-sink(here("results/simulation_results/west_coast/performance_stats/aurora_stats.txt"))
-print(save_performance_stats(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2))
-sink()
-
+aurora_stats <- save_performance_stats(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
+saveRDS(aurora_stats, file = here("results/simulation_results/west_coast/performance_stats/aurora_stats.Rds"))
 
 # Black Rockfish CA forecasts ##################################################
 ## Set Up ------------------------------------------------------------------
