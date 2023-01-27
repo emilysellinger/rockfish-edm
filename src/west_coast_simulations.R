@@ -71,15 +71,14 @@ time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-set.seed(112)
-black_ca_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "hmm", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+black_ca_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- black_ca_sims_short[,,1]
 ar_preds <- black_ca_sims_short[,,2]
 bh_preds <- black_ca_sims_short[,,3]
-hmm_preds <- black_ca_sims_short[,,4]
-simplex_preds <- black_ca_sims_short[,,5]
+simplex_preds <- black_ca_sims_short[,,4]
+hmm_preds <- black_ca_sims_short[,,5]
 
 # save to csv
 write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_mean.csv"))
@@ -90,15 +89,15 @@ write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/
 
 
 ## Long-term forecasts -----------------------------------------------------
-black_ca_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1,time_vec2, rec_ts, spawn_ts)
-black_ca_sims_long2 <- expanding_window_5yr(fmethods = c("hmm"), 1000, time_vec1,time_vec2, rec_ts, spawn_ts)
+black_ca_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
+
 
 # extract forecasts
 m_preds_long <- black_ca_sims_long[,,1]
 ar_preds_long <- black_ca_sims_long[,,2]
 bh_preds_long <- black_ca_sims_long[,,3]
 simplex_preds_long <- black_ca_sims_long[,,4]
-hmm_preds_long <- black_ca_sims_long2[,,1]
+hmm_preds_long <- black_ca_sims_long[,,5]
 
 # save to csv
 write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_mean.csv"))
@@ -113,9 +112,9 @@ print_plots(black_ca_sims_short, black_ca_sims_long, black_ca$Recruit_0, black_c
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
-sink(here("results/simulation_results/west_coast/performance_stats/blackCA_stats.txt"))
-print(save_performance_stats(black_ca_sims_short, black_ca_sims_long, black_ca$Recruit_0, black_ca$Yr, time_vec1, time_vec2))
-sink()
+black_ca_stats <- save_performance_stats(black_ca_sims_short, black_ca_sims_long, black_ca$Recruit_0, black_ca$Yr, time_vec1, time_vec2)
+saveRDS(black_ca_stats, file = here("results/simulation_results/west_coast/performance_stats/black_ca_stats.Rds"))
+
 
 # Black rockfish WA forecasts ######################################
 ## Set Up ------------------------------------------------------------------
@@ -133,29 +132,30 @@ time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-set.seed(1112)
-black_wa_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, rec_ts, spawn_ts)
+black_wa_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds <- black_wa_sims_short[,,1]
 ar_preds <- black_wa_sims_short[,,2]
 bh_preds <- black_wa_sims_short[,,3]
 simplex_preds <- black_wa_sims_short[,,4]
+hmm_preds <- black_wa_sims_short[,,5]
 
 # save to csv
 write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_mean.csv"))
 write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_ar.csv"))
 write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_bh.csv"))
 write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_simplex.csv"))
-
+write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_hmm.csv"))
 ## Long-term forecasts -----------------------------------------------------
-black_wa_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex"), 1000, time_vec1, time_vec2, rec_ts, spawn_ts)
+black_wa_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
 
 # extract forecasts
 m_preds_long <- black_wa_sims_long[,,1]
 ar_preds_long <- black_wa_sims_long[,,2]
 bh_preds_long <- black_wa_sims_long[,,3]
 simplex_preds_long <- black_wa_sims_long[,,4]
+hmm_preds_long <- black_wa_sims_long[,,5]
 
 # save to csv
 write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_mean.csv"))
