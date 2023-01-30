@@ -94,6 +94,8 @@ filter_sr_data <- function(df){
 }
 
 # Time Series Characteristics -------------------------------------------------------------------------
+library(FSA)
+
 ts_range <- west_coast_years[,"max_yr"] - west_coast_years[,"min_yr"]
 quantile(ts_range[,"max_yr"], probs = c(0.25, 0.5, 0.75))
 
@@ -104,18 +106,20 @@ west_coast_ts_characteristics <- tibble(stock_name = snames,
                     num_yrs = ts_range[,"max_yr"],
                     log_sigmaR_full = rep(NA, length(snames)),
                     log_sigmaR_test = rep(NA, length(snames)),
-                    regime_shift= rep(NA, length(snames)),
+                    regime_shift = rep(NA, length(snames)),
                     detectable_SR = rep(NA, length(snames)))
 
 for(i in snames){
+  # find row for stock in summary csv file
   row1 <- which(west_coast_ts_characteristics[, "stock_name"] == i)
+  # filter stock to single df
   stock <- stocks %>% 
     filter(stock_name == i)
-  
+  # remove excess years
   stock <- filter_sr_data(stock)
   
   
-  
+  # summarize characteristics by assessment area
   quants <- stock %>% 
     group_by(Area) %>% 
     summarise(dep = quantile(SpawnBio, probs = 0.05)/quantile(SpawnBio, probs = 0.95),
@@ -130,11 +134,20 @@ for(i in snames){
   sigmaR_full <- mean(quants$sigmaR_full)
   sigmaR_test <- mean(quants$sigmaR_test)
   
+  # save values to csv file
+  west_coast_ts_characteristics[row1, "depletion"] <- dep
+  west_coast_ts_characteristics[row1, "autocorrS"] <- acS
+  west_coast_ts_characteristics[row1, "autocorrR"] <- acR
+  west_coast_ts_characteristics[row1, "log_sigmaR_full"] <- sigmaR_full
+  west_coast_ts_characteristics[row1, "log_sigmaR_test"] <- sigmaR_test
+  
+  
+  # regime shifts
   stock <- stock %>% filter(Area == 1)
   
-  # calculate change points
-  fitPelt	<-cpt.mean(log(stock$Recruit_0),method="PELT",test.stat="Normal",penalty="Manual",
-                     pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=6)
+  # calculate change points for full time series
+  fitPelt <- cpt.mean(log(stock$Recruit_0),method="PELT",test.stat="Normal",penalty="Manual",
+                       pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=6)
   changes	<- fitPelt@cpts
   
   if(length(changes)> 1){
@@ -143,11 +156,151 @@ for(i in snames){
     west_coast_ts_characteristics[row1, "regime_shift"] <- 0
   }
   
-  west_coast_ts_characteristics[row1, "depletion"] <- dep
-  west_coast_ts_characteristics[row1, "autocorrS"] <- acS
-  west_coast_ts_characteristics[row1, "autocorrR"] <- acR
-  west_coast_ts_characteristics[row1, "log_sigmaR_full"] <- sigmaR_full
-  west_coast_ts_characteristics[row1, "log_sigmaR_test"] <- sigmaR_test
+  # determine if SR relationship is present
+  west_coast_ts_characteristics[row1, "detectable_SR"] <- find_SR_relationship(stock)
+  
+  
 }
 
+# Save time series characteristics to data file
 write_csv(west_coast_ts_characteristics, here("data", "west_coast_stock_characteristics.csv"))
+
+## SR functions ---------------------------------------------------------------
+# find starting values for beverton holt and ricker curves
+find_SR_relationship <- function(stock){
+  ricker_starts <- srStarts(Recruit_0~SpawnBio, data = stock, type = "Ricker", param = 1)
+  bevholt_starts <- srStarts(Recruit_0~SpawnBio, data = stock, type = "BevertonHolt", param = 1)
+  
+  if(ricker_starts[2] < 0){ricker_starts[2] <- 0.000001} # make sure ricker b param is positive
+  if(bevholt_starts[1] < 0){bevholt_starts[1] <- 0.000001} # make sure bevholt a param is positive
+  if(bevholt_starts[2] < 0){bevholt_starts[2] <- 0.000001} # make sure bevholt b param is positive
+  
+  # fit ricker and beverton holt models to stock
+  ricker_fit <- ricker(stock, ricker_starts)
+  bevholt_fit <- bevholt(stock, bevholt_starts)
+  
+  # calculate AICc for both models
+  params <- 3
+  n <- nrow(stock)
+  ricker_AICc <- AIC(ricker_fit) + ((2*params*(params+1)) /(n - params - 1))
+  bevholt_AICc <- AIC(bevholt_fit) + ((2*params*(params+1)) /(n - params - 1))
+  
+  # calculate relative likelihood
+  if(ricker_AICc < bevholt_AICc){
+    rel_likelihood <- 1/(1 + exp((ricker_AICc - bevholt_AICc)/2))
+    min_model <- "ricker"
+  }else{
+    rel_likelihood <- 1/(1 + exp((bevholt_AICc - ricker_AICc)/2))
+    min_model <- "bevholt"
+  }
+  
+  # correlation analysis
+  if(min_model == "ricker" && rel_likelihood > 0.75){
+    # find max SpBio
+    ricker_b <-  exp(unname(ricker_fit@coef[2]))
+    max_sb <- 1/ricker_b
+    
+    # find S-R pairs greater than max & remove from dataset
+    stock <- stock %>% 
+      filter(SpawnBio <= 1.5*max_sb)
+    # some of the ricker curves don't fit as well, will add a workaround
+    # since the correlation will be negative (i.e. environmentally influenced)
+    if(nrow(stock) <= 3){
+      stock <- stocks %>% 
+        filter(stock_name == i) %>% 
+        filter(Area == 1)
+    }
+    # find spearman's correlation
+    corrr <- cor.test(rank(stock$Recruit_0), rank(stock$SpawnBio))
+    
+    # determine driver - if lag0 is positive and significant, the stock has some evidence of SR relationship
+    if(corrr$estimate > 0 && corrr$p.value < 0.05){
+      SR_relationship <- 1
+    }else{
+      SR_relationship <- 0
+    }
+  }else{
+    # get ranks for recruitment and spawning biomass
+    stock <- stock %>%
+      mutate(rec_rank = rank(Recruit_0)) %>%
+      mutate(sb_rank = rank(SpawnBio))
+    
+    
+    # find cross correlation values
+    stock_ccf <- ccf(stock$rec_rank, stock$sb_rank, lag.max = 10)
+    stock_ccf_df <- data.frame(lag = stock_ccf$lag,
+                               ccf = stock_ccf$acf)
+    
+    
+    
+    # save zero-lagged correlation value and threshold significance value
+    zero_lag <- stock_ccf_df[11,2]
+    
+    stock_ccf_df <- stock_ccf_df %>% 
+      filter(lag < 0)
+    
+    # Correlation
+    corrr <- cor.test(rank(stock$rec_rank), rank(stock$sb_rank))
+    
+    if(zero_lag > 0 && corrr$p.value < 0.05){
+      if(all(stock_ccf_df$ccf < zero_lag)){
+        SR_relationship <- 1 
+      }else{
+        SR_relationship <- 2
+      }
+    }else{
+      SR_relationship <- 0
+    }
+  }
+  
+  return(SR_relationship)
+}
+
+bevholt <- function(stock, starts_df){
+  dats <- stock$SpawnBio
+  datr <- stock$Recruit_0
+  
+  BHminusLL <- function(loga, logb, logsigmaR){
+    # extract parameters
+    a <- exp(loga); b <- exp(logb); sigmaR <- exp(logsigmaR)
+    
+    # make predictions
+    pred <- log(a*dats/(1 + b*dats))
+    
+    #calculate negative log like
+    NegLogL <- (-1)*sum(dnorm(log(datr), pred, sigmaR, log = TRUE))
+    return(NegLogL)
+  }
+  
+  
+  starts <- list(loga = log(starts_df$a), logb = log(starts_df$b), logsigmaR = 5)
+  mle_out <- mle(BHminusLL, start = starts)
+  
+  # return output
+  return(mle_out)
+}
+
+ricker <- function(stock, starts_df){
+  dats <- stock$SpawnBio
+  datr <- stock$Recruit_0
+  
+  RminusLL <- function(loga, logb, logsigmaR){
+    # extract parameters
+    a <- exp(loga); b <- exp(logb); sigmaR <- exp(logsigmaR)
+    
+    # make predictions
+    pred <- log(a*dats*exp(-b*dats))
+    
+    #calculate negative log like
+    NegLogL <- (-1)*sum(dnorm(log(datr), pred, sigmaR, log = TRUE))
+    return(NegLogL)
+  }
+  
+  
+  starts <- list(loga = log(starts_df$a), logb = log(starts_df$b), logsigmaR = 5)
+  mle_out <- mle(RminusLL, start = starts)
+  
+  # return output
+  return(mle_out)
+}
+

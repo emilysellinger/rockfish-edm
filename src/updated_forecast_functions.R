@@ -138,7 +138,7 @@ rec_HMM_sample <- function(x, df1, df2, nsims){
               logRS = log(datr/dats),
               logR = log(datr))
   # fit hidden markov model
-  mod1 <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
+  mod1 <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian(), instart = c(0.9,0.1))
   fit_mod1 <- fit(mod1, em = em.control(maxit = 500))
   
   
@@ -173,6 +173,24 @@ rec_HMM_sample <- function(x, df1, df2, nsims){
   
 }
 
+rec_chpt_sample <- function(x, df1, nsims){
+  # subset data to window size
+  dat <- df1[1:(x-1)]
+  
+  # fit changepoints
+  fitPelt <- cpt.meanvar(log(dat),method="PELT",test.stat="Normal",penalty="Manual",
+                      pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=7)
+  changes	<- fitPelt@cpts
+  
+  # use estimates of mean and variance of final regime to predict next year
+  mu <- tail(fitPelt@param.est$mean, n = 1)
+  sigmaR <- sqrt(tail(fitPelt@param.est$variance, n = 1))
+  pred <- exp(mu + rnorm(nsims, 0, sigmaR))
+  
+  # return forecasts
+  return(pred)
+}
+
 expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   
   sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
@@ -191,7 +209,8 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
         "ar" = rec_AR(time_vec[k], recruits, nsims),
         "bh" = rec_BH(time_vec[k], recruits, sbiomass, nsims),
         "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
-        "simplex" = rec_simplex(time_vec[k], recruits, nsims))
+        "simplex" = rec_simplex(time_vec[k], recruits, nsims),
+        "chpt" = rec_chpt_sample(time_vec[k], recruits, nsims))
     }
     
     sim_preds[,,i] <- preds
@@ -275,7 +294,7 @@ lrec_HMM_sample <- function(x, df1, df2, nsims){
               spawn = dats,
               logRS = log(datr/dats))
   # fit hidden markov model
-  mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())
+  mod <- depmix(logRS ~ spawn, data = a, nstates = 2, family = gaussian())#, instart = c(0.9, 0.1))
   fit_mod <- fit(mod)
   #summary(fit_mod)
   fit_post <- posterior(fit_mod, type = "viterbi")
@@ -334,6 +353,25 @@ lrec_simplex <- function(x, df1, nsims){
 }
 
 
+lrec_chpt_sample <- function(x, df1, nsims){
+  # subset data to window size
+  dat <- df1[1:(x-5)]
+  
+  # fit changepoints
+  fitPelt <- cpt.meanvar(log(dat),method="PELT",test.stat="Normal",penalty="Manual",
+                         pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=7)
+  changes	<- fitPelt@cpts
+  
+  # use estimates of mean and variance of final regime to predict next year
+  mu <- tail(fitPelt@param.est$mean, n = 1)
+  sigmaR <- sqrt(tail(fitPelt@param.est$variance, n = 1))
+  pred <- exp(mu + rnorm(nsims, 0, sigmaR))
+  
+  # return forecasts
+  return(pred)
+}
+
+
 expanding_window_5yr <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   
   sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
@@ -352,7 +390,8 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, recruits, sbiomass){
         "ar" = lrec_AR(time_vec[k], recruits, nsims),
         "bh" = lrec_BH(time_vec[k], recruits, sbiomass, nsims),
         "hmm" = lrec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
-        "simplex" = lrec_simplex(time_vec[k], recruits, nsims))
+        "simplex" = lrec_simplex(time_vec[k], recruits, nsims),
+        "chpt" = lrec_chpt_sample(time_vec[k], recruits, nsims))
     }
     
     sim_preds[,,i] <- preds

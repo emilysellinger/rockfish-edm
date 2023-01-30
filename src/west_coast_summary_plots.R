@@ -1,38 +1,68 @@
-# Create plots for to summarize simulations across species
-coverage_probs <- read_csv(here("results/simulation_results/west_coast/performance_stats/west_coast_short_coverage_probs.csv"))
+
+# coverage probs
+coverage_probs_short <- rbind(aurora_stats$short_cov_prob, black_ca_stats$short_cov_prob,
+                              black_wa_stats$short_cov_prob, cabezon_ncs_stats$short_cov_prob,
+                              cabezon_ors_stats$short_cov_prob, cabezon_scs_stats$short_cov_prob,
+                              canary1_stats$short_cov_prob, chilipepper_stats$short_cov_prob,
+                              darkblotched_stats$short_cov_prob, dover_sole_stats$short_cov_prob,
+                              kelp_greenling_stats$short_cov_prob, lingcod_n_stats$short_cov_prob,
+                              lingcod_s_stats$short_cov_prob, sablefish_stats$short_cov_prob,
+                              splitnose_stats$short_cov_prob, yelloweye1_stats$short_cov_prob)
+
+coverage_probs_short$stock_name <- c(rep("aurora", nrow(aurora_stats$short_cov_prob)), rep("black_ca", nrow(black_ca_stats$short_cov_prob)),
+                                     rep("black_wa", nrow(black_wa_stats$short_cov_prob)), rep("cabezon_ncs", nrow(cabezon_ncs_stats$short_cov_prob)),
+                                     rep("cabezon_ors", nrow(cabezon_ors_stats$short_cov_prob)), rep("cabezon_scs", nrow(cabezon_scs_stats$short_cov_prob)),
+                                     rep("canary", nrow(canary1_stats$short_cov_prob)), rep("chilipepper", nrow(chilipepper_stats$short_cov_prob)),
+                                     rep("darkblotched", nrow(darkblotched_stats$short_cov_prob)), rep("dover_sole", nrow(dover_sole_stats$short_cov_prob)),
+                                     rep("kelp_greenling", nrow(kelp_greenling_stats$short_cov_prob)), rep("lingcod_n", nrow(lingcod_n_stats$short_cov_prob)),
+                                     rep("lingcod_s", nrow(lingcod_s_stats$short_cov_prob)), rep("sablefish", nrow(sablefish_stats$short_cov_prob)),
+                                     rep("splitnose", nrow(splitnose_stats$short_cov_prob)), rep("yelloweye", nrow(yelloweye1_stats$short_cov_prob)))
+
+coverage_probs_long <- rbind(aurora_stats$long_cov_prob, black_ca_stats$long_cov_prob,
+                              black_wa_stats$long_cov_prob, cabezon_ncs_stats$long_cov_prob,
+                              cabezon_ors_stats$long_cov_prob, cabezon_scs_stats$long_cov_prob,
+                              canary1_stats$long_cov_prob, chilipepper_stats$long_cov_prob,
+                              darkblotched_stats$long_cov_prob, dover_sole_stats$long_cov_prob,
+                              kelp_greenling_stats$long_cov_prob, lingcod_n_stats$long_cov_prob,
+                              lingcod_s_stats$long_cov_prob, sablefish_stats$long_cov_prob,
+                              splitnose_stats$long_cov_prob, yelloweye1_stats$long_cov_prob)
+
+coverage_probs_long$stock_name <- c(rep("aurora", nrow(aurora_stats$long_cov_prob)), rep("black_ca", nrow(black_ca_stats$long_cov_prob)),
+                                     rep("black_wa", nrow(black_wa_stats$long_cov_prob)), rep("cabezon_ncs", nrow(cabezon_ncs_stats$long_cov_prob)),
+                                     rep("cabezon_ors", nrow(cabezon_ors_stats$long_cov_prob)), rep("cabezon_scs", nrow(cabezon_scs_stats$long_cov_prob)),
+                                     rep("canary", nrow(canary1_stats$long_cov_prob)), rep("chilipepper", nrow(chilipepper_stats$long_cov_prob)),
+                                     rep("darkblotched", nrow(darkblotched_stats$long_cov_prob)), rep("dover_sole", nrow(dover_sole_stats$long_cov_prob)),
+                                     rep("kelp_greenling", nrow(kelp_greenling_stats$long_cov_prob)), rep("lingcod_n", nrow(lingcod_n_stats$long_cov_prob)),
+                                     rep("lingcod_s", nrow(lingcod_s_stats$long_cov_prob)), rep("sablefish", nrow(sablefish_stats$long_cov_prob)),
+                                     rep("splitnose", nrow(splitnose_stats$long_cov_prob)), rep("yelloweye", nrow(yelloweye1_stats$long_cov_prob)))
+
 # Summary stats -----------------------------------------------------------
 
 # plot results
-pdf(here("results/figures/west_coast_stocks/stock_cov_prob_1stp.pdf"))
-print(ggplot(coverage_probs) + geom_point(aes(x = method, y = coverage_prob, color = stock)) +
-  labs(x = "Forecast method", y = "Coverage probability", color = "Stock", title = "1 step forecasts"))
+pdf(here("results/figures/west_coast_stocks/summary_figures/1step_coverage_prob_boxplot.pdf"))
+ggplot(coverage_probs_short) + geom_boxplot(aes(x = coverage_prob, y = method)) + 
+  labs(x = "Coverage probability", y = "Forecast method", title = "1 step ahead forecast coverage probabilty")
 dev.off()
 
-
-pdf(here("results/figures/west_coast_stocks/1step_coverage_prob_boxplot.pdf"))
-ggplot(coverage_probs) + geom_boxplot(aes(x = coverage_prob, y = method)) + 
-  labs(x = "Coverage probability", y = "Forecast method", title = "1 step ahead forecast coverage probabilty")
+pdf(here("results/figures/west_coast_stocks/summary_figures/5step_coverage_prob_boxplot.pdf"))
+ggplot(coverage_probs_long) + geom_boxplot(aes(x = coverage_prob, y = method)) + 
+  labs(x = "Coverage probability", y = "Forecast method", title = "5 step ahead forecast coverage probabilty")
 dev.off()
 
 # check with autocorrelation
 west_coast_stock_characteristics <- read_csv(here("data/west_coast_stock_characteristics.csv"))
 
-colnames(coverage_probs)[1] <- "stock_name"
-coverage_probs$stock_name[which(coverage_probs == "black_CA")] <- "black_ca"
-coverage_probs$stock_name[which(coverage_probs == "black_WA")] <- "black_wa"
 
-coverage_probs$stock_name[which(coverage_probs == "canary1")] <- "canary"
-coverage_probs$stock_name[which(coverage_probs == "yelloweye1")] <- "yelloweye"
-coverage_probs <- left_join(coverage_probs, west_coast_stock_characteristics)
+coverage_probs_short <- left_join(coverage_probs_short, west_coast_stock_characteristics)
 
-a <- ggplot(coverage_probs) + 
+a <- ggplot(coverage_probs_short) + 
   geom_point(aes(x = depletion, y = coverage_prob, color = method), size = 2, alpha = 0.4) +
   labs(x = "Historical depletion", y = "Coverage probability", subtitle = "(a)", title = "1 step ahead forecast coverage probabilities")
 
-b <- ggplot(coverage_probs) + geom_point(aes(x = autocorrR, y = coverage_prob, color = method), 
+b <- ggplot(coverage_probs_short) + geom_point(aes(x = autocorrR, y = coverage_prob, color = method), 
                                   size = 2, alpha = 0.4) +
   labs(x = "Recruitment autocorrelation", y = "Coverage probability", subtitle = "(b)")
-c <- ggplot(coverage_probs) + geom_point(aes(x = num_yrs, y = coverage_prob, color = method), 
+c <- ggplot(coverage_probs_short) + geom_point(aes(x = num_yrs, y = coverage_prob, color = method), 
                                   size = 2, alpha = 0.4) +
   labs(x = "Length of recruitment time series", y = "Coverage probability", subtitle = "(c)")
 
