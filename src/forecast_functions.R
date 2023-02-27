@@ -94,7 +94,8 @@ rec_simplex <- function(x, df1, nsims){
   sigmaR <- sd(log(dat))
   
   # determine optimal embedding dimension
-  simplex_output <- simplex(log(df1), sim_lib, sim_pred)
+  simplex_output <- simplex(log(df1), sim_lib, sim_pred, E = 1:9)
+  #print(simplex_output)
   
   rho_vals <- unlist(simplex_output$rho)
   #print(rho_vals)
@@ -326,11 +327,12 @@ lrec_simplex <- function(x, df1, nsims){
   sim_pred <- c(x-5, length(df1))
   
   # calculate standard deviation for subsetted data frame
-  dat <- df1[1:(x-1)]
+  dat <- df1[1:(x-5)]
   sigmaR <- sd(log(dat))
   
   # determine optimal embedding dimension
-  simplex_output1 <- simplex(log(df1), sim_lib, sim_pred)
+  simplex_output1 <- simplex(log(df1), sim_lib, sim_pred, E = 1:7)
+  #print(simplex_output1)
   
   rho_vals <- unlist(simplex_output1$rho)
   E_val <- unname(which.max(rho_vals))

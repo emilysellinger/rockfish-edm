@@ -1,6 +1,6 @@
 coverage_prob_plot <- function(preds){
   fmethod <- dim(preds)[3]
-  methods <- c("mean", "AR(1)", "Beverton-Holt", "simplex projection", "HMM", "PELT sample")
+  methods <- c("mean", "AR(1)", "Beverton-Holt", "simplex projection", "PELT sample", "HMM")
   
   bayes_prob_df <- tibble(method = methods[1:fmethod],
                           coverage_prob = rep(NA, fmethod))
@@ -22,7 +22,7 @@ coverage_prob_plot <- function(preds){
 mrae_plot <- function(preds, obs, ts_vec){
   fmethod <- dim(preds)[3]
   ts <- dim(preds)[1]
-  methods <- c("mean", "AR(1)", "Beverton-Holt", "simplex projection", "HMM", "PELT sample")
+  methods <- c("mean", "AR(1)","Beverton-Holt", "simplex projection", "PELT sample", "HMM")
   
   mrae_df <- tibble(year = c(rep(seq(1, ts), fmethod)),
                     method = c(rep(NA, ts*fmethod)),
@@ -42,7 +42,7 @@ mrae_plot <- function(preds, obs, ts_vec){
 sim_quants_plots <- function(preds, yrs, obs, type){
   plist <- list()
   fmethod <- dim(preds)[3]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM", "PELT sample")
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   total_yrs <- length(yrs)
   
@@ -76,7 +76,7 @@ sim_quants_plots <- function(preds, yrs, obs, type){
 yr_trend_plot <- function(preds, obs, ts_vec){
   plist <- list()
   fmethod <- dim(preds)[3]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM", "PELT sample")
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   
   real_trend <- rollmean(obs[20:length(obs)], 5)
@@ -115,7 +115,7 @@ print_plots <- function(preds1, preds2, obs, yrs, t1, t2){
 sim_quants_df <- function(preds){
   fmethod <- dim(preds)[3]
   yrs <- dim(preds)[1]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM", "PELT sample")
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
   
   sim_quants_df <- tibble(method = rep(NA, fmethod*yrs),
                           low_ci = rep(NA, fmethod*yrs),
@@ -139,7 +139,7 @@ sim_quants_df <- function(preds){
 yr_trend_df <- function(preds, ts_vec){
   fmethod <- dim(preds)[3]
   yrs <- length(ts_vec)
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "HMM", "PELT sample")
+  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
   
   sim_trend_df <- tibble(method = rep(NA, fmethod*yrs),
                           low_ci = rep(NA, fmethod*yrs),
