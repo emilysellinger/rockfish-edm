@@ -98,6 +98,7 @@ filter_alaska_sr_data <- function(df){
 }
 
 ts_range <- alaska_years[,"max_yr"] - alaska_years[,"min_yr"]
+# not enough years for BSAI blackspotted rougheye
 quantile(ts_range[,"max_yr"], probs = c(0.25, 0.5, 0.75))
 
 alaska_ts_characteristics <- tibble(stock_name = snames_alaska,
@@ -105,10 +106,10 @@ alaska_ts_characteristics <- tibble(stock_name = snames_alaska,
                                     autocorrS = rep(NA, length(snames_alaska)),
                                     autocorrR = rep(NA, length(snames_alaska)),
                                     num_yrs = ts_range[,"max_yr"],
-                                    log_sigmaR_full = rep(NA, length(snames)),
-                                    log_sigmaR_test = rep(NA, length(snames)),
-                                    regime_shift = rep(NA, length(snames)),
-                                    detectable_SR = rep(NA, length(snames)))
+                                    log_sigmaR_full = rep(NA, length(snames_alaska)),
+                                    log_sigmaR_test = rep(NA, length(snames_alaska)),
+                                    regime_shift = rep(NA, length(snames_alaska)),
+                                    detectable_SR = rep(NA, length(snames_alaska)))
 
 for(i in snames_alaska){
   row1 <- which(alaska_ts_characteristics[, "stock_name"] == i)
@@ -122,7 +123,7 @@ for(i in snames_alaska){
               acS = pacf(sbiomass, plot = F)$acf[1],
               acR = pacf(recruits, plot = F)$acf[1],
               sigmaR_full = sd(log(recruits)),
-              sigmaR_test = sd(log(recruits[30:length(recruits)])))
+              sigmaR_test = sd(log(recruits[20:length(recruits)])))
   
   
   
@@ -145,7 +146,7 @@ for(i in snames_alaska){
   }
   
   # determine if SR relationship is present
-  west_coast_ts_characteristics[row1, "detectable_SR"] <- find_SR_relationship(stock)
+  alaska_ts_characteristics[row1, "detectable_SR"] <- find_SR_relationship(stock)
   
 }
 
@@ -197,9 +198,8 @@ find_SR_relationship <- function(stock){
     # some of the ricker curves don't fit as well, will add a workaround
     # since the correlation will be negative (i.e. environmentally influenced)
     if(nrow(stock) <= 3){
-      stock <- stocks %>% 
-        filter(stock_name == i) %>% 
-        filter(Area == 1)
+      stock <- alaska_stocks %>% 
+        filter(stock_name == i)
     }
     # find spearman's correlation
     corrr <- cor.test(rank(stock$recruits), rank(stock$sbiomass))
