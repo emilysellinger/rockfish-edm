@@ -380,7 +380,8 @@ lrec_chpt_sample <- function(x, df1, nsims){
 
 expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   
-  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
+  sim_preds <- list()
+  #sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
   
   for(i in 1:length(fmethods)){
     fmethod <- fmethods[i]
@@ -392,24 +393,26 @@ expanding_window <- function(fmethods, nsims, time_vec, recruits, sbiomass){
     for(k in 1:length(time_vec)){
       preds[k, 2:(nsims+1)] <- switch(
         fmethod,
-        "m" = rec_mean(time_vec[k], recruits, nsims),
-        "ar" = rec_AR(time_vec[k], recruits, nsims),
-        "bh" = rec_BH(time_vec[k], recruits, sbiomass, nsims),
-        "hmm" = rec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
+        "mean" = rec_mean(time_vec[k], recruits, nsims),
+        "AR(1)" = rec_AR(time_vec[k], recruits, nsims),
+        "Beverton-Holt" = rec_BH(time_vec[k], recruits, sbiomass, nsims),
+        "HMM" = rec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
         "simplex" = rec_simplex(time_vec[k], recruits, nsims),
-        "chpt" = rec_chpt_sample(time_vec[k], recruits, nsims))
+        "PELT" = rec_chpt_sample(time_vec[k], recruits, nsims))
     }
     
-    sim_preds[,,i] <- preds
+    sim_preds[[i]] <- preds
+    
   }
   
+  names(sim_preds) <- fmethods
   return(sim_preds)
 }
 
 
 expanding_window_5yr <- function(fmethods, nsims, time_vec, recruits, sbiomass){
   
-  sim_preds <- array(NA, dim = c(length(time_vec), (nsims+1), length(fmethods)))
+  sim_preds <- list()
   
   for(i in 1:length(fmethods)){
     fmethod <- fmethods[i]
@@ -421,17 +424,17 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, recruits, sbiomass){
     for(k in 1:length(time_vec)){
       preds[k, 2:(nsims+1)] <- switch(
         fmethod,
-        "m" = lrec_mean(time_vec[k], recruits, nsims),
-        "ar" = lrec_AR(time_vec[k], recruits, nsims),
-        "bh" = lrec_BH(time_vec[k], recruits, sbiomass, nsims),
-        "hmm" = lrec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
+        "mean" = lrec_mean(time_vec[k], recruits, nsims),
+        "AR(1)" = lrec_AR(time_vec[k], recruits, nsims),
+        "Beverton-Holt" = lrec_BH(time_vec[k], recruits, sbiomass, nsims),
+        "HMM" = lrec_HMM_sample(time_vec[k],recruits, sbiomass, nsims),
         "simplex" = lrec_simplex(time_vec[k], recruits, nsims),
-        "chpt" = lrec_chpt_sample(time_vec[k], recruits, nsims))
+        "PELT" = lrec_chpt_sample(time_vec[k], recruits, nsims))
     }
     
-    sim_preds[,,i] <- preds
+    sim_preds[[i]] <- preds
   }
-  
+  names(sim_preds) <- fmethods
   return(sim_preds)
 }
 

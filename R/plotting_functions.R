@@ -1,12 +1,11 @@
 coverage_prob_plot <- function(preds){
-  fmethod <- dim(preds)[3]
-  methods <- c("mean", "AR(1)", "Beverton-Holt", "simplex projection", "PELT sample", "HMM")
+  fmethod <- length(names(preds))
   
-  bayes_prob_df <- tibble(method = methods[1:fmethod],
+  bayes_prob_df <- tibble(method = names(preds),
                           coverage_prob = rep(NA, fmethod))
   for(i in 1:fmethod){
     
-    bayes_prob_df[i,2] <- sim_CI_prob(preds[,,i], 0.95)
+    bayes_prob_df[i,2] <- sim_CI_prob(preds[[i]], 0.95)
   }
   
   cplot <- ggplot(bayes_prob_df) + 
@@ -20,16 +19,16 @@ coverage_prob_plot <- function(preds){
 }
 
 mrae_plot <- function(preds, obs, ts_vec){
-  fmethod <- dim(preds)[3]
-  ts <- dim(preds)[1]
-  methods <- c("mean", "AR(1)","Beverton-Holt", "simplex projection", "PELT sample", "HMM")
+  fmethod <- length(names(preds))
+  ts <- dim(preds[[1]])[1]
+  methods <- names(preds)
   
   mrae_df <- tibble(year = c(rep(seq(1, ts), fmethod)),
                     method = c(rep(NA, ts*fmethod)),
                     mrae = c(rep(NA, ts*fmethod)))
   for(i in 1:fmethod){
     mrae_df[((ts*i-(ts-1)):(ts*i)), 2] <- c(rep(methods[i], ts))
-    mrae_df[((ts*i-(ts-1)):(ts*i)), 3] <- sim_mare(preds[,,i], obs, ts_vec)
+    mrae_df[((ts*i-(ts-1)):(ts*i)), 3] <- sim_mare(preds[[i]], obs, ts_vec)
   }
   
   plot_mrae <- ggplot(mrae_df) + geom_line(aes(x = year, y = mrae, color = method)) + 
@@ -41,13 +40,20 @@ mrae_plot <- function(preds, obs, ts_vec){
 
 sim_quants_plots <- function(preds, yrs, obs, type){
   plist <- list()
-  fmethod <- dim(preds)[3]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
+  fmethod <- length(names(preds))
+  methods <- names(preds)
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   total_yrs <- length(yrs)
   
   for(i in 1:fmethod){
-    predsi <- preds[,,i]
+    maxes <- rep(NA, fmethod)
+    maxes[i] <- max(preds[[i]])
+    
+    plotmax <- max(maxes)
+  }
+  
+  for(i in 1:fmethod){
+    predsi <- preds[[i]]
     
     quants <- apply(predsi[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
     
@@ -62,7 +68,7 @@ sim_quants_plots <- function(preds, yrs, obs, type){
       geom_point(aes(x = year, y = med_pred), color = "blue") +
       geom_line(aes(x = year, y = med_pred), color = "blue", alpha = 0.5) +
       geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
-      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i]))
+      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + ylim(0, plotmax)
   }
   
   if(type == "short"){
@@ -75,14 +81,14 @@ sim_quants_plots <- function(preds, yrs, obs, type){
 
 yr_trend_plot <- function(preds, obs, ts_vec){
   plist <- list()
-  fmethod <- dim(preds)[3]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
+  fmethod <- length(names(preds))
+  methods <- names(preds)
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   
   real_trend <- rollmean(obs[20:length(obs)], 5)
   
   for(i in 1:fmethod){
-    sim_trend <- sim_5yr_trend(preds[,,i], ts_vec)
+    sim_trend <- sim_5yr_trend(preds[[i]], ts_vec)
     
     trend_df <- tibble(real = real_trend,
                             med = sim_trend[2,],
@@ -113,9 +119,9 @@ print_plots <- function(preds1, preds2, obs, yrs, t1, t2){
 
 
 sim_quants_df <- function(preds){
-  fmethod <- dim(preds)[3]
-  yrs <- dim(preds)[1]
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
+  fmethod <- length(names(preds))
+  yrs <- dim(preds[[1]])[1]
+  methods <- names(preds)
   
   sim_quants_df <- tibble(method = rep(NA, fmethod*yrs),
                           low_ci = rep(NA, fmethod*yrs),
@@ -123,7 +129,7 @@ sim_quants_df <- function(preds){
                           up_ci = rep(NA, fmethod*yrs))
   
   for(i in 1:fmethod){
-    predsi <- preds[,,i]
+    predsi <- preds[[i]]
     quants <- apply(predsi[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
     
     sim_quants_df[((yrs*i-(yrs-1)):(yrs*i)), 1] <- rep(methods[i], yrs)
@@ -137,9 +143,9 @@ sim_quants_df <- function(preds){
 }
 
 yr_trend_df <- function(preds, ts_vec){
-  fmethod <- dim(preds)[3]
+  fmethod <- length(names(preds))
   yrs <- length(ts_vec)
-  methods <- c("Mean", "AR(1)", "Beverton-Holt", "Simplex projection", "PELT sample", "HMM")
+  methods <- names(preds)
   
   sim_trend_df <- tibble(method = rep(NA, fmethod*yrs),
                           low_ci = rep(NA, fmethod*yrs),
@@ -147,8 +153,8 @@ yr_trend_df <- function(preds, ts_vec){
                           up_ci = rep(NA, fmethod*yrs))
   
   for(i in 1:fmethod){
-    predsi <- preds[,,i]
-    sim_trend <- sim_5yr_trend(preds[,,i], ts_vec)
+    predsi <- preds[[i]]
+    sim_trend <- sim_5yr_trend(predsi, ts_vec)
     
     sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 1] <- rep(methods[i], yrs)
     sim_trend_df[((yrs*i-(yrs-1)):(yrs*i)), 2] <- sim_trend[1,]

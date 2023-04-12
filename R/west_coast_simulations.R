@@ -1,3 +1,5 @@
+## Set seed ####################################################################
+set.seed(211)
 # Aurora rockfish forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
 aurora <- filter_sr_data(aurora)
@@ -12,46 +14,13 @@ time_vec1 <- seq(20, 50, 1)
 time_vec2 <- seq(20, (50-4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
-set.seed(112)
-aurora_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds <- aurora_sims[,,1]
-ar_preds <- aurora_sims[,,2]
-bh_preds <- aurora_sims[,,3]
-simplex_preds <- aurora_sims[,,4]
-hmm_preds <- aurora_sims[,,5]
-chpt_preds <- aurora_sims[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/aurora_1stp_chpt.csv"))
-
-
+aurora_sims <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(aurora_sims, here("results/simulation_results/west_coast/short_forecasts/aurora_short.Rds"))
 ## Long-term forecasts ---------------------------------------------------------
-long_sims <- expanding_window_5yr(c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
+long_sims <- expanding_window_5yr(c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
+saveRDS(long_sims, here("results/simulation_results/west_coast/long_forecasts/aurora_long.Rds"))
 
-# extract forecasts
-m_preds_long <- long_sims[,,1]
-ar_preds_long <- long_sims[,,2]
-bh_preds_long <- long_sims[,,3]
-simplex_preds_long <- long_sims[,,4]
-hmm_preds_long <- long_sims[,,5]
-chpt_preds_long <- long_sims[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/aurora_5stp_chpt.csv"))
-
-## Visualize simulations
+## Visualize simulations -------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/aurora_forecast_figs.pdf"))
 print_plots(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
 dev.off()
@@ -76,44 +45,12 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-black_ca_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds <- black_ca_sims_short[,,1]
-ar_preds <- black_ca_sims_short[,,2]
-bh_preds <- black_ca_sims_short[,,3]
-simplex_preds <- black_ca_sims_short[,,4]
-hmm_preds <- black_ca_sims_short[,,5]
-chpt_preds <- black_ca_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackCA_1stp_chpt.csv"))
+black_ca_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(black_ca_sims_short, here("results/simulation_results/west_coast/short_forecasts/black_ca_short.Rds"))
 
 ## Long-term forecasts -----------------------------------------------------
-black_ca_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-
-# extract forecasts
-m_preds_long <- black_ca_sims_long[,,1]
-ar_preds_long <- black_ca_sims_long[,,2]
-bh_preds_long <- black_ca_sims_long[,,3]
-simplex_preds_long <- black_ca_sims_long[,,4]
-hmm_preds_long <- black_ca_sims_long[,,5]
-chpt_preds_long <- black_ca_sims_long[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackCA_5stp_chpt.csv"))
-
+black_ca_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(black_ca_sims_long, here("results/simulation_results/west_coast/long_forecasts/black_ca_long.Rds"))
 
 ## Visualize forecasts -----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/blackCA_forecast_figs.pdf"))
@@ -141,43 +78,12 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-black_wa_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds <- black_wa_sims_short[,,1]
-ar_preds <- black_wa_sims_short[,,2]
-bh_preds <- black_wa_sims_short[,,3]
-simplex_preds <- black_wa_sims_short[,,4]
-hmm_preds <- black_wa_sims_short[,,5]
-chpt_preds <- black_wa_sims_short[,,6]
-
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/blackWA_1stp_chpt.csv"))
+black_wa_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(black_wa_sims_short, here("results/simulation_results/west_coast/short_forecasts/black_wa_short.Rds"))
 
 ## Long-term forecasts -----------------------------------------------------
-black_wa_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds_long <- black_wa_sims_long[,,1]
-ar_preds_long <- black_wa_sims_long[,,2]
-bh_preds_long <- black_wa_sims_long[,,3]
-simplex_preds_long <- black_wa_sims_long[,,4]
-hmm_preds_long <- black_wa_sims_long[,,5]
-chpt_preds_long <- black_wa_sims_long[,,6]
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/long_forecasts/blackWA_5stp_chpt.csv"))
-
+black_wa_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(black_wa_sims_long, here("results/simulation_results/west_coast/long_forecasts/black_wa_long.Rds"))
 
 ## Visualize forecasts -------------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/blackWA_forecast_figs.pdf"))
@@ -187,8 +93,6 @@ dev.off()
 ## Save performance stats ------------------------------------------------------
 black_wa_stats <- save_performance_stats(black_ca_sims_short, black_ca_sims_long, black_ca$Recruit_0, black_ca$Yr, time_vec1, time_vec2)
 saveRDS(black_wa_stats, file = here("results/simulation_results/west_coast/performance_stats/black_wa_stats.Rds"))
-
-
 
 
 # Bocaccio rockfish forecasts ###################################
@@ -207,38 +111,12 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-bocaccio_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds <- bocaccio_sims_short[,,1]
-ar_preds <- bocaccio_sims_short[,,2]
-bh_preds <- bocaccio_sims_short[,,3]
-simplex_preds <- bocaccio_sims_short[,,4]
-hmm_preds_long <- bocaccio_sims_long[,,5]
-chpt_preds_long <- bocaccio_sims_long[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/long_forecasts/bocaccio_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/long_forecasts/bocaccio_1stp_chpt.csv"))
+bocaccio_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(bocaccio_sims_short, here("results/simulation_results/west_coast/short_forecasts/bocaccio_short.Rds"))
 
 ## Long-term forecasts ------------------------------------------------------------
-bocaccio_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds_long <- bocaccio_sims_long[,,1]
-ar_preds_long <- bocaccio_sims_long[,,2]
-bh_preds_long <- bocaccio_sims_long[,,3]
-simplex_preds_long <- bocaccio_sims_long[,,4]
-
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/bocaccio_5stp_simplex.csv"))
+bocaccio_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(bocaccio_sims_long, here("results/simulation_results/west_coast/long_forecasts/bocaccio_long.Rds"))
 
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/bocaccio_forecast_figs.pdf"))
@@ -246,6 +124,8 @@ print_plots(bocaccio_sims_short, bocaccio_sims_long, bocaccio$Recruit_0, bocacci
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
+bocaccio_stats <- save_performance_stats(bocaccio_sims_short, bocaccio_sims_long, bocaccio$Recruit_0, bocaccio$Yr, time_vec1, time_vec2)
+saveRDS(bocaccio_stats, file = here("results/simulation_results/west_coast/performance_stats/bocaccio_stats.Rds"))
 
 
 
@@ -265,42 +145,12 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-cabezon_ncs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+cabezon_ncs_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(cabezon_ncs_sims_short, here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_short.Rds"))
 
-# extract forecasts
-m_preds <- cabezon_ncs_sims_short[,,1]
-ar_preds <- cabezon_ncs_sims_short[,,2]
-bh_preds <- cabezon_ncs_sims_short[,,3]
-simplex_preds <- cabezon_ncs_sims_short[,,4]
-hmm_preds <- cabezon_ncs_sims_short[,,5]
-chpt_preds <- cabezon_ncs_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-cabezon_ncs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds_long <- cabezon_ncs_sims_long[,,1]
-ar_preds_long <- cabezon_ncs_sims_long[,,2]
-bh_preds_long <- cabezon_ncs_sims_long[,,3]
-simplex_preds_long <- cabezon_ncs_sims_long[,,4]
-hmm_preds_long <- cabezon_ncs_sims_long[,,5]
-chpt_preds_long <- cabezon_ncs_sims_long[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ncs_5stp_chpt.csv"))
-
+cabezon_ncs_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(cabezon_ncs_sims_long, here("results/simulation_results/west_coast/long_forecasts/cabezon_ncs_long.Rds"))
 
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/cabezon_ncs_forecast_figs.pdf"))
@@ -329,37 +179,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-cabezon_ocs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+cabezon_ocs_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- cabezon_ocs_sims_short[,,1]
-ar_preds <- cabezon_ocs_sims_short[,,2]
-bh_preds <- cabezon_ocs_sims_short[,,3]
-simplex_preds <- cabezon_ocs_sims_short[,,4]
-chpt_preds <- cabezon_ocs_sims_short[,,5]
 
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_1stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-cabezon_ocs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+cabezon_ocs_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- cabezon_ocs_sims_long[,,1]
-ar_preds_long <- cabezon_ocs_sims_long[,,2]
-bh_preds_long <- cabezon_ocs_sims_long[,,3]
-simplex_preds_long <- cabezon_ocs_sims_long[,,4]
-chpt_preds_long <- cabezon_ocs_sims_long[,,5]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_ocs_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/cabezon_ors_forecast_figs.pdf"))
 print_plots(cabezon_ocs_sims_short, cabezon_ocs_sims_long, cabezon_ors$Recruit_0, cabezon_ors$Yr, time_vec1, time_vec2)
@@ -386,41 +212,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-cabezon_scs_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+cabezon_scs_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- cabezon_scs_sims_short[,,1]
-ar_preds <- cabezon_scs_sims_short[,,2]
-bh_preds <- cabezon_scs_sims_short[,,3]
-simplex_preds <- cabezon_scs_sims_short[,,4]
-hmm_preds <- cabezon_scs_sims_short[,,5]
-chpt_preds <- cabezon_scs_sims_short[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-cabezon_scs_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+cabezon_scs_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- cabezon_scs_sims_long[,,1]
-ar_preds_long <- cabezon_scs_sims_long[,,2]
-bh_preds_long <- cabezon_scs_sims_long[,,3]
-simplex_preds_long <- cabezon_scs_sims_long[,,4]
-hmm_preds_long <- cabezon_scs_sims_long[,,5]
-chpt_preds_long <- cabezon_scs_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/cabezon_scs_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/cabezon_scs_forecast_figs.pdf"))
 print_plots(cabezon_scs_sims_short, cabezon_scs_sims_long, cabezon_scs$Recruit_0, cabezon_scs$Yr, time_vec1, time_vec2)
@@ -449,40 +247,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-canary1_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+canary1_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- canary1_sims_short[,,1]
-ar_preds <- canary1_sims_short[,,2]
-bh_preds <- canary1_sims_short[,,3]
-simplex_preds <- canary1_sims_short[,,4]
-hmm_preds <- canary1_sims_short[,,5]
-chpt_preds <- canary1_sims_short[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_simplex.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/canary1_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-canary1_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+canary1_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- canary1_sims_long[,,1]
-ar_preds_long <- canary1_sims_long[,,2]
-bh_preds_long <- canary1_sims_long[,,3]
-simplex_preds_long <- canary1_sims_long[,,4]
-#hmm_preds_long <- canary1_sims_long[,,5]
-chpt_preds_long <- canary1_sims_long[,,6]
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/canary1_5stp_chpt.csv"))
+
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/canary1_forecast_figs.pdf"))
 print_plots(canary1_sims_short, canary1_sims_long, canary1$Recruit_0, canary1$Yr, time_vec1, time_vec2)
@@ -510,41 +281,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-chilipepper_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+chilipepper_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- chilipepper_sims_short[,,1]
-ar_preds <- chilipepper_sims_short[,,2]
-bh_preds <- chilipepper_sims_short[,,3]
-simplex_preds <- chilipepper_sims_short[,,4]
-hmm_preds <- chilipepper_sims_short[,,5]
-chpt_preds <- chilipepper_sims_short[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_simplex.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-chilipepper_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+chilipepper_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- chilipepper_sims_long[,,1]
-ar_preds_long <- chilipepper_sims_long[,,2]
-bh_preds_long <- chilipepper_sims_long[,,3]
-simplex_preds_long <- chilipepper_sims_long[,,4]
-hmm_preds_long <- chilipepper_sims_long[,,5]
-chpt_preds_long <- chilipepper_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_simplex.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/chilipepper_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/chilipepper_forecast_figs.pdf"))
 print_plots(chilipepper_sims_short, chilipepper_sims_long, chilipepper$Recruit_0, chilipepper$Yr, time_vec1, time_vec2)
@@ -572,41 +315,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-darkblotched_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+darkblotched_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- darkblotched_sims_short[,,1]
-ar_preds <- darkblotched_sims_short[,,2]
-bh_preds <- darkblotched_sims_short[,,3]
-simplex_preds <- darkblotched_sims_short[,,4]
-hmm_preds <- darkblotched_sims_short[,,5]
-chpt_preds <- darkblotched_sims_short[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_1stp_chpt.csv"))
 ## Long-term forecasts ------------------------------------------------------------
-darkblotched_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+darkblotched_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- darkblotched_sims_long[,,1]
-ar_preds_long <- darkblotched_sims_long[,,2]
-bh_preds_long <- darkblotched_sims_long[,,3]
-simplex_preds_long <- darkblotched_sims_long[,,4]
-hmm_preds_long <- darkblotched_sims_long[,,5]
-chpt_preds_long <- darkblotched_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/darkblotched_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/darkblotched_forecast_figs.pdf"))
 print_plots(darkblotched_sims_short, darkblotched_sims_long, darkblotched$Recruit_0, darkblotched$Yr, time_vec1, time_vec2)
@@ -633,42 +348,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-dover_sole_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+dover_sole_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- dover_sole_sims_short[,,1]
-ar_preds <- dover_sole_sims_short[,,2]
-bh_preds <- dover_sole_sims_short[,,3]
-simplex_preds <- dover_sole_sims_short[,,4]
-hmm_preds <- dover_sole_sims_short[,,5]
-chpt_preds <- dover_sole_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-dover_sole_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+dover_sole_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- dover_sole_sims_long[,,1]
-ar_preds_long <- dover_sole_sims_long[,,2]
-bh_preds_long <- dover_sole_sims_long[,,3]
-simplex_preds_long <- dover_sole_sims_long[,,4]
-hmm_preds_long <- dover_sole_sims_long[,,5]
-chpt_preds_long <- dover_sole_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/dover_sole_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/dover_sole_forecast_figs.pdf"))
 print_plots(dover_sole_sims_short, dover_sole_sims_long, dover_sole$Recruit_0, dover_sole$Yr, time_vec1, time_vec2)
@@ -696,42 +382,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-kelp_greenling_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+kelp_greenling_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- kelp_greenling_sims_short[,,1]
-ar_preds <- kelp_greenling_sims_short[,,2]
-bh_preds <- kelp_greenling_sims_short[,,3]
-simplex_preds <- kelp_greenling_sims_short[,,4]
-hmm_preds <- kelp_greenling_sims_short[,,5]
-chpt_preds <- kelp_greenling_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-kelp_greenling_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+kelp_greenling_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- kelp_greenling_sims_long[,,1]
-ar_preds_long <- kelp_greenling_sims_long[,,2]
-bh_preds_long <- kelp_greenling_sims_long[,,3]
-simplex_preds_long <- kelp_greenling_sims_long[,,4]
-hmm_preds_long <- kelp_greenling_sims_long[,,5]
-chpt_preds_long <- kelp_greenling_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/kelp_greenling_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/kelp_greenling_forecast_figs.pdf"))
 print_plots(kelp_greenling_sims_short, kelp_greenling_sims_long, kelp_greenling$Recruit_0, kelp_greenling$Yr, time_vec1, time_vec2)
@@ -760,42 +417,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-lingcod_n_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+lingcod_n_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- lingcod_n_sims_short[,,1]
-ar_preds <- lingcod_n_sims_short[,,2]
-bh_preds <- lingcod_n_sims_short[,,3]
-simplex_preds <- lingcod_n_sims_short[,,4]
-hmm_preds <- lingcod_n_sims_short[,,5]
-chpt_preds <- lingcod_n_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_simplex.csv"))
-write_csv(as.data.frame(hmmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-lingcod_n_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+lingcod_n_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- lingcod_n_sims_long[,,1]
-ar_preds_long <- lingcod_n_sims_long[,,2]
-bh_preds_long <- lingcod_n_sims_long[,,3]
-simplex_preds_long <- lingcod_n_sims_long[,,4]
-hmm_preds_long <- lingcod_n_sims_long[,,5]
-chpt_preds_long <- lingcod_n_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_n_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/lingcod_n_forecast_figs.pdf"))
 print_plots(lingcod_n_sims_short, lingcod_n_sims_long, lingcod_n$Recruit_0, lingcod_n$Yr, time_vec1, time_vec2)
@@ -804,21 +432,6 @@ dev.off()
 ## Save performance stats ------------------------------------------------------
 lingcod_n_stats <- save_performance_stats(lingcod_n_sims_short, lingcod_n_sims_long, lingcod_n$Recruit_0, lingcod_n$Yr, time_vec1, time_vec2)
 saveRDS(lingcod_n_stats, file = here("results/simulation_results/west_coast/performance_stats/lingcod_n_stats.Rds"))
-
-
-lingcod_n <- filter_sr_data(lingcod_n)
-
-plot(lingcod_n$Yr, lingcod_n$Recruit_0, type = "l")
-plot(lingcod_n$SpawnBio, lingcod_n$Recruit_0)
-
-# create recruitment/spawning biomass vectors
-rec_ts <- lingcod_n$Recruit_0
-spawn_ts <- lingcod_n$SpawnBio
-# create time vectors
-time_vec1 <- seq(30, length(rec_ts), 1) # 1-step ahead forecasts
-time_vec2 <- seq(30, (length(rec_ts) - 4), 1) # 5 step forecasts
-
-
 
 
 # Lingcod South forecasts ###################################
@@ -837,42 +450,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-lingcod_s_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+lingcod_s_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- lingcod_s_sims_short[,,1]
-ar_preds <- lingcod_s_sims_short[,,2]
-bh_preds <- lingcod_s_sims_short[,,3]
-simplex_preds <- lingcod_s_sims_short[,,4]
-hmm_preds <- lingcod_s_sims_short[,,5]
-chpt_preds <- lingcod_s_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-lingcod_s_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+lingcod_s_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- lingcod_s_sims_long[,,1]
-ar_preds_long <- lingcod_s_sims_long[,,2]
-bh_preds_long <- lingcod_s_sims_long[,,3]
-simplex_preds_long <- lingcod_s_sims_long[,,4]
-hmm_preds_long <- lingcod_s_sims_long[,,5]
-chpt_preds_long <- lingcod_s_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/lingcod_s_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/lingcod_s_forecast_figs.pdf"))
 print_plots(lingcod_s_sims_short, lingcod_s_sims_long, lingcod_s$Recruit_0, lingcod_s$Yr, time_vec1, time_vec2)
@@ -900,42 +484,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-petrale_sole_sole_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+petrale_sole_sole_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- petrale_sole_sole_sims_short[,,1]
-ar_preds <- petrale_sole_sole_sims_short[,,2]
-bh_preds <- petrale_sole_sole_sims_short[,,3]
-simplex_preds <- petrale_sole_sole_sims_short[,,4]
-#hmm_preds <- petrale_sole_sole_sims_short[,,5]
-chpt_preds <- petrale_sole_sole_sims_short[,,5]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_sole_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_sole_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_1stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-petrale_sole_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+petrale_sole_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- petrale_sole_sims_long[,,1]
-ar_preds_long <- petrale_sole_sims_long[,,2]
-bh_preds_long <- petrale_sole_sims_long[,,3]
-simplex_preds_long <- petrale_sole_sims_long[,,4]
-#hmm_preds_long <- petrale_sole_sims_long[,,5]
-chpt_preds_long <- petrale_sole_sims_long[,,5]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/petrale_sole_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/petrale_sole_forecast_figs.pdf"))
 print_plots(petrale_sole_sims_short, petrale_sole_sims_long, petrale_sole$Recruit_0, petrale_sole$Yr, time_vec1, time_vec2)
@@ -963,42 +518,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-sablefish_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+sablefish_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- sablefish_sims_short[,,1]
-ar_preds <- sablefish_sims_short[,,2]
-bh_preds <- sablefish_sims_short[,,3]
-simplex_preds <- sablefish_sims_short[,,4]
-#hmm_preds <- sablefish_sims_short[,,5]
-chpt_preds <- sablefish_sims_short[,,5]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-sablefish_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+sablefish_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- sablefish_sims_long[,,1]
-ar_preds_long <- sablefish_sims_long[,,2]
-bh_preds_long <- sablefish_sims_long[,,3]
-simplex_preds_long <- sablefish_sims_long[,,4]
-#hmm_preds_long <- sablefish_sims_long[,,5]
-chpt_preds_long <- sablefish_sims_long[,,5]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/sablefish_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/sablefish_forecast_figs.pdf"))
 print_plots(sablefish_sims_short, sablefish_sims_long, sablefish$Recruit_0, sablefish$Yr, time_vec1, time_vec2)
@@ -1026,42 +552,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-splitnose_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+splitnose_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- splitnose_sims_short[,,1]
-ar_preds <- splitnose_sims_short[,,2]
-bh_preds <- splitnose_sims_short[,,3]
-simplex_preds <- splitnose_sims_short[,,4]
-hmm_preds <- splitnose_sims_short[,,5]
-chpt_preds <- splitnose_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_simplex.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-splitnose_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+splitnose_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- splitnose_sims_long[,,1]
-ar_preds_long <- splitnose_sims_long[,,2]
-bh_preds_long <- splitnose_sims_long[,,3]
-simplex_preds_long <- splitnose_sims_long[,,4]
-hmm_preds_long <- splitnose_sims_long[,,5]
-chpt_preds_long <- splitnose_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/splitnose_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/splitnose_forecast_figs.pdf"))
 print_plots(splitnose_sims_short, splitnose_sims_long, splitnose$Recruit_0, splitnose$Yr, time_vec1, time_vec2)
@@ -1089,42 +586,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-yelloweye1_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+yelloweye1_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- yelloweye1_sims_short[,,1]
-ar_preds <- yelloweye1_sims_short[,,2]
-bh_preds <- yelloweye1_sims_short[,,3]
-simplex_preds <- yelloweye1_sims_short[,,4]
-hmm_preds <- yelloweye1_sims_short[,,5]
-chpt_preds <- yelloweye1_sims_short[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_simplex.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-yelloweye1_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "hmm", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+yelloweye1_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- yelloweye1_sims_long[,,1]
-ar_preds_long <- yelloweye1_sims_long[,,2]
-bh_preds_long <- yelloweye1_sims_long[,,3]
-simplex_preds_long <- yelloweye1_sims_long[,,4]
-hmm_preds_long <- yelloweye1_sims_long[,,5]
-chpt_preds_long <- yelloweye1_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_simplex.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/yelloweye1_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/yelloweye1_forecast_figs.pdf"))
 print_plots(yelloweye1_sims_short, yelloweye1_sims_long, yelloweye1$Recruit_0, yelloweye1$Yr, time_vec1, time_vec2)
@@ -1152,42 +620,13 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-widow_sims_short <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+widow_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds <- widow_sims_short[,,1]
-ar_preds <- widow_sims_short[,,2]
-bh_preds <- widow_sims_short[,,3]
-simplex_preds <- widow_sims_short[,,4]
-#hmm_preds <- widow_sims_short[,,5]
-chpt_preds <- widow_sims_short[,,5]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/west_coast/short_forecasts/widow_1stp_chpt.csv"))
 
 ## Long-term forecasts ------------------------------------------------------------
-widow_sims_long <- expanding_window_5yr(fmethods = c("m", "ar", "bh", "simplex", "chpt"), 1000, time_vec1, rec_ts, spawn_ts)
+widow_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 
-# extract forecasts
-m_preds_long <- widow_sims_long[,,1]
-ar_preds_long <- widow_sims_long[,,2]
-bh_preds_long <- widow_sims_long[,,3]
-simplex_preds_long <- widow_sims_long[,,4]
-#hmm_preds_long <- widow_sims_long[,,5]
-chpt_preds_long <- widow_sims_long[,,6]
 
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_bh.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_simplex.csv"))
-#write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_hmm.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/west_coast/short_forecasts/widow_5stp_chpt.csv"))
 ## Visualize forecasts ----------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/widow_forecast_figs.pdf"))
 print_plots(widow_sims_short, widow_sims_long, widow$Recruit_0, widow$Yr, time_vec1, time_vec2)
