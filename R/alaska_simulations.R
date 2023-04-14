@@ -954,43 +954,13 @@ time_vec1 <- seq(20, length(rec_ts), 1)
 time_vec2 <- seq(20, (length(rec_ts)-4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
-pop_goa_sims <- expanding_window(fmethods = c("m", "ar", "bh", "simplex", "chpt", "hmm"), 1000, time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds <- pop_goa_sims[,,1]
-ar_preds <- pop_goa_sims[,,2]
-bh_preds <- pop_goa_sims[,,3]
-simplex_preds <- pop_goa_sims[,,4]
-chpt_preds <- pop_goa_sims[,,5]
-hmm_preds <- pop_goa_sims[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_mean.csv"))
-write_csv(as.data.frame(ar_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_ar.csv"))
-write_csv(as.data.frame(bh_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds), file = here("results/simulation_results/alaska/short_forecasts/pop_goa_1stp_chpt.csv"))
+pop_goa_sims <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT", "HMM"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(pop_goa_sims, here("results/simulation_results/alaska/short_forecasts/pop_goa_short.Rds"))
 
 
 ## Long-term forecasts ---------------------------------------------------------
-pop_goa_long_sims <- expanding_window_5yr(c("m", "ar", "bh", "simplex", "chpt", "hmm"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
-
-# extract forecasts
-m_preds_long <- pop_goa_long_sims[,,1]
-ar_preds_long <- pop_goa_long_sims[,,2]
-bh_preds_long <- pop_goa_long_sims[,,3]
-simplex_preds_long <- pop_goa_long_sims[,,4]
-chpt_preds_long <- pop_goa_long_sims[,,5]
-hmm_preds_long <- pop_goa_long_sims[,,6]
-
-# save to csv
-write_csv(as.data.frame(m_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_mean.csv"))
-write_csv(as.data.frame(ar_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_ar.csv"))
-write_csv(as.data.frame(bh_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_bh.csv"))
-write_csv(as.data.frame(hmm_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_hmm.csv"))
-write_csv(as.data.frame(simplex_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_simplex.csv"))
-write_csv(as.data.frame(chpt_preds_long), file = here("results/simulation_results/alaska/long_forecasts/pop_goa_5stp_chpt.csv"))
+pop_goa_long_sims <- expanding_window_5yr(c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT", "HMM"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
+saveRDS(pop_goa_long_sims, here("results/simulation_results/alaska/short_forecasts/pop_goa_long.Rds"))
 
 ## Visualize simulations
 pdf(here("results/figures/alaska_stocks/stock_forecast_figures/pop_goa_forecast_figs.pdf"))

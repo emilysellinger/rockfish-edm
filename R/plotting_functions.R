@@ -45,12 +45,15 @@ sim_quants_plots <- function(preds, yrs, obs, type){
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   total_yrs <- length(yrs)
   
-  for(i in 1:fmethod){
-    maxes <- rep(NA, fmethod)
-    maxes[i] <- max(preds[[i]])
-    
-    plotmax <- max(maxes)
+  maxes <- rep(NA, length(preds))
+  mins <- rep(NA, length(preds))
+  for(i in 1:length(preds)){
+    quants <- apply(preds[[i]][,-1], 1, quantile, probs = c(0.025, 0.975))
+    maxes[i] <- max(quants[2,])
+    mins[i] <- min(quants[1,])
   }
+  plotmax <- max(maxes)
+  plotmin <- min(mins)
   
   for(i in 1:fmethod){
     predsi <- preds[[i]]
@@ -65,10 +68,11 @@ sim_quants_plots <- function(preds, yrs, obs, type){
     
     plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs), alpha = 0.5) +
       geom_point(aes(x = year, y = obs)) +
-      geom_point(aes(x = year, y = med_pred), color = "blue") +
-      geom_line(aes(x = year, y = med_pred), color = "blue", alpha = 0.5) +
-      geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "blue", alpha = 0.1, linetype = "dashed") + 
-      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + ylim(0, plotmax)
+      geom_point(aes(x = year, y = med_pred), color = "#00A1B7") +
+      geom_line(aes(x = year, y = med_pred), color = "#00A1B7", alpha = 0.5) +
+      geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "#00A1B7", alpha = 0.1, linetype = "dashed") + 
+      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + ylim(plotmin, plotmax) +
+      theme_minimal()
   }
   
   if(type == "short"){

@@ -8,7 +8,7 @@ library(here)
 
 arrowtooth_flounder_bsai <- read_csv(here("data/alaska_stocks", "arrowtooth_flounder_bsai.csv"))
 atka_mackerel_bsai <- read_csv(here("data/alaska_stocks", "atka_mackerel_bsai.csv"))
-blackspotted_rougheye_bsai <- read_csv(here("data/alaska_stocks", "blackspotted_rougheye_bsai.csv"))
+#blackspotted_rougheye_bsai <- read_csv(here("data/alaska_stocks", "blackspotted_rougheye_bsai.csv"))
 blackspotted_rougheye_goa <- read_csv(here("data/alaska_stocks", "blackspotted_rougheye_goa.csv"))
 dusky_goa <- read_csv(here("data/alaska_stocks", "dusky_goa.csv"))
 greenland_turbot <- read_csv(here("data/alaska_stocks", "greenland_turbot.csv"))
