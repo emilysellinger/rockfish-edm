@@ -83,7 +83,11 @@ df <- rbind(hits_target, hits_target2)
 df$type <- c(rep("short", 105), rep("long", 84))
 
 df <- left_join(df, all_stocks)
+######################################
+west_coast_ts_characteristics$stock_name[which(west_coast_ts_characteristics$stock_name == "petrale_sole")] <- "petrale"
+west_coast_ts_characteristics$region <- rep("west coast", nrow(west_coast_ts_characteristics))
 
+all_stocks <- rbind(alaska_ts_characteristics, west_coast_ts_characteristics)
 coverage_probs_all <- rbind(coverage_probs_short, coverage_probs_long)
 coverage_probs_all$type <- c(rep("short", 204), rep("long", 197))
 coverage_probs_all <- left_join(coverage_probs_all, all_stocks)
@@ -115,7 +119,7 @@ b <- coverage_probs_all %>%
   theme_minimal() +
   theme(legend.position = "none")
 
-pdf(file = here("coverage_prob_vs_autocorrelation.pdf"))
+pdf(file = here("results/figures/coverage_prob_vs_autocorrelation.pdf"))
 print(a)
 print(b)
 dev.off()
@@ -145,7 +149,7 @@ d <- coverage_probs_all %>%
   theme_minimal() +
   theme(legend.position = "none")
 
-pdf(file = here("coverage_prob_vs_depletion.pdf"))
+pdf(file = here("results/figures/coverage_prob_vs_depletion.pdf"))
 print(c)
 print(d)
 dev.off()
@@ -175,7 +179,80 @@ f <- coverage_probs_all %>%
   theme_minimal() +
   theme(legend.position = "none")
 
-pdf(file = here("coverage_prob_vs_sigmaR.pdf"))
+pdf(file = here("results/figures/coverage_prob_vs_sigmaR.pdf"))
 print(e)
 print(f)
+dev.off()
+
+g <- coverage_probs_all %>% 
+  filter(type == "short") %>% 
+  ggplot() + geom_boxplot(aes(x = factor(detectable_SR), y = coverage_prob, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(a) Short-term forecasts", fill = "Method") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  theme_minimal()
+h <- coverage_probs_all %>% 
+  filter(type == "long") %>% 
+  ggplot() + geom_boxplot(aes(x = factor(detectable_SR), y = coverage_prob, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(b) Long-term forecasts", fill = "Method") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  theme_minimal()
+
+pdf(file = here("results/figures/coverage_prob_vs_detectableSR.pdf"))
+print(g)
+print(h)
+dev.off()
+
+i <- coverage_probs_all %>% 
+  filter(type == "short") %>% 
+  ggplot() + geom_boxplot(aes(x = factor(regime_shift), y = coverage_prob, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(a) Short-term forecasts", fill = "Method") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  theme_minimal()
+j <- coverage_probs_all %>% 
+  filter(type == "long") %>% 
+  ggplot() + geom_boxplot(aes(x = factor(regime_shift), y = coverage_prob, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(b) Long-term forecasts", fill = "Method") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  theme_minimal()
+
+pdf(file = here("results/figures/coverage_prob_vs_regime_shift.pdf"))
+print(i)
+print(j)
+dev.off()
+
+
+k <- coverage_probs_all %>%
+  filter(type == "short") %>% 
+  ggplot() + geom_point(aes(x = num_yrs, y = coverage_prob, color = method)) +
+  geom_smooth(method = lm, aes(x = num_yrs, y = coverage_prob, color = method)) +
+  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(a) Short-term forecasts") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  facet_wrap(~ method) +
+  theme_minimal() +
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
+
+l <- coverage_probs_all %>%
+  filter(type == "long") %>% 
+  ggplot() + geom_point(aes(x = num_yrs, y = coverage_prob, color = method)) +
+  geom_smooth(method = lm, aes(x = num_yrs, y = coverage_prob, color = method)) +
+  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(b) Long-term forecasts") +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  facet_wrap(~ method) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"))
+print(k)
+print(l)
 dev.off()
