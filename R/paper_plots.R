@@ -1,6 +1,36 @@
+# Load pacakages ----------------------------------------------------------
+library(NatParksPalettes)
+library(gridExtra)
 
+# Chapter 2 Figures -------------------------------------------------------
+# expanding window figure
+
+ex_df <- tibble(year = seq(1, 20),
+                value = runif(20, min = 5, max = 25))
+point_pred <- tibble(year = c(11, 12, 13, 14),
+                     preds = c(15, 8, 6, 14),
+                     fac = as.factor(c(1,1,2,2)))
+
+a <- ggplot() + geom_line(data = ex_df, aes(x = year, y = value)) + 
+  labs(x = "Year", y = "Value") + 
+  geom_point(data = point_pred, aes(x = year, y = preds, color = fac), size = 3,
+             color = c("#00A1B7", "#00A1B7", "#898928", "#898928")) +
+  geom_rect(aes(xmin = 1, xmax = 10, ymin = 5, ymax = 25), fill = "#00A1B7", alpha = 0.5) +
+  geom_rect(aes(xmin = 1, xmax = 12, ymin = 5, ymax = 25), fill = "#898928", alpha = 0.3) +
+  theme(legend.position = "none") +
+  theme_minimal()
+
+pdf(here("results/expanding_window_explainer.pdf"))
+print(a)
+dev.off()
+
+
+# used these plots for example in paper
 a <- sim_quants_plots(pop_goa_sims, pop_goa$year, pop_goa$recruits, "short")
 b <- sim_quants_plots(pop_goa_long_sims, pop_goa$year, pop_goa$recruits, "long")
+
+
+# create plots summarizing results 
 
 coverage_probs_short <- rbind(coverage_probs_short, coverage_probs_short_wc)
 coverage_probs_short$method <- recode(coverage_probs_short$method, "AR(1)" = "AR(1)", "mean" = "mean",
@@ -14,6 +44,9 @@ coverage_probs_long <- rbind(coverage_probs_long, coverage_probs_long_wc)
 coverage_probs_long$method <- recode(coverage_probs_long$method, "AR(1)" = "AR(1)", "mean" = "mean",
                                       "Beverton-Holt" = "Beverton-Holt", "HMM" = "HMM", "PELT" = "PELT sample",
                                       "simplex" = "simplex projection")
+long_totals <- coverage_probs_long %>% 
+  group_by(method) %>% 
+  summarise(n = n()) 
 
 
 hits_target <- coverage_probs_short %>% 
@@ -30,7 +63,7 @@ hits_target2 <- coverage_probs_long %>%
 
 b <- hits_target2 %>% group_by(method) %>% 
   summarise(n = n()) %>% 
-  mutate(freq = n/as.vector(short_totals$n))
+  mutate(freq = n/as.vector(long_totals$n))
 
 hits_target_df <- rbind(a, b)
 hits_target_df$type <- c(rep("short", 6), rep("long", 6))

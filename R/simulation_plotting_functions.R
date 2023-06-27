@@ -70,7 +70,7 @@ sim_quants_plots <- function(preds, yrs, obs, type){
       geom_point(aes(x = year, y = obs)) +
       geom_point(aes(x = year, y = med_pred), color = "#00A1B7") +
       geom_line(aes(x = year, y = med_pred), color = "#00A1B7", alpha = 0.5) +
-      geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "#00A1B7", alpha = 0.1, linetype = "dashed") + 
+      geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "#55CFD8", alpha = 0.5, linetype = "dashed") + 
       xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + ylim(plotmin, plotmax) +
       theme_minimal()
   }
