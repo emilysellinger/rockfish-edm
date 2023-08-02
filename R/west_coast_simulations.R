@@ -10,8 +10,8 @@ plot(aurora$Yr, aurora$SpawnBio, type = "l")
 rec_ts <- aurora$Recruit_0
 spawn_ts <- aurora$SpawnBio
 
-time_vec1 <- seq(20, 50, 1)
-time_vec2 <- seq(20, (50-4), 1)
+time_vec1 <- seq(20, length(rec_ts), 1)
+time_vec2 <- seq(20, (length(rec_ts) - 4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
 aurora_sims <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
@@ -448,7 +448,7 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-lingcod_s_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+lingcod_s_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 saveRDS(lingcod_s_sims_short, here("results/simulation_results/west_coast/short_forecasts/lingcod_s_short.Rds"))
 
 ## Long-term forecasts ------------------------------------------------------------

@@ -45,15 +45,15 @@ sim_quants_plots <- function(preds, yrs, obs, type){
   plot_num <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)")
   total_yrs <- length(yrs)
   
-  maxes <- rep(NA, length(preds))
-  mins <- rep(NA, length(preds))
-  for(i in 1:length(preds)){
-    quants <- apply(preds[[i]][,-1], 1, quantile, probs = c(0.025, 0.975))
-    maxes[i] <- max(quants[2,])
-    mins[i] <- min(quants[1,])
-  }
-  plotmax <- max(maxes)
-  plotmin <- min(mins)
+  # maxes <- rep(NA, length(preds))
+  # mins <- rep(NA, length(preds))
+  # for(i in 1:length(preds)){
+  #   quants <- apply(preds[[i]][,-1], 1, quantile, probs = c(0.025, 0.975))
+  #   maxes[i] <- max(quants[2,])
+  #   mins[i] <- min(quants[1,])
+  # }
+  # plotmax <- max(maxes)
+  # plotmin <- min(mins)
   
   for(i in 1:fmethod){
     predsi <- preds[[i]]
@@ -71,7 +71,7 @@ sim_quants_plots <- function(preds, yrs, obs, type){
       geom_point(aes(x = year, y = med_pred), color = "#00A1B7") +
       geom_line(aes(x = year, y = med_pred), color = "#00A1B7", alpha = 0.5) +
       geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "#55CFD8", alpha = 0.5, linetype = "dashed") + 
-      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + ylim(plotmin, plotmax) +
+      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + #ylim(plotmin, plotmax) +
       theme_minimal()
   }
   

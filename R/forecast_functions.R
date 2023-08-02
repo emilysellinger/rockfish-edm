@@ -26,13 +26,14 @@ rec_mean <- function(x, df1, nsims){
   sigmaR <- sd(log(dat))
   
   # calculate predictions for each simulation
+  # set seed for safety
+  set.seed(211)
   pred <- exp(mu + rnorm(nsims, 0, sigmaR))
   return(pred)
   
 }
 
 rec_AR <- function(x, df1, nsims){
-  
   # subset data to window size
   dat <- df1[1:(x-1)]
   
@@ -41,6 +42,8 @@ rec_AR <- function(x, df1, nsims){
   sigmaR <- sqrt(mod$sigma2)
   
   # calculate prediction
+  # set seed for safety
+  set.seed(211)
   pred <- exp((forecast(mod, h = 1)$mean)[1] + rnorm(nsims, 0, sigmaR))
   return(pred)
 }
@@ -74,6 +77,8 @@ rec_BH <- function(x, df1, df2, nsims){
   sigmaR <- exp(coef(mle_out)[3])
   
   # predict one step ahead
+  # set seed for safety
+  set.seed(211)
   one_ahead <- a*s_x/(1 + b*s_x)*exp(rnorm(nsims,0,sigmaR))
   
   return(unname(one_ahead))
@@ -102,11 +107,15 @@ rec_simplex <- function(x, df1, nsims){
   E_val <- unname(which.max(rho_vals))
   
   # forecast recruitment
+  # set seed for safety
+  set.seed(211)
   simplex_output2 <- simplex(log(df1), sim_lib, sim_pred, E = E_val, stats_only = FALSE)
   
   preds <- na.omit(simplex_output2$model_output[[1]])
   
   # return forecast
+  # set seed for safety
+  set.seed(211)
   pred <- exp(preds[1, 3] + rnorm(nsims, 0, sigmaR))
   return(pred)
 }
@@ -181,7 +190,7 @@ rec_HMM_sample <- function(x, df1, df2, nsims){
   # predict states for forecast years
   future_state <- tail(run.pred.mc.sim(est_P, num.iters = 2, final_state), n = 1)
   
-  rec_preds <- rep(NA, nsims)  
+  rec_preds <- rep(NA, nsims) 
   for(i in 1:nsims){
     rec_preds[i] <- pred.rec(future_state, mu1 = mean(est_state_1$logRS), mu2 = mean(est_state_2$logRS),
                              sd1 = sd(est_state_1$logRS), sd2 = sd(est_state_2$logRS),df2, x)
@@ -202,6 +211,8 @@ rec_chpt_sample <- function(x, df1, nsims){
   changes	<- fitPelt@cpts
   
   # use estimates of mean and variance of final regime to predict next year
+  # set seed for safety
+  set.seed(211)
   mu <- tail(fitPelt@param.est$mean, n = 1)
   sigmaR <- sqrt(tail(fitPelt@param.est$variance, n = 1))
   pred <- exp(mu + rnorm(nsims, 0, sigmaR))
@@ -225,6 +236,8 @@ lrec_mean <- function(x, df1, nsims){
   sigmaR <- sd(log(dat))
   
   # calculate prediction
+  # set seed for safety
+  set.seed(211)
   preds <- exp(mu + rnorm(nsims, 0, sigmaR))
   return(preds)
 }
@@ -239,6 +252,8 @@ lrec_AR <- function(x, df1, nsims){
   sigmaR <- sqrt(mod$sigma2)
   
   # calculate prediction
+  # set seed for safety
+  set.seed(211)
   preds <- exp(forecast(mod, h = 5)$mean[5] + rnorm(nsims, 0, sigmaR))
   
   return(preds)
@@ -263,7 +278,6 @@ lrec_BH <- function(x, df1, df2, nsims){
     return(NegLogL)
   }
   
-  
   starts <- list(loga = log(2), logb = log(0.2), logsigmaR = 5)
   mle_out <- mle(BHminusLL, start = starts)
   
@@ -273,6 +287,8 @@ lrec_BH <- function(x, df1, df2, nsims){
   sigmaR <- exp(coef(mle_out)[3])
   
   # predict
+  # set seed for safety
+  set.seed(211)
   five_ahead <- a*s_x/(1 + b*s_x)*exp(rnorm(nsims,0,sigmaR))
   
   return(unname(five_ahead))
@@ -338,11 +354,15 @@ lrec_simplex <- function(x, df1, nsims){
   E_val <- unname(which.max(rho_vals))
   
   # forecast recruitment
+  # set seed for safety
+  set.seed(211)
   simplex_output2 <- simplex(log(df1), sim_lib, sim_pred, E = E_val, stats_only = FALSE)
   
   preds <- na.omit(simplex_output2$model_output[[1]])
   pred_row <- which(preds$Index == x)
   # return forecast
+  # set seed for safety
+  set.seed(211)
   pred <- exp(preds[pred_row, 3] + rnorm(nsims, 0, sigmaR))
   return(pred)
 }
@@ -352,11 +372,15 @@ lrec_chpt_sample <- function(x, df1, nsims){
   dat <- df1[1:(x-5)]
   
   # fit changepoints
+  # set seed for safety
+  set.seed(211)
   fitPelt <- cpt.meanvar(log(dat),method="PELT",test.stat="Normal",penalty="Manual",
                          pen.value = "2*(diffparam+1)*(n/(n-diffparam-2))", minseglen=7)
   changes	<- fitPelt@cpts
   
   # use estimates of mean and variance of final regime to predict next year
+  # set seed for safety
+  set.seed(211)
   mu <- tail(fitPelt@param.est$mean, n = 1)
   sigmaR <- sqrt(tail(fitPelt@param.est$variance, n = 1))
   pred <- exp(mu + rnorm(nsims, 0, sigmaR))

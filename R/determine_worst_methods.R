@@ -2,7 +2,7 @@
 # Load in forecast performance data files ---------------------------------------------
 arrowtooth_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/arrowtooth_stats.Rds"))
 atka_mackerel_bsai_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/atka_mackerel_bsai_stats.Rds"))
-#blackspotted_rougheye_goa_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/blackspotted_rougheye_goa_stats.Rds"))
+blackspotted_rougheye_goa_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/blackspotted_rougheye_goa_stats.Rds"))
 dusky_goa_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/dusky_goa_stats.Rds"))
 greenland_turbot_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/greenland_turbot_stats.Rds"))
 kamchatka_flounder_stats <- readRDS(here("results/simulation_results/alaska/performance_stats/kamchatka_flounder_stats.Rds"))
@@ -23,7 +23,7 @@ alaska_ts_characteristics <- read_csv(here("data/alaska_ts_characteristics.csv")
 
 # coverage probs
 coverage_probs_short <- rbind(arrowtooth_stats$short_cov_prob, atka_mackerel_bsai_stats$short_cov_prob,
-                              dusky_goa_stats$short_cov_prob,
+                              blackspotted_rougheye_goa_stats$short_cov_prob, dusky_goa_stats$short_cov_prob,
                               greenland_turbot_stats$short_cov_prob, kamchatka_flounder_stats$short_cov_prob,
                               northern_rock_sole_stats$short_cov_prob, northern_rockfish_goa_stats$short_cov_prob,
                               ns_rock_sole_goa_stats$short_cov_prob, pacific_cod_ebs_stats$short_cov_prob,
@@ -33,7 +33,7 @@ coverage_probs_short <- rbind(arrowtooth_stats$short_cov_prob, atka_mackerel_bsa
                               yellowfin_sole_bsai_stats$short_cov_prob)
 
 coverage_probs_short$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowtooth_stats$short_cov_prob)), rep("atka_mackerel_bsai", nrow(atka_mackerel_bsai_stats$short_cov_prob)),
-                                     rep("dusky_goa", nrow(dusky_goa_stats$short_cov_prob)),
+                                     rep("blackspotted_rougheye_goa", nrow(blackspotted_rougheye_goa_stats$short_cov_prob)), rep("dusky_goa", nrow(dusky_goa_stats$short_cov_prob)),
                                      rep("greenland_turbot", nrow(greenland_turbot_stats$short_cov_prob)), rep("kamchatka_flounder", nrow(kamchatka_flounder_stats$short_cov_prob)),
                                      rep("northern_rock_sole", nrow(northern_rock_sole_stats$short_cov_prob)), rep("northern_rockfish_goa", nrow(northern_rockfish_goa_stats$short_cov_prob)),
                                      rep("ns_rock_sole_goa", nrow(ns_rock_sole_goa_stats$short_cov_prob)), rep("pacific_cod_ebs", nrow(pacific_cod_ebs_stats$short_cov_prob)),
@@ -43,7 +43,7 @@ coverage_probs_short$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowt
                                      rep("yellowfin_sole_bsai", nrow(yellowfin_sole_bsai_stats$short_cov_prob)))
 
 coverage_probs_long <- rbind(arrowtooth_stats$long_cov_prob, atka_mackerel_bsai_stats$long_cov_prob,
-                             dusky_goa_stats$long_cov_prob,
+                             blackspotted_rougheye_goa_stats$long_cov_prob, dusky_goa_stats$long_cov_prob,
                              greenland_turbot_stats$long_cov_prob, kamchatka_flounder_stats$long_cov_prob,
                              northern_rock_sole_stats$long_cov_prob, northern_rockfish_goa_stats$long_cov_prob,
                              ns_rock_sole_goa_stats$long_cov_prob, pacific_cod_ebs_stats$long_cov_prob,
@@ -53,7 +53,7 @@ coverage_probs_long <- rbind(arrowtooth_stats$long_cov_prob, atka_mackerel_bsai_
                              yellowfin_sole_bsai_stats$long_cov_prob)
 
 coverage_probs_long$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowtooth_stats$long_cov_prob)), rep("atka_mackerel_bsai", nrow(atka_mackerel_bsai_stats$long_cov_prob)),
-                                    rep("dusky_goa", nrow(dusky_goa_stats$long_cov_prob)),
+                                    rep("blackspotted_rougheye_goa", nrow(blackspotted_rougheye_goa_stats$long_cov_prob)), rep("dusky_goa", nrow(dusky_goa_stats$long_cov_prob)),
                                     rep("greenland_turbot", nrow(greenland_turbot_stats$long_cov_prob)), rep("kamchatka_flounder", nrow(kamchatka_flounder_stats$long_cov_prob)),
                                     rep("northern_rock_sole", nrow(northern_rock_sole_stats$long_cov_prob)), rep("northern_rockfish_goa", nrow(northern_rockfish_goa_stats$long_cov_prob)),
                                     rep("ns_rock_sole_goa", nrow(ns_rock_sole_goa_stats$long_cov_prob)), rep("pacific_cod_ebs", nrow(pacific_cod_ebs_stats$long_cov_prob)),
@@ -235,3 +235,18 @@ worst_method_wc_long2 <- coverage_probs_long_wc %>%
 worst_method_wc_long2 %>% 
   group_by(method) %>% summarize(n = n())
 
+
+# Save data ---------------------------------------------------------------
+# need to add some columns to distinguish between short and long term forecasts
+
+short_coverage_probs_all <- rbind(coverage_probs_short, coverage_probs_short_wc)
+short_coverage_probs_all$type <- rep("short", nrow(short_coverage_probs_all))
+
+long_coverage_probs_all <- rbind(coverage_probs_long, coverage_probs_long_wc)
+long_coverage_probs_all$type <- rep("long", nrow(long_coverage_probs_all))
+
+# combine to one data frame
+all_stocks_coverage_probs <- rbind(short_coverage_probs_all, long_coverage_probs_all)
+
+# save as csv
+write_csv(all_stocks_coverage_probs, here('results/simulation_results/all_stocks_coverage_probs.csv'))

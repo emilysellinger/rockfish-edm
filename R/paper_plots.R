@@ -1,9 +1,33 @@
 # Load pacakages ----------------------------------------------------------
 library(NatParksPalettes)
-library(gridExtra)
+library(patchwork)
+library(here)
+library(tidyverse)
+
+
+# Load data ---------------------------------------------------------------
+# West Coast
+west_coast_ts_characteristics <- read_csv(here('data/west_coast_stock_characteristics.csv'))
+west_coast_ts_characteristics$stock_name[which(west_coast_ts_characteristics$stock_name == "petrale_sole")] <- "petrale"
+west_coast_ts_characteristics$region <- rep("west coast", nrow(west_coast_ts_characteristics))
+
+# Alaska
+alaska_ts_characteristics <- read_csv(here('data/alaska_ts_characteristics.csv'))
+# need to remove the BSAI and GOA stock of blackspotted and rougheye rockfish
+# BSAI stock does not have enough years in time series
+alaska_ts_characteristics <- alaska_ts_characteristics[-3,]
+
+
+# create one data frame for all stocks
+all_stocks <- rbind(alaska_ts_characteristics, west_coast_ts_characteristics)
+
+# Coverage probabilities for stocks
+coverage_probs_all <- read_csv(here('results/simulation_results/all_stocks_coverage_probs.csv'))
+
+coverage_probs_all <- left_join(coverage_probs_all, all_stocks)
 
 # Chapter 2 Figures -------------------------------------------------------
-# expanding window figure
+## expanding window figure -----------------------------
 
 ex_df <- tibble(year = seq(1, 20),
                 value = runif(20, min = 5, max = 25))
@@ -25,14 +49,45 @@ print(a)
 dev.off()
 
 
-# used these plots for example in paper
-a <- sim_quants_plots(pop_goa_sims, pop_goa$year, pop_goa$recruits, "short")
-b <- sim_quants_plots(pop_goa_long_sims, pop_goa$year, pop_goa$recruits, "long")
+## POP GOA example ----------------------------------------- 
+#used these plots for example in paper
+pop_goa <- coverage_probs_all %>% 
+  filter(stock_name == 'pop_goa') %>% 
+  mutate(method = recode(method, "AR(1)" = "AR(1)", "Mean" = "mean",
+                         "Beverton-Holt" = "Beverton-Holt", "HMM" = "HMM sampling", "PELT" = "PELT sampling",
+                         "simplex" = "Simplex projection"))
+
+pop_goa_a <- pop_goa %>% 
+  filter(type == 'short') %>% 
+  ggplot() + geom_point(aes(x = method, y = coverage_prob), size = 3, color = "#00A1B7") +
+  geom_hline(yintercept = 0.95, linetype = 'dashed') +
+  geom_hline(yintercept = 0.8, linetype = 'dashed') +
+  ylim(c(0, 1)) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) + 
+  labs(x = 'Forecast method', y = 'Coverage probability', subtitle = '(a)')
+
+pop_goa_b <- pop_goa %>% 
+  filter(type == 'long') %>% 
+  ggplot() + geom_point(aes(x = method, y = coverage_prob), size = 3, color = "#00A1B7") +
+  geom_hline(yintercept = 0.95, linetype = 'dashed') +
+  geom_hline(yintercept = 0.8, linetype = 'dashed') +
+  ylim(c(0, 1)) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(x = 'Forecast method', y = 'Coverage probability', subtitle = '(b)')
+
+pdf(here('results/figures/pop_goa_coverage_probabilities.pdf'))
+print(pop_goa_a + pop_goa_b + plot_layout(ncol = 1))
+dev.off()
 
 
-# create plots summarizing results 
 
-coverage_probs_short <- rbind(coverage_probs_short, coverage_probs_short_wc)
+## Frequency with which methods fall inside ideal range ---------------------------- 
+
+coverage_probs_short <- coverage_probs_all %>% 
+  filter(type == 'short')
+  
 coverage_probs_short$method <- recode(coverage_probs_short$method, "AR(1)" = "AR(1)", "mean" = "mean",
                              "Beverton-Holt" = "Beverton-Holt", "HMM" = "HMM", "PELT" = "PELT sample",
                              "simplex" = "simplex projection")
@@ -40,7 +95,9 @@ short_totals <- coverage_probs_short %>%
   group_by(method) %>% 
   summarise(n = n()) 
 
-coverage_probs_long <- rbind(coverage_probs_long, coverage_probs_long_wc)
+coverage_probs_long <- coverage_probs_all %>% 
+  filter(type == 'long')
+
 coverage_probs_long$method <- recode(coverage_probs_long$method, "AR(1)" = "AR(1)", "mean" = "mean",
                                       "Beverton-Holt" = "Beverton-Holt", "HMM" = "HMM", "PELT" = "PELT sample",
                                       "simplex" = "simplex projection")
@@ -49,19 +106,19 @@ long_totals <- coverage_probs_long %>%
   summarise(n = n()) 
 
 
-hits_target <- coverage_probs_short %>% 
+hits_target_short <- coverage_probs_short %>% 
   filter(coverage_prob >= 0.8 & coverage_prob <= 0.95)
 
 
-a <- hits_target %>% group_by(method) %>% 
+a <- hits_target_short %>% group_by(method) %>% 
   summarise(n = n()) %>% 
   mutate(freq = n/as.vector(short_totals$n))
 
-hits_target2 <- coverage_probs_long %>% 
+hits_target_long <- coverage_probs_long %>% 
   filter(coverage_prob >= 0.8 & coverage_prob <= 0.95)
 
 
-b <- hits_target2 %>% group_by(method) %>% 
+b <- hits_target_long %>% group_by(method) %>% 
   summarise(n = n()) %>% 
   mutate(freq = n/as.vector(long_totals$n))
 
@@ -84,13 +141,7 @@ df$type <- c(rep("short", 105), rep("long", 84))
 
 df <- left_join(df, all_stocks)
 ######################################
-west_coast_ts_characteristics$stock_name[which(west_coast_ts_characteristics$stock_name == "petrale_sole")] <- "petrale"
-west_coast_ts_characteristics$region <- rep("west coast", nrow(west_coast_ts_characteristics))
 
-all_stocks <- rbind(alaska_ts_characteristics, west_coast_ts_characteristics)
-coverage_probs_all <- rbind(coverage_probs_short, coverage_probs_long)
-coverage_probs_all$type <- c(rep("short", 204), rep("long", 197))
-coverage_probs_all <- left_join(coverage_probs_all, all_stocks)
 
 a <- coverage_probs_all %>%
   filter(type == "short") %>% 
