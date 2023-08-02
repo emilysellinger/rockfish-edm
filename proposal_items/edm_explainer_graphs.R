@@ -23,42 +23,49 @@ ggplot(data = TentMapNoise, aes(x = Time, y = TentMap)) +
   geom_line() + geom_point(shape = 1) + xlim(1, 70) + ylab("Value")
 
 # read in data
-dat <- read.csv(here("data", "simplex_example_data.csv"))
+dat <- read.csv(here("proposal_items", "simplex_example_data.csv"))
 dat[62:64,3] <- 8
 dat[65,3] <- 5
 
 dat %>% filter(Color == 5) %>% mutate(mean = mean(Value))
 dat2 <- data.frame(Time = 70, Value = -0.26138, Color = 5)
 
-dat %>% 
+a <- dat %>% 
   ggplot(aes(Time, Value)) +
   geom_line(data = dat %>% filter(Time < 70), alpha = 0.5) +
-  geom_line(data = dat %>% filter(Color == 4), color = "blue") +
-  geom_line(data = dat %>% filter(Color == 6), color = "blue") +
-  geom_line(data = dat %>% filter(Color == 7), color = "blue") +
-  geom_line(data = dat %>% filter(Color == 8), color = "blue") +
-  geom_line(data = dat %>% filter(Color == 3), color = "red") +
+  geom_line(data = dat %>% filter(Color == 4), color = "#586028") +
+  geom_line(data = dat %>% filter(Color == 6), color = "#586028", size = 1.25) +
+  geom_line(data = dat %>% filter(Color == 7), color = "#586028", size = 1.25) +
+  geom_line(data = dat %>% filter(Color == 8), color = "#586028", size = 1.25) +
+  geom_line(data = dat %>% filter(Color == 3), color = "#00A1B7", size = 1.25) +
   geom_point(data = dat %>% filter(Time < 71), shape = 1, size = 4) +
-  geom_point(data = dat %>% filter(Color == 2), color = "red", size = 4, alpha = 0.5) +
-  geom_point(data = dat %>% filter(Color == 5), color = "green", size = 4) +
-  geom_point(data = dat %>% filter(Color == 4), color = "blue", size = 4) +
-  geom_point(data = dat %>% filter(Color == 6), color = "blue", size = 4) +
-  geom_point(data = dat %>% filter(Color == 7), color = "blue", size = 4) +
-  geom_point(data = dat %>% filter(Color == 8), color = "blue", size = 4) +
-  geom_point(data = dat %>% filter(Color == 3), color = "red", size = 4) +
-  geom_point(data = dat2, color = "green", size = 4, alpha = 0.5) +
-  geom_text(aes(73, 0.035), label = "obs")+
-  geom_text(aes(73, -0.26), label = "pred")+
-  xlim(1,73) + theme_bw() + theme(panel.grid.major = element_blank(),
+  geom_point(data = dat %>% filter(Color == 2), color = "#00A1B7", size = 4, alpha = 0.5) +
+  geom_point(data = dat %>% filter(Color == 5), color = "#898928", size = 4) +
+  geom_point(data = dat %>% filter(Color == 4), color = "#586028", size = 4) +
+  geom_point(data = dat %>% filter(Color == 6), color = "#586028", size = 4) +
+  geom_point(data = dat %>% filter(Color == 7), color = "#586028", size = 4) +
+  geom_point(data = dat %>% filter(Color == 8), color = "#586028", size = 4) +
+  geom_point(data = dat %>% filter(Color == 3), color = "#00A1B7", size = 4) +
+  geom_point(data = dat2, color = "#898928", size = 4, alpha = 0.8) +
+  annotate(geom = "text", x = 73.1, y = 0.035, label = "obs")+
+  annotate(geom = "text", x = 73.8, y = -0.26, label = "pred")+
+  xlim(1,75) + theme_minimal() + theme(panel.grid.major = element_blank(),
                                   panel.grid.minor = element_blank())
+
+
+pdf(here('proposal_items/edm_explainer_graph.pdf'), width = 9)
+print(a)
+dev.off()
 
 # 3d graph
 library(rgl)
 
 dat3 <- data.frame(x = runif(20,1,4), y = runif(20,1,5), z = runif(20,1,8))
 
-dat3$col <- c(2,2,4,rep(1,17))
+dat3$col <- c(rep("#9DA7BF", 3), "#898928", 
+              rep("#9DA7BF", 3), "#00A1B7", rep("#9DA7BF", 3), "#00A1B7", rep("#9DA7BF", 8))
+
 plot3d(x = dat3$x, y=dat3$y, z=dat3$z, xlab = "x", ylab = "x-1", zlab = "x-2",
-       size = 5, axes = FALSE, col = dat3$col)
+       size = 6.5, axes = FALSE, col = dat3$col)
 box3d()
 rgl.snapshot("3dplot.png", fmt = "png")

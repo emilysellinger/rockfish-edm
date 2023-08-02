@@ -125,21 +125,86 @@ b <- hits_target_long %>% group_by(method) %>%
 hits_target_df <- rbind(a, b)
 hits_target_df$type <- c(rep("short", 6), rep("long", 6))
 
-ggplot(data = hits_target_df, aes(x = method, y = freq, fill = type)) + 
+hits_target_plot <- ggplot(data = hits_target_df, aes(x = method, y = freq, fill = type)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Forecast method", y = "Frequency in target\n coverage probability range",
-       fill = "Forecast length") +
-  scale_x_discrete(labels = c("AR(1)", "Beverton-Holt", "HMM\n sampling", "mean", "PELT\n sampling",
-                              "simplex\n projection")) +
+       fill = "Forecast length", subtitle = "(a)") +
+  scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
+                              "Simplex\n projection")) +
   ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
   theme_minimal()
 
+# will also create plots by region just to see if there is a difference
+short_totals_region <- coverage_probs_short %>% 
+  group_by(region, method) %>% 
+  summarise(n = n())
 
-## look at success rates relative to different stock characteristics
-df <- rbind(hits_target, hits_target2)
-df$type <- c(rep("short", 105), rep("long", 84))
+c <- hits_target_short %>% 
+  group_by(region, method) %>% 
+  summarise(n = n())
+c$freq <- c$n/short_totals_region$n
+c$type <- rep("short", nrow(c))
+  
+long_totals_region <- coverage_probs_long %>% 
+  group_by(region, method) %>% 
+  summarise(n = n())
 
-df <- left_join(df, all_stocks)
+d <- as_tibble(hits_target_long %>% 
+  group_by(region, method) %>% 
+  summarise(n = n()))
+d <- d %>% add_row(region = "GOA", method = "AR(1)", n = 0, .before = 7)
+d$type <- rep("long", nrow(d))
+d$freq <- d$n/long_totals_region$n
+
+hits_target_region <- rbind(c, d)
+
+
+hits_target_plot2_b <- hits_target_region %>% 
+  filter(region == "BSAI") %>% 
+  ggplot(aes(x = method, y = freq, fill = type)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = element_blank(), y = element_blank(),
+       fill = "Forecast length", subtitle = "(b)") +
+  scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
+                              "Simplex\n projection")) +
+  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 45))
+
+hits_target_plot2_c <- hits_target_region %>% 
+  filter(region == "GOA") %>% 
+  ggplot(aes(x = method, y = freq, fill = type)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = element_blank(), y = element_blank(),
+       fill = "Forecast length", subtitle = "(c)") +
+  scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
+                              "Simplex\n projection")) +
+  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 45))
+
+hits_target_plot2_d <- hits_target_region %>% 
+  filter(region == "west coast") %>% 
+  ggplot(aes(x = method, y = freq, fill = type)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Forecast method", fill = "Forecast length", subtitle = "(d)", y = element_blank()) +
+  scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
+                              "Simplex\n projection")) +
+  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45))
+  
+
+
+plot.layout <- "
+AAAAA#BBBB
+AAAAA#CCCC
+AAAAA#DDDD
+"
+
+pdf(here('results/figures/frequency_method_hits_target_range.pdf'), width = 11, height = 9)
+print(hits_target_plot + hits_target_plot2_b + hits_target_plot2_c + hits_target_plot2_d + plot_layout(design = plot.layout, guides = 'collect'))
+dev.off()
+
+
 ######################################
 
 
@@ -149,9 +214,10 @@ a <- coverage_probs_all %>%
   geom_smooth(method = lm, formula = y ~ poly(x, 2),
               aes(x = autocorrR, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(a) Short-term forecasts") +
+  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(a)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(-0.5, 1) +
+  xlim(-0.5, 1) + ylim(0, 1) + 
+  theme(axis.text.x = element_text(angle = 45)) +
   facet_wrap(~ method) +
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
@@ -162,17 +228,17 @@ b <- coverage_probs_all %>%
   geom_smooth(method = lm, formula = y ~ poly(x, 2), 
               aes(x = autocorrR, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(b) Long-term forecasts") +
+  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(b)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(-0.5, 1) +
+  xlim(-0.5, 1) + ylim(0,1) +
   facet_wrap(~ method) +
   theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45)) +
   theme(legend.position = "none")
 
-pdf(file = here("results/figures/coverage_prob_vs_autocorrelation.pdf"))
-print(a)
-print(b)
+pdf(file = here("results/figures/coverage_prob_vs_autocorrelation.pdf"), width = 11)
+print(a + b)
 dev.off()
 
 c <- coverage_probs_all %>%
@@ -180,9 +246,9 @@ c <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = depletion, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = depletion, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Depletion", y = "Coverage probability", subtitle = "(a) Short-term forecasts") +
+  labs(x = "Depletion", y = "Coverage probability", subtitle = "(a)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(0, 1) +
+  xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
@@ -192,17 +258,16 @@ d <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = depletion, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = depletion, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Depletion", y = "Coverage probability", subtitle = "(b) Long-term forecasts") +
+  labs(x = "Depletion", y = "Coverage probability", subtitle = "(b)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(0, 1) +
+  xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
-pdf(file = here("results/figures/coverage_prob_vs_depletion.pdf"))
-print(c)
-print(d)
+pdf(file = here("results/figures/coverage_prob_vs_depletion.pdf"), width = 11)
+print(c + d)
 dev.off()
 
 e <- coverage_probs_all %>%
@@ -210,9 +275,9 @@ e <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(a) Short-term forecasts") +
+  labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(a)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(0, 1.25) +
+  xlim(0, 1.25) + ylim(0,1) +
   facet_wrap(~ method) +
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
@@ -222,61 +287,67 @@ f <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(b) Long-term forecasts") +
+  labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(b)") +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  xlim(0, 1.25) +
+  xlim(0, 1.25) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
-pdf(file = here("results/figures/coverage_prob_vs_sigmaR.pdf"))
-print(e)
-print(f)
+pdf(file = here("results/figures/coverage_prob_vs_sigmaR.pdf"), width = 11)
+print(e + f)
 dev.off()
 
 g <- coverage_probs_all %>% 
   filter(type == "short") %>% 
+  mutate(detectable_SR = recode(detectable_SR, `1` = "Yes", `0` = "No", `2` = "Some\nevidence")) %>% 
   ggplot() + geom_boxplot(aes(x = factor(detectable_SR), y = coverage_prob, fill = method)) +
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(a) Short-term forecasts", fill = "Method") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  theme_minimal()
-h <- coverage_probs_all %>% 
-  filter(type == "long") %>% 
-  ggplot() + geom_boxplot(aes(x = factor(detectable_SR), y = coverage_prob, fill = method)) +
-  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(b) Long-term forecasts", fill = "Method") +
+  labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
+  ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   theme_minimal()
 
-pdf(file = here("results/figures/coverage_prob_vs_detectableSR.pdf"))
-print(g)
-print(h)
+h <- coverage_probs_all %>% 
+  filter(type == "long") %>% 
+  mutate(detectable_SR = recode(detectable_SR, `1` = "Yes", `0` = "No", `2` = "Some\nevidence")) %>%
+  ggplot() + geom_boxplot(aes(x = factor(detectable_SR), y = coverage_prob, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Detectable SR\n relationship", y = element_blank(), subtitle = "(b)", fill = "Method") +
+  ylim(0,1) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  theme_minimal()
+
+pdf(file = here("results/figures/coverage_prob_vs_detectableSR.pdf"), width = 11)
+print(g + h + plot_layout(guides = 'collect'))
 dev.off()
 
 i <- coverage_probs_all %>% 
   filter(type == "short") %>% 
+  mutate(regime_shift = recode(regime_shift, `1` = "Yes", `0` = "No")) %>%
   ggplot() + geom_boxplot(aes(x = factor(regime_shift), y = coverage_prob, fill = method)) +
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(a) Short-term forecasts", fill = "Method") +
+  labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
+  ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   theme_minimal()
 j <- coverage_probs_all %>% 
   filter(type == "long") %>% 
+  mutate(regime_shift = recode(regime_shift, `1` = "Yes", `0` = "No")) %>% 
   ggplot() + geom_boxplot(aes(x = factor(regime_shift), y = coverage_prob, fill = method)) +
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(b) Long-term forecasts", fill = "Method") +
+  labs(x = "Detectable\n regime shift", y = element_blank(), subtitle = "(b)", fill = "Method") +
+  ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   theme_minimal()
 
-pdf(file = here("results/figures/coverage_prob_vs_regime_shift.pdf"))
-print(i)
-print(j)
+pdf(file = here("results/figures/coverage_prob_vs_regime_shift.pdf"), width = 11)
+print(i + j + plot_layout(guides = 'collect'))
 dev.off()
 
 
@@ -285,7 +356,8 @@ k <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = num_yrs, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = num_yrs, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(a) Short-term forecasts") +
+  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(a)") +
+  ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -296,14 +368,14 @@ l <- coverage_probs_all %>%
   ggplot() + geom_point(aes(x = num_yrs, y = coverage_prob, color = method)) +
   geom_smooth(method = lm, aes(x = num_yrs, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(b) Long-term forecasts") +
+  labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(b)") +
+  ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   facet_wrap(~ method) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
-pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"))
-print(k)
-print(l)
+pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"), width = 11)
+print(k + l)
 dev.off()
