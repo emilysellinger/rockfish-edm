@@ -44,21 +44,34 @@ fitPelt@cpts
 # splitnose years: 23, 34
 
 # Initial training set goes to 20 years
-has_regime_shift %>% 
-  filter(method == "PELT sample" | method == "HMM") %>% 
+a <- has_regime_shift %>% 
+  filter(method == "PELT" | method == "HMM") %>% 
   filter((stock_name %in% c("arrowtooth_flounder", "dusky_goa", "greenland_turbot",
                              "northern_rock_sole", "pollock_goa", "pop_goa", "lingcod_s"))) %>% 
   ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = type)) + 
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2)
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  labs(y = "Coverage probability", x = "Method", fill = "Forecast\nlength", subtitle = "(a)") +
+  ylim(0,1) +
+  theme_minimal()
 
 
-has_regime_shift %>% 
-  filter(method == "PELT sample" | method == "HMM") %>% 
+b <- has_regime_shift %>% 
+  filter(method == "PELT" | method == "HMM") %>% 
   filter(!(stock_name %in% c("arrowtooth_flounder", "dusky_goa", "greenland_turbot",
                              "northern_rock_sole", "pollock_goa", "pop_goa", "lingcod_s"))) %>% 
   ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = type)) + 
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2)
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  labs(y = element_blank(), x = "Method", fill = "Forecast\nlength", subtitle = "(b)") +
+  ylim(0,1) +
+  theme_minimal()
  
+
+pdf(here('results/figures/regime_shift_comparison.pdf'), width = 11)
+print(a + b + plot_layout(guides = 'collect'))
+dev.off()
+
 
 # want to look into which stocks have negative autocorrelation
 # Mark is skeptical of those stocks
