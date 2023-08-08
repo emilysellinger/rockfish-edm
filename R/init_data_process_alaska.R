@@ -297,3 +297,24 @@ ricker <- function(stock, starts_df){
 }
 
 
+# Save trimmed time series ------------------------------------------------
+write_csv(filter_alaska_sr_data(arrowtooth_flounder_bsai), here('data/alaska_stocks/trimmed_time_series/arrowtooth_flounder_bsai_trimmed.csv'))
+write_csv(filter_alaska_sr_data(atka_mackerel_bsai), here('data/alaska_stocks/trimmed_time_series/atka_mackerel_bsai_trimmed.csv'))
+write_csv(filter_alaska_sr_data(blackspotted_rougheye_goa), here('data/alaska_stocks/trimmed_time_series/blackspotted_rougheye_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(dusky_goa), here('data/alaska_stocks/trimmed_time_series/dusky_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(greenland_turbot), here('data/alaska_stocks/trimmed_time_series/greenland_turbot_trimmed.csv'))
+write_csv(filter_alaska_sr_data(kamchatka_flounder), here('data/alaska_stocks/trimmed_time_series/kamchatka_flounder_trimmed.csv'))
+write_csv(filter_alaska_sr_data(northern_rock_sole), here('data/alaska_stocks/trimmed_time_series/northern_rock_sole_trimmed.csv'))
+write_csv(filter_alaska_sr_data(northern_rockfish_goa), here('data/alaska_stocks/trimmed_time_series/northern_rockfish_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(ns_rock_sole_goa), here('data/alaska_stocks/trimmed_time_series/ns_rock_sole_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pacific_cod_ebs), here('data/alaska_stocks/trimmed_time_series/pacific_cod_ebs_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pacific_cod_goa), here('data/alaska_stocks/trimmed_time_series/pacific_cod_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pollock_ebs), here('data/alaska_stocks/trimmed_time_series/pollock_ebs_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pollock_goa), here('data/alaska_stocks/trimmed_time_series/pollock_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pop_bsai), here('data/alaska_stocks/trimmed_time_series/pop_bsai_trimmed.csv'))
+write_csv(filter_alaska_sr_data(pop_goa), here('data/alaska_stocks/trimmed_time_series/pop_goa_trimmed.csv'))
+write_csv(filter_alaska_sr_data(sablefish_alaska), here('data/alaska_stocks/trimmed_time_series/sablefish_alaska_trimmed.csv'))
+write_csv(filter_alaska_sr_data(yellowfin_sole_bsai), here('data/alaska_stocks/trimmed_time_series/yellowfin_sole_bsai_trimmed.csv'))
+
+
+

@@ -304,3 +304,26 @@ ricker <- function(stock, starts_df){
   return(mle_out)
 }
 
+
+# Save trimmed time series ------------------------------------------------
+write_csv(filter_sr_data(aurora), here('data/west_coast_stocks/trimmed_time_series/aurora_trimmed.csv'))
+write_csv(filter_sr_data(black_ca), here('data/west_coast_stocks/trimmed_time_series/black_ca_trimmed.csv'))
+write_csv(filter_sr_data(black_wa), here('data/west_coast_stocks/trimmed_time_series/black_wa_trimmed.csv'))
+write_csv(filter_sr_data(bocaccio), here('data/west_coast_stocks/trimmed_time_series/bocaccio_trimmed.csv'))
+write_csv(filter_sr_data(cabezon_ncs), here('data/west_coast_stocks/trimmed_time_series/cabezon_ncs_trimmed.csv'))
+write_csv(filter_sr_data(cabezon_ors), here('data/west_coast_stocks/trimmed_time_series/cabezon_ors_trimmed.csv'))
+write_csv(filter_sr_data(cabezon_scs), here('data/west_coast_stocks/trimmed_time_series/cabezon_scs_trimmed.csv'))
+write_csv(filter_sr_data(canary), here('data/west_coast_stocks/trimmed_time_series/canary_trimmed.csv'))
+write_csv(filter_sr_data(chilipepper), here('data/west_coast_stocks/trimmed_time_series/chilipepper_trimmed.csv'))
+write_csv(filter_sr_data(darkblotched), here('data/west_coast_stocks/trimmed_time_series/darkblotched_trimmed.csv'))
+write_csv(filter_sr_data(dover_sole), here('data/west_coast_stocks/trimmed_time_series/dover_sole_trimmed.csv'))
+write_csv(filter_sr_data(kelp_greenling), here('data/west_coast_stocks/trimmed_time_series/kelp_greenling_trimmed.csv'))
+write_csv(filter_sr_data(lingcod_n), here('data/west_coast_stocks/trimmed_time_series/lingcod_n_trimmed.csv'))
+write_csv(filter_sr_data(lingcod_s), here('data/west_coast_stocks/trimmed_time_series/lingcod_s_trimmed.csv'))
+write_csv(filter_sr_data(petrale_sole), here('data/west_coast_stocks/trimmed_time_series/petrale_sole_trimmed.csv'))
+write_csv(filter_sr_data(sablefish), here('data/west_coast_stocks/trimmed_time_series/sablefish_trimmed.csv'))
+write_csv(filter_sr_data(splitnose), here('data/west_coast_stocks/trimmed_time_series/splitnose_trimmed.csv'))
+write_csv(filter_sr_data(widow), here('data/west_coast_stocks/trimmed_time_series/widow_trimmed.csv'))
+write_csv(filter_sr_data(yelloweye), here('data/west_coast_stocks/trimmed_time_series/yelloweye_trimmed.csv'))
+
+

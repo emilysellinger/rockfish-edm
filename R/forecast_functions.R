@@ -501,10 +501,10 @@ sim_CI_prob <- function(sim_results, ci){
 }
 
 
-# Mean absolute relative error - need to update draft
-sim_mare <- function(sim_results, df, time_vec){
+# Mean absolute scaled error 
+sim_mase <- function(sim_results, df, time_vec){
   # data frame for mare stats
-  mare_df <- rep(NA, dim(sim_results)[1])
+  mase_df <- rep(NA, dim(sim_results)[1])
   
   for(i in 1:length(time_vec)){
     # subset to training data
@@ -517,9 +517,9 @@ sim_mare <- function(sim_results, df, time_vec){
     num_vec <- abs(sim_results[i, 2:dim(sim_results)[2]] - sim_results[i, 1])
     
     # calculate value
-    mare_df[i] <- mean(num_vec/denom)
+    mase_df[i] <- mean(num_vec/denom)
   }
-  return(mare_df)
+  return(mase_df)
 }
 
 

@@ -1,8 +1,28 @@
+# Load in trimmed time series ##################################################
+aurora <- read_csv(here('data/west_coast_stocks/trimmed_time_series/aurora_trimmed.csv'))
+black_ca <- read_csv(here('data/west_coast_stocks/trimmed_time_series/black_ca_trimmed.csv'))
+black_wa <- read_csv(here('data/west_coast_stocks/trimmed_time_series/black_wa_trimmed.csv'))
+bocaccio <- read_csv(here('data/west_coast_stocks/trimmed_time_series/bocaccio_trimmed.csv'))
+cabezon_ncs <- read_csv(here('data/west_coast_stocks/trimmed_time_series/cabezon_ncs_trimmed.csv'))
+cabezon_ors <- read_csv(here('data/west_coast_stocks/trimmed_time_series/cabezon_ors_trimmed.csv'))
+cabezon_scs <- read_csv(here('data/west_coast_stocks/trimmed_time_series/cabezon_scs_trimmed.csv'))
+canary <- read_csv(here('data/west_coast_stocks/trimmed_time_series/canary_trimmed.csv'))
+chilipepper <- read_csv(here('data/west_coast_stocks/trimmed_time_series/chilipepper_trimmed.csv'))
+darkblotched <- read_csv(here('data/west_coast_stocks/trimmed_time_series/darkblotched_trimmed.csv'))
+dover_sole <- read_csv(here('data/west_coast_stocks/trimmed_time_series/dover_sole_trimmed.csv'))
+kelp_greenling <- read_csv(here('data/west_coast_stocks/trimmed_time_series/kelp_greenling_trimmed.csv'))
+lingcod_n <- read_csv(here('data/west_coast_stocks/trimmed_time_series/lingcod_n_trimmed.csv'))
+lingcod_s <- read_csv(here('data/west_coast_stocks/trimmed_time_series/lingcod_s_trimmed.csv'))
+petrale_sole <- read_csv(here('data/west_coast_stocks/trimmed_time_series/petrale_sole_trimmed.csv'))
+sablefish <- read_csv(here('data/west_coast_stocks/trimmed_time_series/sablefish_trimmed.csv'))
+splitnose <- read_csv(here('data/west_coast_stocks/trimmed_time_series/splitnose_trimmed.csv'))
+widow <- read_csv(here('data/west_coast_stocks/trimmed_time_series/widow_trimmed.csv'))
+yelloweye <- read_csv(here('data/west_coast_stocks/trimmed_time_series/yelloweye_trimmed.csv'))
+
 ## Set seed ####################################################################
 set.seed(211)
 # Aurora rockfish forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-aurora <- filter_sr_data(aurora)
 
 plot(aurora$Yr, aurora$Recruit_0, type = "l")
 plot(aurora$Yr, aurora$SpawnBio, type = "l")
@@ -31,7 +51,6 @@ saveRDS(aurora_stats, file = here("results/simulation_results/west_coast/perform
 
 # Black Rockfish CA forecasts ##################################################
 ## Set Up ------------------------------------------------------------------
-black_ca <- filter_sr_data(black_ca)
 
 plot(black_ca$Yr, black_ca$Recruit_0, type = "l")
 plot(black_ca$SpawnBio, black_ca$Recruit_0)
@@ -64,7 +83,6 @@ saveRDS(black_ca_stats, file = here("results/simulation_results/west_coast/perfo
 
 # Black rockfish WA forecasts ######################################
 ## Set Up ------------------------------------------------------------------
-black_wa <- filter_sr_data(black_wa)
 
 plot(black_wa$Yr, black_wa$Recruit_0, type = "l")
 plot(black_wa$SpawnBio, black_wa$Recruit_0)
@@ -97,7 +115,6 @@ saveRDS(black_wa_stats, file = here("results/simulation_results/west_coast/perfo
 
 # Bocaccio rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-bocaccio <- filter_sr_data(bocaccio)
 
 plot(bocaccio$Yr, bocaccio$Recruit_0, type = "l")
 plot(bocaccio$SpawnBio, bocaccio$Recruit_0)
@@ -131,7 +148,6 @@ saveRDS(bocaccio_stats, file = here("results/simulation_results/west_coast/perfo
 
 # Cabezon NCS forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-cabezon_ncs <- filter_sr_data(cabezon_ncs)
 
 plot(cabezon_ncs$Yr, cabezon_ncs$Recruit_0, type = "l")
 plot(cabezon_ncs$SpawnBio, cabezon_ncs$Recruit_0)
@@ -165,7 +181,7 @@ saveRDS(cabezon_ncs_stats, file = here("results/simulation_results/west_coast/pe
 
 # Cabezon ORS rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-cabezon_ors <- filter_sr_data(cabezon_ors)
+
 
 plot(cabezon_ors$Yr, cabezon_ors$Recruit_0, type = "l")
 plot(cabezon_ors$SpawnBio, cabezon_ors$Recruit_0)
@@ -198,7 +214,7 @@ saveRDS(cabezon_ors_stats, file = here("results/simulation_results/west_coast/pe
 
 # Cabezon SCS rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-cabezon_scs <- filter_sr_data(cabezon_scs)
+
 
 plot(cabezon_scs$Yr, cabezon_scs$Recruit_0, type = "l")
 plot(cabezon_scs$SpawnBio, cabezon_scs$Recruit_0)
@@ -232,7 +248,6 @@ saveRDS(cabezon_scs_stats, file = here("results/simulation_results/west_coast/pe
 
 # Canary rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-canary <- filter_sr_data(canary)
 canary1 <- canary %>% filter(Area == 1)
 
 plot(canary1$Yr, canary1$Recruit_0, type = "l")
@@ -267,7 +282,6 @@ saveRDS(canary1_stats, file = here("results/simulation_results/west_coast/perfor
 
 # Chilipepper rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-chilipepper <- filter_sr_data(chilipepper)
 
 plot(chilipepper$Yr, chilipepper$Recruit_0, type = "l")
 plot(chilipepper$SpawnBio, chilipepper$Recruit_0)
@@ -301,7 +315,6 @@ saveRDS(chilipepper_stats, file = here("results/simulation_results/west_coast/pe
 
 # Darkblotched rockfish forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-darkblotched <- filter_sr_data(darkblotched)
 
 plot(darkblotched$Yr, darkblotched$Recruit_0, type = "l")
 plot(darkblotched$SpawnBio, darkblotched$Recruit_0)
@@ -334,8 +347,6 @@ saveRDS(darkblotched_stats, file = here("results/simulation_results/west_coast/p
 
 # Dover Sole forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-dover_sole <- filter_sr_data(dover_sole)
-
 plot(dover_sole$Yr, dover_sole$Recruit_0, type = "l")
 plot(dover_sole$SpawnBio, dover_sole$Recruit_0)
 
@@ -368,7 +379,6 @@ saveRDS(dover_sole_stats, file = here("results/simulation_results/west_coast/per
 
 # Kelp Greenling forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-kelp_greenling <- filter_sr_data(kelp_greenling)
 
 plot(kelp_greenling$Yr, kelp_greenling$Recruit_0, type = "l")
 plot(kelp_greenling$SpawnBio, kelp_greenling$Recruit_0)
@@ -401,7 +411,6 @@ saveRDS(kelp_greenling_stats, file = here("results/simulation_results/west_coast
 
 # Lingcod North forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-lingcod_n <- filter_sr_data(lingcod_n)
 
 plot(lingcod_n$Yr, lingcod_n$Recruit_0, type = "l")
 plot(lingcod_n$SpawnBio, lingcod_n$Recruit_0)
@@ -434,8 +443,6 @@ saveRDS(lingcod_n_stats, file = here("results/simulation_results/west_coast/perf
 
 # Lingcod South forecasts ###################################
 ## Set Up ------------------------------------------------------------------
-lingcod_s <- filter_sr_data(lingcod_s)
-
 plot(lingcod_s$Yr, lingcod_s$Recruit_0, type = "l")
 plot(lingcod_s$SpawnBio, lingcod_s$Recruit_0)
 
@@ -468,7 +475,6 @@ saveRDS(lingcod_s_stats, file = here("results/simulation_results/west_coast/perf
 
 # Petrale Sole sole forecasts ###################################
 ## Set Up ---------------------------------------------------
-petrale_sole <- filter_sr_data(petrale_sole)
 
 plot(petrale_sole$Yr, petrale_sole$Recruit_0, type = "l")
 plot(petrale_sole$SpawnBio, petrale_sole$Recruit_0)
@@ -502,7 +508,6 @@ saveRDS(petrale_sole_stats, file = here("results/simulation_results/west_coast/p
 
 # Sablefish forecasts ###################################
 ## Set Up -------------------------------------------------------
-sablefish <- filter_sr_data(sablefish)
 
 plot(sablefish$Yr, sablefish$Recruit_0, type = "l")
 plot(sablefish$SpawnBio, sablefish$Recruit_0)
@@ -536,7 +541,6 @@ saveRDS(sablefish_stats, file = here("results/simulation_results/west_coast/perf
 
 # Splitnose rockfish forecasts ###################################
 ## Set Up ---------------------------------------------------------
-splitnose <- filter_sr_data(splitnose)
 
 plot(splitnose$Yr, splitnose$Recruit_0, type = "l")
 plot(splitnose$SpawnBio, splitnose$Recruit_0)
@@ -569,7 +573,6 @@ saveRDS(splitnose_stats, file = here("results/simulation_results/west_coast/perf
 
 # Yelloweye forecasts ###################################
 ## Set Up -------------------------------------------------------------
-yelloweye <- filter_sr_data(yelloweye)
 yelloweye1 <- yelloweye %>% filter(Area==1)
 
 plot(yelloweye1$Yr, yelloweye1$Recruit_0, type = "l")
@@ -604,7 +607,6 @@ saveRDS(yelloweye1_stats, file = here("results/simulation_results/west_coast/per
 
 # Widow rockfish forecasts ###################################
 ## Set Up -------------------------------------------------------
-widow <- filter_sr_data(widow)
 
 plot(widow$Yr, widow$Recruit_0, type = "l")
 plot(widow$SpawnBio, widow$Recruit_0)

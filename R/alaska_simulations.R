@@ -1,9 +1,28 @@
+
+# Load in trimmed data #############################################################
+arrowtooth_flounder_bsai <- read_csv(here("data/alaska_stocks/trimmed_time_series", "arrowtooth_flounder_bsai_trimmed.csv"))
+atka_mackerel_bsai <- read_csv(here("data/alaska_stocks/trimmed_time_series", "atka_mackerel_bsai_trimmed.csv"))
+blackspotted_rougheye_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "blackspotted_rougheye_goa_trimmed.csv"))
+dusky_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "dusky_goa_trimmed.csv"))
+greenland_turbot <- read_csv(here("data/alaska_stocks/trimmed_time_series", "greenland_turbot_trimmed.csv"))
+kamchatka_flounder <- read_csv(here("data/alaska_stocks/trimmed_time_series", "kamchatka_flounder_trimmed.csv"))
+northern_rock_sole <- read_csv(here("data/alaska_stocks/trimmed_time_series", "northern_rock_sole_trimmed.csv"))
+ns_rock_sole_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "ns_rock_sole_goa_trimmed.csv"))
+northern_rockfish_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "northern_rockfish_goa_trimmed.csv"))
+pacific_cod_ebs <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pacific_cod_ebs_trimmed.csv"))
+pacific_cod_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pacific_cod_goa_trimmed.csv"))
+pollock_ebs <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pollock_ebs_trimmed.csv"))
+pollock_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pollock_goa_trimmed.csv"))
+pop_bsai <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pop_bsai_trimmed.csv"))
+pop_goa <- read_csv(here("data/alaska_stocks/trimmed_time_series", "pop_goa_trimmed.csv"))
+sablefish_alaska <- read_csv(here("data/alaska_stocks/trimmed_time_series", "sablefish_alaska_trimmed.csv"))
+yellowfin_sole_bsai <- read_csv(here("data/alaska_stocks/trimmed_time_series", "yellowfin_sole_bsai_trimmed.csv"))
+
+
 # Set seed ###########################################################################
 set.seed(211)
 # Arrowtooth Flounder forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-arrowtooth_flounder_bsai <- filter_alaska_sr_data(arrowtooth_flounder_bsai)
-
 plot(arrowtooth_flounder_bsai$year, arrowtooth_flounder_bsai$recruits, type = "l")
 plot(arrowtooth_flounder_bsai$year, arrowtooth_flounder_bsai$sbiomass, type = "l")
 
@@ -33,8 +52,6 @@ saveRDS(arrowtooth_stats, file = here("results/simulation_results/alaska/perform
 
 # Atka Mackerel forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-atka_mackerel_bsai <- filter_alaska_sr_data(atka_mackerel_bsai)
-
 plot(atka_mackerel_bsai$year, atka_mackerel_bsai$recruits, type = "l")
 plot(atka_mackerel_bsai$year, atka_mackerel_bsai$sbiomass, type = "l")
 
@@ -64,7 +81,6 @@ saveRDS(atka_mackerel_bsai_stats, file = here("results/simulation_results/alaska
 
 # Blackspotted rougheye GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-blackspotted_rougheye_goa <- filter_alaska_sr_data(blackspotted_rougheye_goa)
 
 plot(blackspotted_rougheye_goa$year, blackspotted_rougheye_goa$recruits, type = "l")
 plot(blackspotted_rougheye_goa$year, blackspotted_rougheye_goa$sbiomass, type = "l")
@@ -95,7 +111,6 @@ saveRDS(blackspotted_rougheye_goa_stats, file = here("results/simulation_results
 
 # Dusky rockfish GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-dusky_goa <- filter_alaska_sr_data(dusky_goa)
 
 plot(dusky_goa$year, dusky_goa$recruits, type = "l")
 plot(dusky_goa$year, dusky_goa$sbiomass, type = "l")
@@ -126,7 +141,6 @@ saveRDS(dusky_goa_stats, file = here("results/simulation_results/alaska/performa
 
 # Greenland Turbot forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-greenland_turbot <- filter_alaska_sr_data(greenland_turbot)
 
 plot(greenland_turbot$year, greenland_turbot$recruits, type = "l")
 plot(greenland_turbot$year, greenland_turbot$sbiomass, type = "l")
@@ -158,7 +172,6 @@ saveRDS(greenland_turbot_stats, file = here("results/simulation_results/alaska/p
 
 # Kamchatka flounder forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-kamchatka_flounder <- filter_alaska_sr_data(kamchatka_flounder)
 
 plot(kamchatka_flounder$year, kamchatka_flounder$recruits, type = "l")
 plot(kamchatka_flounder$year, kamchatka_flounder$sbiomass, type = "l")
@@ -189,7 +202,6 @@ saveRDS(kamchatka_flounder_stats, file = here("results/simulation_results/alaska
 
 # Northern rock sole forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-northern_rock_sole <- filter_alaska_sr_data(northern_rock_sole)
 
 plot(northern_rock_sole$year, northern_rock_sole$recruits, type = "l")
 plot(northern_rock_sole$year, northern_rock_sole$sbiomass, type = "l")
@@ -220,7 +232,6 @@ saveRDS(northern_rock_sole_stats, file = here("results/simulation_results/alaska
 
 # Northern/Southern rock soles GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-ns_rock_sole_goa <- filter_alaska_sr_data(ns_rock_sole_goa)
 
 plot(ns_rock_sole_goa$year, ns_rock_sole_goa$recruits, type = "l")
 plot(ns_rock_sole_goa$year, ns_rock_sole_goa$sbiomass, type = "l")
@@ -252,7 +263,6 @@ saveRDS(ns_rock_sole_goa_stats, file = here("results/simulation_results/alaska/p
 
 # Northern rockfish GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-northern_rockfish_goa <- filter_alaska_sr_data(northern_rockfish_goa)
 
 plot(northern_rockfish_goa$year, northern_rockfish_goa$recruits, type = "l")
 plot(northern_rockfish_goa$year, northern_rockfish_goa$sbiomass, type = "l")
@@ -284,7 +294,6 @@ saveRDS(northern_rockfish_goa_stats, file = here("results/simulation_results/ala
 
 # Pacific cod EBS forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pacific_cod_ebs <- filter_alaska_sr_data(pacific_cod_ebs)
 
 plot(pacific_cod_ebs$year, pacific_cod_ebs$recruits, type = "l")
 plot(pacific_cod_ebs$year, pacific_cod_ebs$sbiomass, type = "l")
@@ -316,7 +325,6 @@ saveRDS(pacific_cod_ebs_stats, file = here("results/simulation_results/alaska/pe
 
 # Pacific cod GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pacific_cod_goa <- filter_alaska_sr_data(pacific_cod_goa)
 
 plot(pacific_cod_goa$year, pacific_cod_goa$recruits, type = "l")
 plot(pacific_cod_goa$year, pacific_cod_goa$sbiomass, type = "l")
@@ -348,7 +356,6 @@ saveRDS(pacific_cod_goa_stats, file = here("results/simulation_results/alaska/pe
 
 # Pollock EBS forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pollock_ebs <- filter_alaska_sr_data(pollock_ebs)
 
 plot(pollock_ebs$year, pollock_ebs$recruits, type = "l")
 plot(pollock_ebs$year, pollock_ebs$sbiomass, type = "l")
@@ -379,7 +386,6 @@ saveRDS(pollock_ebs_stats, file = here("results/simulation_results/alaska/perfor
 
 # Pollock GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pollock_goa <- filter_alaska_sr_data(pollock_goa)
 
 plot(pollock_goa$year, pollock_goa$recruits, type = "l")
 plot(pollock_goa$year, pollock_goa$sbiomass, type = "l")
@@ -411,7 +417,6 @@ saveRDS(pollock_goa_stats, file = here("results/simulation_results/alaska/perfor
 
 # Pacific ocean perch BSAI forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pop_bsai <- filter_alaska_sr_data(pop_bsai)
 
 plot(pop_bsai$year, pop_bsai$recruits, type = "l")
 plot(pop_bsai$year, pop_bsai$sbiomass, type = "l")
@@ -443,7 +448,6 @@ saveRDS(pop_bsai_stats, file = here("results/simulation_results/alaska/performan
 
 # Pacific ocean perch GOA forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-pop_goa <- filter_alaska_sr_data(pop_goa)
 
 plot(pop_goa$year, pop_goa$recruits, type = "l")
 plot(pop_goa$year, pop_goa$sbiomass, type = "l")
@@ -475,7 +479,6 @@ saveRDS(pop_goa_stats, file = here("results/simulation_results/alaska/performanc
 
 # Sablefish forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-sablefish_alaska <- filter_alaska_sr_data(sablefish_alaska)
 
 plot(sablefish_alaska$year, sablefish_alaska$recruits, type = "l")
 plot(sablefish_alaska$year, sablefish_alaska$sbiomass, type = "l")
@@ -506,7 +509,6 @@ saveRDS(sablefish_alaska_stats, file = here("results/simulation_results/alaska/p
 
 # Yellowfin sole BSAI forecasts ####################################################
 ## Set Up ---------------------------------------------------------------------
-yellowfin_sole_bsai <- filter_alaska_sr_data(yellowfin_sole_bsai)
 
 plot(yellowfin_sole_bsai$year, yellowfin_sole_bsai$recruits, type = "l")
 plot(yellowfin_sole_bsai$year, yellowfin_sole_bsai$sbiomass, type = "l")

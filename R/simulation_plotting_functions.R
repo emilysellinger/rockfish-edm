@@ -18,23 +18,23 @@ coverage_prob_plot <- function(preds){
   return(list(cplot, as.data.frame(bayes_prob_df)))
 }
 
-mrae_plot <- function(preds, obs, ts_vec){
+mase_plot <- function(preds, obs, ts_vec){
   fmethod <- length(names(preds))
   ts <- dim(preds[[1]])[1]
   methods <- names(preds)
   
-  mrae_df <- tibble(year = c(rep(seq(1, ts), fmethod)),
+  mase_df <- tibble(year = c(rep(seq(1, ts), fmethod)),
                     method = c(rep(NA, ts*fmethod)),
-                    mrae = c(rep(NA, ts*fmethod)))
+                    mase = c(rep(NA, ts*fmethod)))
   for(i in 1:fmethod){
-    mrae_df[((ts*i-(ts-1)):(ts*i)), 2] <- c(rep(methods[i], ts))
-    mrae_df[((ts*i-(ts-1)):(ts*i)), 3] <- sim_mare(preds[[i]], obs, ts_vec)
+    mase_df[((ts*i-(ts-1)):(ts*i)), 2] <- c(rep(methods[i], ts))
+    mase_df[((ts*i-(ts-1)):(ts*i)), 3] <- sim_mase(preds[[i]], obs, ts_vec)
   }
   
-  plot_mrae <- ggplot(mrae_df) + geom_line(aes(x = year, y = mrae, color = method)) + 
+  plot_mrae <- ggplot(mase_df) + geom_line(aes(x = year, y = mrae, color = method)) + 
     ylab("Mean relative absolute error") + xlab("Years added to training set")
   
-  return(list(plot_mrae, as.data.frame(mrae_df)))
+  return(list(plot_mase, as.data.frame(mase_df)))
 }
 
 
@@ -58,20 +58,20 @@ sim_quants_plots <- function(preds, yrs, obs, type){
   for(i in 1:fmethod){
     predsi <- preds[[i]]
     
-    quants <- apply(predsi[,-1], 1, quantile, probs = c(0.025, 0.5, 0.975))
+    quants <- apply(predsi[,-1], 1, quantile, probs = c(0.8, 0.5, 0.975))
     
     quant_df <- tibble(year = yrs,
-                   obs = obs,
-                   med_pred = c(rep(NA, (total_yrs - dim(quants)[2])), quants[2,]),
-                   low_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[1,]),
-                   up_ci = c(rep(NA, (total_yrs - dim(quants)[2])), quants[3,]))
+                   obs = obs/1000,
+                   med_pred = c(rep(NA, (total_yrs - dim(quants)[2])), (quants[2,]/1000)),
+                   low_ci = c(rep(NA, (total_yrs - dim(quants)[2])), (quants[1,]/1000)),
+                   up_ci = c(rep(NA, (total_yrs - dim(quants)[2])), (quants[3,]/1000)))
     
     plist[[i]] <- ggplot(data = quant_df) + geom_line(aes(x = year, y = obs), alpha = 0.5) +
       geom_point(aes(x = year, y = obs)) +
       geom_point(aes(x = year, y = med_pred), color = "#00A1B7") +
       geom_line(aes(x = year, y = med_pred), color = "#00A1B7", alpha = 0.5) +
       geom_ribbon(aes(ymin = low_ci, ymax = up_ci, x = year), fill = "#55CFD8", alpha = 0.5, linetype = "dashed") + 
-      xlab("Year") + ylab("Recruitment") + labs(subtitle = paste(plot_num[i], methods[i])) + #ylim(plotmin, plotmax) +
+      xlab("Year") + ylab("Recruitment ('000s)") + labs(subtitle = paste(plot_num[i], methods[i])) + #ylim(plotmin, plotmax) +
       theme_minimal()
   }
   
@@ -115,7 +115,7 @@ yr_trend_plot <- function(preds, obs, ts_vec){
 print_plots <- function(preds1, preds2, obs, yrs, t1, t2){
   print(sim_quants_plots(preds1, yrs, obs, type = "short"))
   print(coverage_prob_plot(preds1)[[1]])
-  print(mrae_plot(preds1, obs, t1)[[1]])
+  print(mase_plot(preds1, obs, t1)[[1]])
   print(sim_quants_plots(preds2, yrs, obs, type = "long"))
   print(coverage_prob_plot(preds2)[[1]])
   print(yr_trend_plot(preds2, obs, t2))
@@ -174,7 +174,7 @@ yr_trend_df <- function(preds, ts_vec){
 save_performance_stats <- function(preds1, preds2, obs, yrs, t1, t2){
   performance_list <- list(short_forecast_quants = sim_quants_df(preds1),
                            short_cov_prob = coverage_prob_plot(preds1)[[2]],
-                           mrae = mrae_plot(preds1, obs, t1)[[2]],
+                           mase = mase_plot(preds1, obs, t1)[[2]],
                            long_forecast_quants = sim_quants_df(preds2),
                            long_cov_prob = coverage_prob_plot(preds2)[[2]],
                            yr_trend = yr_trend_df(preds2, t2))

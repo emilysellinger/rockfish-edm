@@ -51,6 +51,19 @@ dev.off()
 
 ## POP GOA example ----------------------------------------- 
 #used these plots for example in paper
+# recruitment forecast plots for POP GOA
+pop_goa <- read_csv(here("data/alaska_stocks", "pop_goa.csv"))
+
+pop_goa_sims_short <- readRDS(here('results/simulation_results/alaska/short_forecasts/pop_goa_short.Rds'))
+pop_goa_sims_long <- readRDS(here('results/simulation_results/alaska/long_forecasts/pop_goa_long.Rds'))
+
+
+pdf(here('results/figures/pop_goa_paper_forecast_plots.pdf'))
+print(sim_quants_plots(pop_goa_sims_short, pop_goa$year, pop_goa$recruits, "short"))
+print(sim_quants_plots(pop_goa_sims_long, pop_goa$year, pop_goa$recruits, "long"))
+dev.off()
+
+
 pop_goa <- coverage_probs_all %>% 
   filter(stock_name == 'pop_goa') %>% 
   mutate(method = recode(method, "AR(1)" = "AR(1)", "Mean" = "mean",
