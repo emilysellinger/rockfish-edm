@@ -26,6 +26,11 @@ coverage_probs_all <- read_csv(here('results/simulation_results/all_stocks_cover
 
 coverage_probs_all <- left_join(coverage_probs_all, all_stocks)
 
+# MASE for 1 step forecasts
+all_stocks_short_MASE <- read_csv(here('results/simulation_results/all_stocks_short_MASE.csv'))
+all_stocks_short_MASE <- all_stocks_short_MASE %>% 
+  mutate(mase = mrae) %>% 
+  select(-mrae)
 # Chapter 2 Figures -------------------------------------------------------
 ## expanding window figure -----------------------------
 
@@ -218,9 +223,7 @@ print(hits_target_plot + hits_target_plot2_b + hits_target_plot2_c + hits_target
 dev.off()
 
 
-######################################
-
-
+## Coverage probs by characteristics ---------------------------------------
 a <- coverage_probs_all %>%
   filter(type == "short") %>% 
   ggplot() + geom_point(aes(x = autocorrR, y = coverage_prob, color = method)) +
@@ -392,3 +395,51 @@ l <- coverage_probs_all %>%
 pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"), width = 11)
 print(k + l)
 dev.off()
+
+
+# MASE by stock characteristics -------------------------------------------
+MASE_meds <- all_stocks_short_MASE %>% 
+  group_by(stock_name, method, period) %>% 
+  summarise(med_mase = median(mase))
+
+MASE_meds <- left_join(MASE_meds, all_stocks)
+
+a <- MASE_meds %>%
+  filter(period == 'early') %>% 
+  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
+  geom_smooth(method = lm, formula = y ~ poly(x, 2),
+              aes(x = autocorrR, y = med_mase, color = method)) +
+  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(a)") +
+  xlim(-0.5, 1) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  facet_wrap(~ method) +
+  theme_minimal() +
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
+
+b <- MASE_meds %>%
+  filter(period == 'mid') %>% 
+  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
+  geom_smooth(method = lm, formula = y ~ poly(x, 2),
+              aes(x = autocorrR, y = med_mase, color = method)) +
+  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(b)") +
+  xlim(-0.5, 1) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  facet_wrap(~ method) +
+  theme_minimal() +
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
+c <- MASE_meds %>%
+  filter(period == 'late') %>% 
+  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
+  geom_smooth(method = lm, formula = y ~ poly(x, 2),
+              aes(x = autocorrR, y = med_mase, color = method)) +
+  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
+  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(c)") +
+  xlim(-0.5, 1) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  facet_wrap(~ method) +
+  theme_minimal() +
+  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
+
+a + b + c + plot_layout(nrow = 2)

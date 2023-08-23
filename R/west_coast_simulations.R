@@ -34,19 +34,19 @@ time_vec1 <- seq(20, length(rec_ts), 1)
 time_vec2 <- seq(20, (length(rec_ts) - 4), 1)
 
 ## Short-term forecasts ----------------------------------------------------
-aurora_sims <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
-saveRDS(aurora_sims, here("results/simulation_results/west_coast/short_forecasts/aurora_short.Rds"))
+aurora_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+saveRDS(aurora_sims_short, here("results/simulation_results/west_coast/short_forecasts/aurora_short.Rds"))
 ## Long-term forecasts ---------------------------------------------------------
-long_sims <- expanding_window_5yr(c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
-saveRDS(long_sims, here("results/simulation_results/west_coast/long_forecasts/aurora_long.Rds"))
+aurora_sims_long <- expanding_window_5yr(c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec = time_vec1, rec_ts, spawn_ts)
+saveRDS(aurora_sims_long, here("results/simulation_results/west_coast/long_forecasts/aurora_long.Rds"))
 
 ## Visualize simulations -------------------------------------------------------
 pdf(here("results/figures/west_coast_stocks/stock_forecast_figures/aurora_forecast_figs.pdf"))
-print_plots(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
+print_plots(aurora_sims_short, aurora_sims_long, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
-aurora_stats <- save_performance_stats(aurora_sims, long_sims, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
+aurora_stats <- save_performance_stats(aurora_sims_short, aurora_sims_long, aurora$Recruit_0, aurora$Yr, time_vec1, time_vec2)
 saveRDS(aurora_stats, file = here("results/simulation_results/west_coast/performance_stats/aurora_stats.Rds"))
 
 # Black Rockfish CA forecasts ##################################################
@@ -68,7 +68,7 @@ black_ca_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-
 saveRDS(black_ca_sims_short, here("results/simulation_results/west_coast/short_forecasts/black_ca_short.Rds"))
 
 ## Long-term forecasts -----------------------------------------------------
-black_ca_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+black_ca_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 saveRDS(black_ca_sims_long, here("results/simulation_results/west_coast/long_forecasts/black_ca_long.Rds"))
 
 ## Visualize forecasts -----------------------------------------------------------
@@ -109,7 +109,7 @@ print_plots(black_wa_sims_short, black_wa_sims_long, black_wa$Recruit_0, black_w
 dev.off()
 
 ## Save performance stats ------------------------------------------------------
-black_wa_stats <- save_performance_stats(black_ca_sims_short, black_ca_sims_long, black_ca$Recruit_0, black_ca$Yr, time_vec1, time_vec2)
+black_wa_stats <- save_performance_stats(black_wa_sims_short, black_wa_sims_long, black_wa$Recruit_0, black_wa$Yr, time_vec1, time_vec2)
 saveRDS(black_wa_stats, file = here("results/simulation_results/west_coast/performance_stats/black_wa_stats.Rds"))
 
 
@@ -295,11 +295,11 @@ time_vec2 <- seq(20, (length(rec_ts) - 4), 1) # 5 step forecasts
 
 
 ## Short-term forecasts ----------------------------------------------------
-chilipepper_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+chilipepper_sims_short <- expanding_window(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 saveRDS(chilipepper_sims_short, here("results/simulation_results/west_coast/short_forecasts/chilipepper_short.Rds"))
 
 ## Long-term forecasts ------------------------------------------------------------
-chilipepper_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "HMM", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
+chilipepper_sims_long <- expanding_window_5yr(fmethods = c("mean", "AR(1)", "Beverton-Holt", "simplex", "PELT"), 1000, time_vec1, rec_ts, spawn_ts)
 saveRDS(chilipepper_sims_long, here("results/simulation_results/west_coast/long_forecasts/chilipepper_long.Rds"))
 
 ## Visualize forecasts ----------------------------------------------------------

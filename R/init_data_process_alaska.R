@@ -1,8 +1,6 @@
 # initial data processing for Alaska
-
 library(tidyverse)
 library(here)
-
 
 # load data ---------------------------------------------------------------
 # Note: the BSAI stock of blackspotted and rougheye was initially included, but after
@@ -66,24 +64,13 @@ alaska_stocks <- rbind(arrowtooth_flounder_bsai, atka_mackerel_bsai, blackspotte
                        dusky_goa, greenland_turbot, kamchatka_flounder, northern_rock_sole[,-c(3,5)], ns_rock_sole_goa[,-c(3,5)], 
                        northern_rockfish_goa, pacific_cod_ebs[,-c(3,5)], pacific_cod_goa, pollock_ebs[,-c(3,5)], pollock_goa[,-c(3,5)],
                        pop_bsai[,-c(3,5)], pop_goa, sablefish_alaska, yellowfin_sole_bsai)
-# filter time series ------------------------------------------------------
-pdf("data/raw_recruitment_time_series_alaska.pdf")
-for(i in snames_alaska){
-  df <- alaska_stocks %>% filter(stock_name == i)
-  ts_plot <- ggplot(df, aes(x = year, y = recruits)) + geom_line() + 
-    xlab("year") + ylab("recruits") + ggtitle(i)
-  print(ts_plot)
-}
-dev.off()
+# filter time series -----------------------------------------------------
 
 alaska_years <- tibble(stock_name = snames_alaska,
                        min_yr = c(1976,1977,1995,1977,1979,1980,1991,1975,1977,1977,1977,1977,
                                   1964,1977,1977,1977,1977,1954),
                        max_yr = c(2019,2020,2014,2021,2020,2020,2020,2020,2021,2020,2020,2019,
                                   2020,2020,2017,2020,2018,2020))
-
-# Time Series Characteristics ---------------------------------------------
-
 filter_alaska_sr_data <- function(df){
   stock_name <- pull(df[1, "stock_name"])
   row_num <- which(alaska_years[, "stock_name"] == stock_name)
@@ -98,6 +85,7 @@ filter_alaska_sr_data <- function(df){
   return(df)
 }
 
+# Time Series Characteristics ---------------------------------------------
 ts_range <- alaska_years[,"max_yr"] - alaska_years[,"min_yr"]
 # not enough years for BSAI blackspotted rougheye
 quantile(ts_range[,"max_yr"], probs = c(0.25, 0.5, 0.75))

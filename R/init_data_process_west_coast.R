@@ -60,28 +60,23 @@ stocks <- rbind(aurora, black_ca, black_wa, bocaccio, cabezon_ncs, cabezon_ors, 
                 darkblotched, dover_sole, kelp_greenling, lingcod_n, lingcod_s, petrale_sole, sablefish, splitnose,
                 widow, yelloweye)
 
-# plot time series --------------------------------------------------------
-
-pdf("data/raw_recruitment_time_series.pdf")
-for(i in snames){
-  df <- stocks %>% filter(stock_name == i)
-  ts_plot <- ggplot(df, aes(x = Yr, y = Recruit_0, colour = as.factor(Area))) + geom_line() + 
-    xlab("year") + ylab("recruits") + labs(color = "Area") + ggtitle(i)
-  print(ts_plot)
-}
-dev.off()
-
 
 # filter model run in time ------------------------------------------------
-west_coast_years <- tibble(stock_names = snames,
-                min_yr = c(1963, 1963, 1963, 1960, 1963, 1980, 1975, 1960, 1966, 1975, 1975, 1980, 1960, 1970,
-                           1950, 1960, 1975, 1965, 1960),
+# For West Coast stocks, the first year used in this analysis will be the 
+# start year for the main_rec_dev period. The main_rec_dev period can be
+# found in each stock's Report.sso file. The final year used in this anaylsis will
+# be the last year of recruiment data from each stock assessment
+
+# main rec start data
+rec_dev_start <- read_csv(here('data/west_coast_stocks/west_coast_main_rec_dev_start.csv'))
+west_coast_years <- tibble(stock_name = snames,
+                min_yr = rec_dev_start$main_rec_dev_start,
                 max_yr = c(2012, 2014, 2014, 2015, 2018, 2018, 2018, 2014, 2014, 2016, 2020, 2014, 2020, 2020,
                            2018, 2020, 2008, 2018, 2016))
 
 filter_sr_data <- function(df){
   stock_name <- pull(df[1, "stock_name"])
-  row_num <- which(west_coast_years[, "stock_names"] == stock_name)
+  row_num <- which(west_coast_years[, "stock_name"] == stock_name)
   
   min_year <- pull(west_coast_years[row_num, "min_yr"])
   max_year <- pull(west_coast_years[row_num, "max_yr"])

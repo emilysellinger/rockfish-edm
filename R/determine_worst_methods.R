@@ -202,8 +202,8 @@ worst_method_wc_long %>%
 
 worst_method_alaska_short2 <- coverage_probs_short %>% 
   group_by(stock_name) %>% 
-  mutate(abs_value = abs(coverage_prob - 0.875)) %>%
-  filter( abs(coverage_prob - 0.875) == max(abs_value)) %>% 
+  mutate(abs_value = abs(coverage_prob - 0.879)) %>%
+  filter( abs(coverage_prob - 0.879) == max(abs_value)) %>% 
   ungroup() %>% 
   select(stock_name, method, coverage_prob)
 
@@ -212,8 +212,8 @@ worst_method_alaska_short2 %>%
 
 worst_method_wc_short2 <- coverage_probs_short_wc %>% 
   group_by(stock_name) %>% 
-  mutate(abs_value = abs(coverage_prob - 0.875)) %>%
-  filter( abs(coverage_prob - 0.875) == max(abs_value)) %>% 
+  mutate(abs_value = abs(coverage_prob - 0.879)) %>%
+  filter( abs(coverage_prob - 0.879) == max(abs_value)) %>% 
   ungroup() %>% 
   select(stock_name, method, coverage_prob)
 
@@ -259,91 +259,268 @@ write_csv(all_stocks_coverage_probs, here('results/simulation_results/all_stocks
 
 
 # MASE analysis -----------------------------------------------------------
+## Short forecasts ---------------------------------------------------------
 # first create data frames for Alaska and West Coast stocks
 
-alaska_mase_short <- coverage_probs_long <- rbind(arrowtooth_stats$mrae, atka_mackerel_bsai_stats$mrae,
-                                                  blackspotted_rougheye_goa_stats$mrae, dusky_goa_stats$mrae,
-                                                  greenland_turbot_stats$mrae, kamchatka_flounder_stats$mrae,
-                                                  northern_rock_sole_stats$mrae, northern_rockfish_goa_stats$mrae,
-                                                  ns_rock_sole_goa_stats$mrae, pacific_cod_ebs_stats$mrae,
-                                                  pacific_cod_goa_stats$mrae, pollock_ebs_stats$mrae,
-                                                  pollock_goa_stats$mrae, pop_bsai_stats$mrae,
-                                                  pop_goa_stats$mrae, sablefish_alaska_stats$mrae,
-                                                  yellowfin_sole_bsai_stats$mrae)
+alaska_mase_short <- rbind(arrowtooth_stats$mase_short, atka_mackerel_bsai_stats$mase_short,
+                           blackspotted_rougheye_goa_stats$mase_short, dusky_goa_stats$mase_short,
+                           greenland_turbot_stats$mase_short, kamchatka_flounder_stats$mase_short,
+                           northern_rock_sole_stats$mase_short, northern_rockfish_goa_stats$mase_short,
+                           ns_rock_sole_goa_stats$mase_short, pacific_cod_ebs_stats$mase_short,
+                           pacific_cod_goa_stats$mase_short, pollock_ebs_stats$mase_short,
+                           pollock_goa_stats$mase_short, pop_bsai_stats$mase_short,
+                           pop_goa_stats$mase_short, sablefish_alaska_stats$mase_short,
+                           yellowfin_sole_bsai_stats$mase_short)
 
-alaska_mase_short$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowtooth_stats$mrae)), rep("atka_mackerel_bsai", nrow(atka_mackerel_bsai_stats$mrae)),
-                                    rep("blackspotted_rougheye_goa", nrow(blackspotted_rougheye_goa_stats$mrae)), rep("dusky_goa", nrow(dusky_goa_stats$mrae)),
-                                    rep("greenland_turbot", nrow(greenland_turbot_stats$mrae)), rep("kamchatka_flounder", nrow(kamchatka_flounder_stats$mrae)),
-                                    rep("northern_rock_sole", nrow(northern_rock_sole_stats$mrae)), rep("northern_rockfish_goa", nrow(northern_rockfish_goa_stats$mrae)),
-                                    rep("ns_rock_sole_goa", nrow(ns_rock_sole_goa_stats$mrae)), rep("pacific_cod_ebs", nrow(pacific_cod_ebs_stats$mrae)),
-                                    rep("pacific_cod_goa", nrow(pacific_cod_goa_stats$mrae)), rep("pollock_ebs", nrow(pollock_ebs_stats$mrae)),
-                                    rep("pollock_goa", nrow(pollock_goa_stats$mrae)), rep("pop_bsai", nrow(pop_bsai_stats$mrae)),
-                                    rep("pop_goa", nrow(pop_goa_stats$mrae)), rep("sablefish_alaska", nrow(sablefish_alaska_stats$mrae)),
-                                    rep("yellowfin_sole_bsai", nrow(yellowfin_sole_bsai_stats$mrae)))
+alaska_mase_short$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowtooth_stats$mase_short)), rep("atka_mackerel_bsai", nrow(atka_mackerel_bsai_stats$mase_short)),
+                                    rep("blackspotted_rougheye_goa", nrow(blackspotted_rougheye_goa_stats$mase_short)), rep("dusky_goa", nrow(dusky_goa_stats$mase_short)),
+                                    rep("greenland_turbot", nrow(greenland_turbot_stats$mase_short)), rep("kamchatka_flounder", nrow(kamchatka_flounder_stats$mase_short)),
+                                    rep("northern_rock_sole", nrow(northern_rock_sole_stats$mase_short)), rep("northern_rockfish_goa", nrow(northern_rockfish_goa_stats$mase_short)),
+                                    rep("ns_rock_sole_goa", nrow(ns_rock_sole_goa_stats$mase_short)), rep("pacific_cod_ebs", nrow(pacific_cod_ebs_stats$mase_short)),
+                                    rep("pacific_cod_goa", nrow(pacific_cod_goa_stats$mase_short)), rep("pollock_ebs", nrow(pollock_ebs_stats$mase_short)),
+                                    rep("pollock_goa", nrow(pollock_goa_stats$mase_short)), rep("pop_bsai", nrow(pop_bsai_stats$mase_short)),
+                                    rep("pop_goa", nrow(pop_goa_stats$mase_short)), rep("sablefish_alaska", nrow(sablefish_alaska_stats$mase_short)),
+                                    rep("yellowfin_sole_bsai", nrow(yellowfin_sole_bsai_stats$mase_short)))
 
 
-wc_mase_short <- rbind(aurora_stats$mrae, black_ca_stats$mrae, black_wa_stats$mrae,
-                                bocaccio_stats$mrae, cabezon_ncs_stats$mrae, cabezon_ors_stats$mrae,
-                                cabezon_scs_stats$mrae, canary_stats$mrae, chilipepper_stats$mrae,
-                                darkblotched_stats$mrae, dover_sole_stats$mrae, kelp_greenling_stats$mrae,
-                                lingcod_n_stats$mrae, lingcod_s_stats$mrae, petrale_sole_stats$mrae,
-                                sablefish_stats$mrae, splitnose_stats$mrae, widow_stats$mrae,
-                                yelloweye_stats$mrae)
+wc_mase_short <- rbind(aurora_stats$mase_short, black_ca_stats$mase_short, black_wa_stats$mase_short,
+                                bocaccio_stats$mase_short, cabezon_ncs_stats$mase_short, cabezon_ors_stats$mase_short,
+                                cabezon_scs_stats$mase_short, canary_stats$mase_short, chilipepper_stats$mase_short,
+                                darkblotched_stats$mase_short, dover_sole_stats$mase_short, kelp_greenling_stats$mase_short,
+                                lingcod_n_stats$mase_short, lingcod_s_stats$mase_short, petrale_sole_stats$mase_short,
+                                sablefish_stats$mase_short, splitnose_stats$mase_short, widow_stats$mase_short,
+                                yelloweye_stats$mase_short)
 
-wc_mase_short$stock_name <- c(rep("aurora", nrow(aurora_stats$mrae)), rep("black_ca", nrow(black_ca_stats$mrae)),
-                        rep("black_wa", nrow(black_wa_stats$mrae)), rep("bocaccio", nrow(bocaccio_stats$mrae)),
-                        rep("cabezon_ncs", nrow(cabezon_ncs_stats$mrae)), rep("cabezon_ors", nrow(cabezon_ors_stats$mrae)), 
-                        rep("cabezon_scs", nrow(cabezon_scs_stats$mrae)), rep("canary", nrow(canary_stats$mrae)), 
-                        rep("chilipepper", nrow(chilipepper_stats$mrae)), rep("darkblotched", nrow(darkblotched_stats$mrae)), 
-                        rep("dover_sole", nrow(dover_sole_stats$mrae)), rep("kelp_greenling", nrow(kelp_greenling_stats$mrae)), 
-                        rep("lingcod_n", nrow(lingcod_n_stats$mrae)), rep("lingcod_s", nrow(lingcod_s_stats$mrae)), 
-                        rep("petrale", nrow(petrale_sole_stats$mrae)), rep("sablefish", nrow(sablefish_stats$mrae)),
-                        rep("splitnose", nrow(splitnose_stats$mrae)), rep("widow", nrow(widow_stats$mrae)),
-                        rep("yelloweye", nrow(yelloweye_stats$mrae)))
+wc_mase_short$stock_name <- c(rep("aurora", nrow(aurora_stats$mase_short)), rep("black_ca", nrow(black_ca_stats$mase_short)),
+                        rep("black_wa", nrow(black_wa_stats$mase_short)), rep("bocaccio", nrow(bocaccio_stats$mase_short)),
+                        rep("cabezon_ncs", nrow(cabezon_ncs_stats$mase_short)), rep("cabezon_ors", nrow(cabezon_ors_stats$mase_short)), 
+                        rep("cabezon_scs", nrow(cabezon_scs_stats$mase_short)), rep("canary", nrow(canary_stats$mase_short)), 
+                        rep("chilipepper", nrow(chilipepper_stats$mase_short)), rep("darkblotched", nrow(darkblotched_stats$mase_short)), 
+                        rep("dover_sole", nrow(dover_sole_stats$mase_short)), rep("kelp_greenling", nrow(kelp_greenling_stats$mase_short)), 
+                        rep("lingcod_n", nrow(lingcod_n_stats$mase_short)), rep("lingcod_s", nrow(lingcod_s_stats$mase_short)), 
+                        rep("petrale", nrow(petrale_sole_stats$mase_short)), rep("sablefish", nrow(sablefish_stats$mase_short)),
+                        rep("splitnose", nrow(splitnose_stats$mase_short)), rep("widow", nrow(widow_stats$mase_short)),
+                        rep("yelloweye", nrow(yelloweye_stats$mase_short)))
 
-a <- alaska_mase_short %>% 
-  filter(method == "AR(1)") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(a) AR(1)") +
-  theme_minimal() +
-  theme(legend.position = "none")
 
-b <- alaska_mase_short %>% 
-  filter(method == "mean") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(b) Mean") +
-  theme_minimal() +
-  theme(legend.position = "none")
-c <- alaska_mase_short %>% 
-  filter(method == "Beverton-Holt") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(c) Beverton-Holt") +
-  theme_minimal() +
-  theme(legend.position = "none")
-d <- alaska_mase_short %>% 
-  filter(method == "simplex") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(d) Simplex projection") +
-  theme_minimal() +
-  theme(legend.position = "none")
-e <- alaska_mase_short %>% 
-  filter(method == "PELT") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(e) PELT sampling") +
-  theme_minimal() +
-  theme(legend.position = "none")
-f <- alaska_mase_short %>% 
-  filter(method == "HMM") %>% 
-  ggplot() + geom_line(aes(x = year, y = mrae, color = stock_name)) +
-  labs(x = "Forecast year", y = "MASE", color = "stock", subtitle = "(f) HMM sampling") +
-  theme_minimal() +
-  theme(legend.position = "none")
+# will look at MASE values for first 10 years, then later 10 years
+# going to look at non-summarized violin plots 
+# Alaska
+alaska_mase_short <- alaska_mase_short %>% 
+  mutate(period = case_when(
+    year <= 10 ~ 'early',
+    year <= 20 ~ 'mid',
+    year > 20 ~ 'late'
+  ))
 
-a + b + c + d + e + f + plot_layout(nrow = 3)
+a <- alaska_mase_short %>%
+  filter(period == 'early') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = "none")
+b <- alaska_mase_short %>%
+  filter(period == 'mid') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = "none")
 
-mase_by_alaska_stock <- alaska_mase_short %>% 
-  group_by(stock_name, method) %>% 
-  summarise(mean_mase = mean(mrae))
+c <- alaska_mase_short %>%
+  filter(period == 'late') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  theme_minimal() + theme(legend.position = "none")
 
-ggplot(mase_by_alaska_stock) + geom_boxplot(aes(x = method, y = mean_mase)) +
-  labs(x = "Forecast method", y = "Mean stock MASE")
+pdf(here('results/figures/alaska_MASE_1step_violin_plots.pdf'), width = 10, height = 10)
+print(a + b + c + plot_layout(nrow = 3))
+dev.off()
+
+
+# West Coast
+wc_mase_short <- wc_mase_short %>% 
+  mutate(period = case_when(
+    year <= 10 ~ 'early',
+    year <= 20 ~ 'mid',
+    year > 20 ~ 'late'
+  ))
+
+a <- wc_mase_short %>%
+  filter(period == 'early') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = "none")
+b <- wc_mase_short %>%
+  filter(period == 'mid') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = "none")
+
+c <- wc_mase_short %>%
+  filter(period == 'late') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  theme_minimal() + theme(legend.position = "none")
+
+pdf(here('results/figures/west_coast_MASE_1step_violin_plots.pdf'), width = 10, height = 10)
+print(a + b + c + plot_layout(nrow = 3))
+dev.off()
+
+
+## Long forecasts ----------------------------------------------------------
+alaska_mase_long <- rbind(arrowtooth_stats$mase_long, atka_mackerel_bsai_stats$mase_long,
+                           blackspotted_rougheye_goa_stats$mase_long, dusky_goa_stats$mase_long,
+                           greenland_turbot_stats$mase_long, kamchatka_flounder_stats$mase_long,
+                           northern_rock_sole_stats$mase_long, northern_rockfish_goa_stats$mase_long,
+                           ns_rock_sole_goa_stats$mase_long, pacific_cod_ebs_stats$mase_long,
+                           pacific_cod_goa_stats$mase_long, pollock_ebs_stats$mase_long,
+                           pollock_goa_stats$mase_long, pop_bsai_stats$mase_long,
+                           pop_goa_stats$mase_long, sablefish_alaska_stats$mase_long,
+                           yellowfin_sole_bsai_stats$mase_long)
+
+alaska_mase_long$stock_name <- c(rep("arrowtooth_flounder_bsai", nrow(arrowtooth_stats$mase_long)), rep("atka_mackerel_bsai", nrow(atka_mackerel_bsai_stats$mase_long)),
+                                  rep("blackspotted_rougheye_goa", nrow(blackspotted_rougheye_goa_stats$mase_long)), rep("dusky_goa", nrow(dusky_goa_stats$mase_long)),
+                                  rep("greenland_turbot", nrow(greenland_turbot_stats$mase_long)), rep("kamchatka_flounder", nrow(kamchatka_flounder_stats$mase_long)),
+                                  rep("northern_rock_sole", nrow(northern_rock_sole_stats$mase_long)), rep("northern_rockfish_goa", nrow(northern_rockfish_goa_stats$mase_long)),
+                                  rep("ns_rock_sole_goa", nrow(ns_rock_sole_goa_stats$mase_long)), rep("pacific_cod_ebs", nrow(pacific_cod_ebs_stats$mase_long)),
+                                  rep("pacific_cod_goa", nrow(pacific_cod_goa_stats$mase_long)), rep("pollock_ebs", nrow(pollock_ebs_stats$mase_long)),
+                                  rep("pollock_goa", nrow(pollock_goa_stats$mase_long)), rep("pop_bsai", nrow(pop_bsai_stats$mase_long)),
+                                  rep("pop_goa", nrow(pop_goa_stats$mase_long)), rep("sablefish_alaska", nrow(sablefish_alaska_stats$mase_long)),
+                                  rep("yellowfin_sole_bsai", nrow(yellowfin_sole_bsai_stats$mase_long)))
+
+
+wc_mase_long <- rbind(aurora_stats$mase_long, black_ca_stats$mase_long, black_wa_stats$mase_long,
+                       bocaccio_stats$mase_long, cabezon_ncs_stats$mase_long, cabezon_ors_stats$mase_long,
+                       cabezon_scs_stats$mase_long, canary_stats$mase_long, chilipepper_stats$mase_long,
+                       darkblotched_stats$mase_long, dover_sole_stats$mase_long, kelp_greenling_stats$mase_long,
+                       lingcod_n_stats$mase_long, lingcod_s_stats$mase_long, petrale_sole_stats$mase_long,
+                       sablefish_stats$mase_long, splitnose_stats$mase_long, widow_stats$mase_long,
+                       yelloweye_stats$mase_long)
+
+wc_mase_long$stock_name <- c(rep("aurora", nrow(aurora_stats$mase_long)), rep("black_ca", nrow(black_ca_stats$mase_long)),
+                              rep("black_wa", nrow(black_wa_stats$mase_long)), rep("bocaccio", nrow(bocaccio_stats$mase_long)),
+                              rep("cabezon_ncs", nrow(cabezon_ncs_stats$mase_long)), rep("cabezon_ors", nrow(cabezon_ors_stats$mase_long)), 
+                              rep("cabezon_scs", nrow(cabezon_scs_stats$mase_long)), rep("canary", nrow(canary_stats$mase_long)), 
+                              rep("chilipepper", nrow(chilipepper_stats$mase_long)), rep("darkblotched", nrow(darkblotched_stats$mase_long)), 
+                              rep("dover_sole", nrow(dover_sole_stats$mase_long)), rep("kelp_greenling", nrow(kelp_greenling_stats$mase_long)), 
+                              rep("lingcod_n", nrow(lingcod_n_stats$mase_long)), rep("lingcod_s", nrow(lingcod_s_stats$mase_long)), 
+                              rep("petrale", nrow(petrale_sole_stats$mase_long)), rep("sablefish", nrow(sablefish_stats$mase_long)),
+                              rep("splitnose", nrow(splitnose_stats$mase_long)), rep("widow", nrow(widow_stats$mase_long)),
+                              rep("yelloweye", nrow(yelloweye_stats$mase_long)))
+
+
+# will look at MASE values for first 10 years, then later 10 years
+# going to look at non-summarized violin plots 
+# Alaska
+alaska_mase_long <- alaska_mase_long %>% 
+  mutate(period = case_when(
+    year <= 10 ~ 'early',
+    year <= 20 ~ 'mid',
+    year > 20 ~ 'late'
+  ))
+
+a <- alaska_mase_long %>%
+  filter(period == 'early') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = "none")
+b <- alaska_mase_long %>%
+  filter(period == 'mid') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = "none")
+
+c <- alaska_mase_long %>%
+  filter(period == 'late') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  theme_minimal() + theme(legend.position = "none")
+
+pdf(here('results/figures/alaska_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
+print(a + b + c + plot_layout(nrow = 3))
+dev.off()
+
+
+# West Coast
+wc_mase_long <- wc_mase_long %>% 
+  mutate(period = case_when(
+    year <= 10 ~ 'early',
+    year <= 20 ~ 'mid',
+    year > 20 ~ 'late'
+  ))
+
+a <- wc_mase_long %>%
+  filter(period == 'early') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = "none")
+b <- wc_mase_long %>%
+  filter(period == 'mid') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = "none")
+
+c <- wc_mase_long %>%
+  filter(period == 'late') %>% 
+  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
+  geom_boxplot(width = 0.1, color = "black") + 
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  theme_minimal() + theme(legend.position = "none")
+
+pdf(here('results/figures/west_coast_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
+print(a + b + c + plot_layout(nrow = 3))
+dev.off()
+
+
+## Save data frames --------------------------------------------------------
+# short forecasts
+alaska_mase_short <- left_join(alaska_mase_short, alaska_ts_characteristics)
+wc_mase_short <- left_join(wc_mase_short, west_coast_ts_characteristics)
+wc_mase_short$region <- rep("West Coast", nrow(wc_mase_short))
+
+MASE_short <- rbind(alaska_mase_short, wc_mase_short)
+
+write_csv(MASE_short, here('results/simulation_results/all_stocks_short_MASE.csv'))
+
+# long forecasts
+alaska_mase_long <- left_join(alaska_mase_long, alaska_ts_characteristics)
+wc_mase_long <- left_join(wc_mase_long, west_coast_ts_characteristics)
+wc_mase_long$region <- rep("West Coast", nrow(wc_mase_long))
+
+MASE_long <- rbind(alaska_mase_long, wc_mase_long)
+
+write_csv(MASE_long, here('results/simulation_results/all_stocks_long_MASE.csv'))
+

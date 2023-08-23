@@ -465,20 +465,19 @@ expanding_window_5yr <- function(fmethods, nsims, time_vec, recruits, sbiomass){
 
 
 # Performance Stat Functions ----------------------------------------------
-sim_mae <- function(sim_results){
-  mae_df <- rep(NA, (dim(sim_results)[2]) - 1)
-  for(i in 1:(dim(sim_results)[2] - 1)){
-    mae_df[i] <- mean(abs(sim_results[,(i+1)] - sim_results[,1]))
-  }
-  
-  hist(mae_df)
-  mae_quants <- quantile(mae_df, probs = c(0.025, 0.975))
-  return(mae_quants)
-  
-}
+# sim_mae <- function(sim_results){
+#   mae_df <- rep(NA, (dim(sim_results)[2]) - 1)
+#   for(i in 1:(dim(sim_results)[2] - 1)){
+#     mae_df[i] <- mean(abs(sim_results[,(i+1)] - sim_results[,1]))
+#   }
+#   
+#   hist(mae_df)
+#   mae_quants <- quantile(mae_df, probs = c(0.025, 0.975))
+#   return(mae_quants)
+#   
+# }
 
 
-# Actually fine, called coverage probability
 sim_CI_prob <- function(sim_results, ci){
   # initialize counter
   ci_prob <- 0
@@ -502,23 +501,61 @@ sim_CI_prob <- function(sim_results, ci){
 
 
 # Mean absolute scaled error 
-sim_mase <- function(sim_results, df, time_vec){
-  # data frame for mare stats
-  mase_df <- rep(NA, dim(sim_results)[1])
+sim_mase_short <- function(sim_results, df, time_vec){
+  # data frame for MASE values
+  ase_df <- matrix(NA, nrow = dim(sim_results)[1], ncol = (dim(sim_results)[2] - 1))
   
+  # calculate absolute error for each year in each simulation
   for(i in 1:length(time_vec)){
-    # subset to training data
-    dat <- df[1:(time_vec[i]-1)]
-    train_n <- (time_vec[i] - 1)
-    # calculate denominator
-    denom <- sum(abs(diff(dat)))/(train_n - 1)
-    
-    # calculate numerator vector
-    num_vec <- abs(sim_results[i, 2:dim(sim_results)[2]] - sim_results[i, 1])
-    
-    # calculate value
-    mase_df[i] <- mean(num_vec/denom)
+    ae_in_sample <- (1/(time_vec[i] - 2))*sum((abs(diff(df[1:(time_vec[i] - 1)]))))
+    ase_df[i,] <- abs(sim_results[i, 2:ncol(sim_results)] - sim_results[i,1])/ae_in_sample
   }
+  
+  mase_df <- apply(ase_df, 1, mean)
+  
+  # for(i in time_vec){
+  #   # subset to training data
+  #   dat <- df[1:(i - 1)]
+  #   train_n <- (i - 1)
+  #   # calculate denominator
+  #   denom <- sum(abs(diff(dat)))/(train_n - 1)
+  #   
+  #   # calculate numerator vector
+  #   num_vec <- abs(sim_results[i, 2:dim(sim_results)[2]] - sim_results[i, 1])
+  #   
+  #   # calculate value
+  #   mase_df[i] <- mean(num_vec/denom)
+  # }
+  return(mase_df)
+}
+
+
+
+sim_mase_long <- function(sim_results, df, time_vec){
+  # data frame for MASE values
+  ase_df <- matrix(NA, nrow = dim(sim_results)[1], ncol = (dim(sim_results)[2] - 1))
+  
+  # calculate absolute error for each year in each simulation
+  for(i in 1:length(time_vec)){
+    ae_in_sample <- (1/(time_vec[i] - 6))*sum(abs(diff(df[1:(time_vec[i] - 5)])))
+    ase_df[i,] <- abs(sim_results[i, 2:ncol(sim_results)] - sim_results[i,1])/ae_in_sample
+  }
+  
+  mase_df <- apply(ase_df, 1, mean)
+  
+  # for(i in time_vec){
+  #   # subset to training data
+  #   dat <- df[1:(i - 1)]
+  #   train_n <- (i - 1)
+  #   # calculate denominator
+  #   denom <- sum(abs(diff(dat)))/(train_n - 1)
+  #   
+  #   # calculate numerator vector
+  #   num_vec <- abs(sim_results[i, 2:dim(sim_results)[2]] - sim_results[i, 1])
+  #   
+  #   # calculate value
+  #   mase_df[i] <- mean(num_vec/denom)
+  # }
   return(mase_df)
 }
 
@@ -541,15 +578,15 @@ sim_mase <- function(sim_results, df, time_vec){
 #   return(yr_trend_quants)
 # }
 
-
-sim_5yr_trend <- function(sim_results, time_vec){
-  # create matrix for 5 yr slopes
-  yr_trend <- matrix(NA, nrow = (dim(sim_results)[1] - 4), ncol = (dim(sim_results)[2] - 1))
-  
-  for(i in 1:ncol(yr_trend)){
-    yr_trend[,i] <- rollmean(sim_results[,i+1], 5)
-  }
-  # calculate quantiles
-  yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
-  return(yr_trend_quants)
-}
+# 
+# sim_5yr_trend <- function(sim_results, time_vec){
+#   # create matrix for 5 yr slopes
+#   yr_trend <- matrix(NA, nrow = (dim(sim_results)[1] - 4), ncol = (dim(sim_results)[2] - 1))
+#   
+#   for(i in 1:ncol(yr_trend)){
+#     yr_trend[,i] <- rollmean(sim_results[,i+1], 5)
+#   }
+#   # calculate quantiles
+#   yr_trend_quants <- apply(yr_trend, 1, quantile, p = c(0.0275, 0.5, 0.975))
+#   return(yr_trend_quants)
+# }
