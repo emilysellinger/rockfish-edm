@@ -28,9 +28,7 @@ coverage_probs_all <- left_join(coverage_probs_all, all_stocks)
 
 # MASE for 1 step forecasts
 all_stocks_short_MASE <- read_csv(here('results/simulation_results/all_stocks_short_MASE.csv'))
-all_stocks_short_MASE <- all_stocks_short_MASE %>% 
-  mutate(mase = mrae) %>% 
-  select(-mrae)
+all_stocks_long_MASE <- read_csv(here('results/simulation_results/all_stocks_long_MASE.csv'))
 # Chapter 2 Figures -------------------------------------------------------
 ## expanding window figure -----------------------------
 
@@ -78,7 +76,7 @@ pop_goa <- coverage_probs_all %>%
 pop_goa_a <- pop_goa %>% 
   filter(type == 'short') %>% 
   ggplot() + geom_point(aes(x = method, y = coverage_prob), size = 3, color = "#00A1B7") +
-  geom_hline(yintercept = 0.95, linetype = 'dashed') +
+  geom_hline(yintercept = 0.957, linetype = 'dashed') +
   geom_hline(yintercept = 0.8, linetype = 'dashed') +
   ylim(c(0, 1)) +
   theme_minimal() + 
@@ -88,7 +86,7 @@ pop_goa_a <- pop_goa %>%
 pop_goa_b <- pop_goa %>% 
   filter(type == 'long') %>% 
   ggplot() + geom_point(aes(x = method, y = coverage_prob), size = 3, color = "#00A1B7") +
-  geom_hline(yintercept = 0.95, linetype = 'dashed') +
+  geom_hline(yintercept = 0.957, linetype = 'dashed') +
   geom_hline(yintercept = 0.8, linetype = 'dashed') +
   ylim(c(0, 1)) +
   theme_minimal() + 
@@ -125,7 +123,7 @@ long_totals <- coverage_probs_long %>%
 
 
 hits_target_short <- coverage_probs_short %>% 
-  filter(coverage_prob >= 0.8 & coverage_prob <= 0.95)
+  filter(coverage_prob >= 0.8 & coverage_prob <= 0.957)
 
 
 a <- hits_target_short %>% group_by(method) %>% 
@@ -133,7 +131,7 @@ a <- hits_target_short %>% group_by(method) %>%
   mutate(freq = n/as.vector(short_totals$n))
 
 hits_target_long <- coverage_probs_long %>% 
-  filter(coverage_prob >= 0.8 & coverage_prob <= 0.95)
+  filter(coverage_prob >= 0.8 & coverage_prob <= 0.957)
 
 
 b <- hits_target_long %>% group_by(method) %>% 
@@ -231,7 +229,7 @@ a <- coverage_probs_all %>%
               aes(x = autocorrR, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(a)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(-0.5, 1) + ylim(0, 1) + 
   theme(axis.text.x = element_text(angle = 45)) +
   facet_wrap(~ method) +
@@ -245,8 +243,7 @@ b <- coverage_probs_all %>%
               aes(x = autocorrR, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Coverage probability", subtitle = "(b)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(-0.5, 1) + ylim(0,1) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -263,7 +260,7 @@ c <- coverage_probs_all %>%
   geom_smooth(method = lm, aes(x = depletion, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Depletion", y = "Coverage probability", subtitle = "(a)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -275,8 +272,7 @@ d <- coverage_probs_all %>%
   geom_smooth(method = lm, aes(x = depletion, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Depletion", y = "Coverage probability", subtitle = "(b)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -292,7 +288,7 @@ e <- coverage_probs_all %>%
   geom_smooth(method = lm, aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(a)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1.25) + ylim(0,1) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -304,8 +300,7 @@ f <- coverage_probs_all %>%
   geom_smooth(method = lm, aes(x = log_sigmaR_full, y = coverage_prob, color = method)) +
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Log recruitment\n standard deviation", y = "Coverage probability", subtitle = "(b)") +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1.25) + ylim(0, 1) +
   facet_wrap(~ method) +
   theme_minimal() +
@@ -322,8 +317,7 @@ g <- coverage_probs_all %>%
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   theme_minimal()
 
 h <- coverage_probs_all %>% 
@@ -333,8 +327,7 @@ h <- coverage_probs_all %>%
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Detectable SR\n relationship", y = element_blank(), subtitle = "(b)", fill = "Method") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   theme_minimal()
 
 pdf(file = here("results/figures/coverage_prob_vs_detectableSR.pdf"), width = 11)
@@ -348,8 +341,7 @@ i <- coverage_probs_all %>%
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   theme_minimal()
 j <- coverage_probs_all %>% 
   filter(type == "long") %>% 
@@ -358,8 +350,7 @@ j <- coverage_probs_all %>%
   scale_fill_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Detectable\n regime shift", y = element_blank(), subtitle = "(b)", fill = "Method") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   theme_minimal()
 
 pdf(file = here("results/figures/coverage_prob_vs_regime_shift.pdf"), width = 11)
@@ -374,7 +365,7 @@ k <- coverage_probs_all %>%
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(a)") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   facet_wrap(~ method) +
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
@@ -386,8 +377,7 @@ l <- coverage_probs_all %>%
   scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
   labs(x = "Length of recruitment\n time series", y = "Coverage probability", subtitle = "(b)") +
   ylim(0,1) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   facet_wrap(~ method) +
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
@@ -404,6 +394,7 @@ MASE_meds <- all_stocks_short_MASE %>%
 
 MASE_meds <- left_join(MASE_meds, all_stocks)
 
+# recruitment autocorrelation
 a <- MASE_meds %>%
   filter(period == 'early') %>% 
   ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
@@ -442,4 +433,5 @@ c <- MASE_meds %>%
   theme_minimal() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
+pdf(here('results/figures'))
 a + b + c + plot_layout(nrow = 2)
