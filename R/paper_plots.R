@@ -98,6 +98,25 @@ print(pop_goa_a + pop_goa_b + plot_layout(ncol = 1))
 dev.off()
 
 
+pop_goa_short_mase <- pop_goa_stats$mase_short
+pop_goa_long_mase <- pop_goa_stats$mase_long
+
+pop_goa_c <- pop_goa_short_mase %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = mase, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  labs(x = 'Forecast method', y = 'MASE', subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = "none")
+
+pop_goa_d <- pop_goa_long_mase %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = mase, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  labs(x = 'Forecast method', y = 'MASE', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = "none")
+
+pdf(here('results/figures/pop_goa_MASE.pdf'))
+print(pop_goa_c + pop_goa_d + plot_layout(ncol = 1))
+dev.off()
+
 
 ## Frequency with which methods fall inside ideal range ---------------------------- 
 

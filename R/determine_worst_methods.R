@@ -319,7 +319,7 @@ a <- alaska_mase_short %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
   theme_minimal() + theme(legend.position = "none")
 b <- alaska_mase_short %>%
   filter(period == 'mid') %>% 
@@ -327,7 +327,7 @@ b <- alaska_mase_short %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
   theme_minimal() + theme(legend.position = "none")
 
 c <- alaska_mase_short %>%
@@ -336,7 +336,7 @@ c <- alaska_mase_short %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
   theme_minimal() + theme(legend.position = "none")
 
 pdf(here('results/figures/alaska_MASE_1step_violin_plots.pdf'), width = 10, height = 10)
@@ -441,7 +441,7 @@ a <- alaska_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
   theme_minimal() + theme(legend.position = "none")
 b <- alaska_mase_long %>%
   filter(period == 'mid') %>% 
@@ -449,7 +449,7 @@ b <- alaska_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
   theme_minimal() + theme(legend.position = "none")
 
 c <- alaska_mase_long %>%
@@ -458,7 +458,7 @@ c <- alaska_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
   theme_minimal() + theme(legend.position = "none")
 
 pdf(here('results/figures/alaska_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
@@ -480,7 +480,7 @@ a <- wc_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
+  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
   theme_minimal() + theme(legend.position = "none")
 b <- wc_mase_long %>%
   filter(period == 'mid') %>% 
@@ -488,7 +488,7 @@ b <- wc_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
+  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
   theme_minimal() + theme(legend.position = "none")
 
 c <- wc_mase_long %>%
@@ -497,11 +497,33 @@ c <- wc_mase_long %>%
   geom_boxplot(width = 0.1, color = "black") + 
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
   scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
+  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
   theme_minimal() + theme(legend.position = "none")
 
 pdf(here('results/figures/west_coast_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
 print(a + b + c + plot_layout(nrow = 3))
+dev.off()
+
+
+# want boxplots of MASE for each method without dividing by period
+a <- MASE_short %>% 
+  group_by(stock_name, method, period) %>% 
+  summarise(median_mase = median(mase)) %>% 
+  ggplot() + geom_boxplot(aes(x = factor(period, levels = c('early', 'mid', 'late')), y = median_mase, fill = period)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8")) +
+  labs(x = 'Forecast period', y = "Median stock\n MASE", subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = 'none') + facet_wrap(~ method)
+  
+b <- MASE_long %>% 
+  group_by(stock_name, method, period) %>% 
+  summarise(median_mase = median(mase)) %>% 
+  ggplot() + geom_boxplot(aes(x = factor(period, levels = c('early', 'mid', 'late')), y = median_mase, fill = period)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8")) +
+  labs(x = 'Forecast period', y = "Median stock\n MASE", subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = 'none') + facet_wrap(~ method)
+
+pdf(here('results/figures/median_MASE_boxplots_period.pdf'))
+print(a + b + plot_layout(nrow = 2))
 dev.off()
 
 

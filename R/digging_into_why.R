@@ -39,7 +39,6 @@ fitPelt@cpts
 # bocaccio years: 20, 50, 56
 # canary years: 43, 49, 55
 # chilipepper years: 10, 43, 49
-# lingcod_s years: 18, 51
 # sablefish years: 31, 53, 61
 # splitnose years: 23, 34
 
@@ -47,8 +46,8 @@ fitPelt@cpts
 a <- has_regime_shift %>% 
   filter(method == "PELT" | method == "HMM") %>% 
   filter((stock_name %in% c("arrowtooth_flounder", "dusky_goa", "greenland_turbot",
-                             "northern_rock_sole", "pollock_goa", "pop_goa", "lingcod_s"))) %>% 
-  ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = type)) + 
+                             "northern_rock_sole", "pollock_goa", "pop_goa"))) %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = factor(type, levels = c('short', 'long')))) + 
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   scale_fill_manual(values = c("#00A1B7", "#586028")) +
   labs(y = "Coverage probability", x = "Method", fill = "Forecast\nlength", subtitle = "(a)") +
@@ -60,7 +59,7 @@ b <- has_regime_shift %>%
   filter(method == "PELT" | method == "HMM") %>% 
   filter(!(stock_name %in% c("arrowtooth_flounder", "dusky_goa", "greenland_turbot",
                              "northern_rock_sole", "pollock_goa", "pop_goa", "lingcod_s"))) %>% 
-  ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = type)) + 
+  ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = factor(type, levels = c('short', 'long')))) + 
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
   scale_fill_manual(values = c("#00A1B7", "#586028")) +
   labs(y = element_blank(), x = "Method", fill = "Forecast\nlength", subtitle = "(b)") +
