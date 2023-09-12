@@ -510,7 +510,8 @@ a <- MASE_short %>%
   group_by(stock_name, method, period) %>% 
   summarise(median_mase = median(mase)) %>% 
   ggplot() + geom_boxplot(aes(x = factor(period, levels = c('early', 'mid', 'late')), y = median_mase, fill = period)) +
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8")) +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  scale_fill_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
   labs(x = 'Forecast period', y = "Median stock\n MASE", subtitle = '(a)') +
   theme_minimal() + theme(legend.position = 'none') + facet_wrap(~ method)
   
@@ -518,13 +519,31 @@ b <- MASE_long %>%
   group_by(stock_name, method, period) %>% 
   summarise(median_mase = median(mase)) %>% 
   ggplot() + geom_boxplot(aes(x = factor(period, levels = c('early', 'mid', 'late')), y = median_mase, fill = period)) +
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8")) +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  scale_fill_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
   labs(x = 'Forecast period', y = "Median stock\n MASE", subtitle = '(b)') +
   theme_minimal() + theme(legend.position = 'none') + facet_wrap(~ method)
 
-pdf(here('results/figures/median_MASE_boxplots_period.pdf'))
+pdf(here('results/figures/median_MASE_boxplots_period.pdf'), width = 8, height = 12)
 print(a + b + plot_layout(nrow = 2))
 dev.off()
+
+
+
+# % MASE above 1 ----------------------------------------------------------
+tots <- MASE_short %>% 
+  group_by(stock_name, method, period) %>% 
+  summarise(n = n()) # 2060 for early, 2145 for late, 1920 for mid
+
+freq <- MASE_short %>%
+  filter(mase < 1) %>% 
+  group_by(stock_name, method, period) %>% 
+  summarise(mase_less_1 = n())
+  
+freq <- left_join(freq, tots)
+
+freq <- freq %>% 
+  mutate(freq = mase_less_1/n)
 
 
 ## Save data frames --------------------------------------------------------

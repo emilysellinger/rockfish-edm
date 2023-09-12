@@ -104,12 +104,16 @@ pop_goa_long_mase <- pop_goa_stats$mase_long
 pop_goa_c <- pop_goa_short_mase %>% 
   ggplot() + geom_boxplot(aes(x = method, y = mase, fill = method)) +
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  ylim(0, 8.5) +
   labs(x = 'Forecast method', y = 'MASE', subtitle = '(a)') +
   theme_minimal() + theme(legend.position = "none")
 
 pop_goa_d <- pop_goa_long_mase %>% 
   ggplot() + geom_boxplot(aes(x = method, y = mase, fill = method)) +
   scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  ylim(0, 8.5) +
   labs(x = 'Forecast method', y = 'MASE', subtitle = '(b)') +
   theme_minimal() + theme(legend.position = "none")
 
