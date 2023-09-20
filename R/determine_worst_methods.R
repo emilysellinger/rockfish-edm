@@ -530,20 +530,91 @@ dev.off()
 
 
 
-# % MASE above 1 ----------------------------------------------------------
+# % MASE below 1 ----------------------------------------------------------
+# 1 step forecasts
 tots <- MASE_short %>% 
-  group_by(stock_name, method, period) %>% 
-  summarise(n = n()) # 2060 for early, 2145 for late, 1920 for mid
+  group_by(region, stock_name, method) %>% 
+  summarise(n = n()) 
 
 freq <- MASE_short %>%
-  filter(mase < 1) %>% 
-  group_by(stock_name, method, period) %>% 
-  summarise(mase_less_1 = n())
+  group_by(region, stock_name, method) %>% 
+  summarise(mase_less_1 = sum(mase < 1))
   
 freq <- left_join(freq, tots)
 
 freq <- freq %>% 
   mutate(freq = mase_less_1/n)
+
+
+MASE_freq1 <- freq %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = freq, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  facet_wrap(~region, nrow = 2) +
+  ylim(0, 1) + labs(x = 'Forecast method', y = 'Frequency MASE < 1', subtitle = '(a)') +
+  theme_minimal() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+
+
+MASE_freq_a <- ggplot(freq, aes(x = region, #factor(period, levels = c('early', 'mid', 'late')), 
+                                y = freq, color = region)) + 
+  geom_point(size = 2) + 
+  scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
+  facet_wrap(~ method) + labs(x = 'Region', y = 'Frequency MASE < 1', subtitle = '(a)') +
+  ylim(0, 1) + theme_minimal() + theme(legend.position = 'none')
+
+# 5 step forecasts
+tots2 <- MASE_long %>% 
+  group_by(region, stock_name, method) %>% 
+  summarise(n = n()) 
+
+freq2 <- MASE_long %>%
+  group_by(region, stock_name, method) %>% 
+  summarise(mase_less_1 = sum(mase < 1))
+
+freq2 <- left_join(freq2, tots2)
+
+freq2 <- freq2 %>% 
+  mutate(freq = mase_less_1/n)
+
+MASE_freq2 <- freq2 %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = freq, fill = method)) +
+  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
+  facet_wrap(~region, nrow = 2) +
+  ylim(0, 1) + labs(x = 'Forecast method', y = 'Frequency MASE < 1', subtitle = '(b)') +
+  theme_minimal() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+
+MASE_freq_b <- ggplot(freq2, aes(x = factor(period, levels = c('early', 'mid', 'late')), 
+                                y = freq, color = period)) + 
+  geom_point(size = 2) + 
+  scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
+  facet_wrap(~ method) + labs(x = 'Forecast period', y = 'Frequency MASE < 1', subtitle = '(b)') +
+  ylim(0,1) + theme_minimal() + theme(legend.position = 'none')
+
+pdf(here('results/figures/frequency_MASE_below_1.pdf'), height = 8.5)
+print(MASE_freq_a + MASE_freq_b + plot_layout(nrow = 2))
+dev.off()
+
+pdf(here('results/figures/frequency_MASE_below_1_region.pdf'), height = 9.5, width = 10)
+print(MASE_freq1 + MASE_freq2 + plot_layout(ncol = 2))
+dev.off()
+
+
+# look at short/long in 1 boxplot
+freq$type <- rep('short', nrow(freq))
+freq2$type <- rep('long', nrow(freq2))
+mase_freq <- rbind(freq, freq2)
+
+mase_freq_all <- mase_freq %>% 
+  ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
+  scale_fill_manual(values = c("#00A1B7", "#898928")) +
+  facet_wrap(~region, nrow = 3) + ylim(0, 1) +
+  labs(x = 'Forecast method', y = 'Frequency\n MASE < 1', fill = 'Forecast\n length') + 
+  theme_minimal()
+
+pdf(here('results/figures/frequency_MASE_below_1_region_length.pdf'))
+print(mase_freq_all)
+dev.off()
 
 
 ## Save data frames --------------------------------------------------------
