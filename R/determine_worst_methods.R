@@ -608,7 +608,7 @@ mase_freq <- rbind(freq, freq2)
 mase_freq_all <- mase_freq %>% 
   ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
   scale_fill_manual(values = c("#00A1B7", "#898928")) +
-  facet_wrap(~region, nrow = 3) + ylim(0, 1) +
+  facet_wrap(~region, nrow = 3) + ylim(0, 1) + geom_hline(yintercept = 0.5, linetype = 'dashed') +
   labs(x = 'Forecast method', y = 'Frequency\n MASE < 1', fill = 'Forecast\n length') + 
   theme_minimal()
 
