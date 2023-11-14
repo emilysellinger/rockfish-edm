@@ -17,18 +17,26 @@ all_stocks <- all_stocks[-3,]
 
 # Visualize data ----------------------------------------------------------
 # depletion boxplot
-a <- ggplot(all_stocks) + geom_boxplot(aes(x = region, y = num_yrs), fill = "#00A1B7") + 
+a <- ggplot(all_stocks, aes(x = region, y = num_yrs)) + 
+  geom_violin(fill = "#00A1B7", alpha = 0.5) +
+  geom_point(position = position_jitter(seed = 1, width = 0.15)) +
   labs(x = element_blank(), y = "Time series length", subtitle = "(a)") + theme_minimal()
 
-b <- ggplot(all_stocks) + geom_boxplot(aes(x = region, y = depletion), fill = "#00A1B7") + 
+b <- ggplot(all_stocks, aes(x = region, y = depletion)) + 
+  geom_violin(fill = "#00A1B7", alpha = 0.5) + 
+  geom_point(position = position_jitter(seed = 1, width = 0.15)) +
   labs(x = element_blank(), y = "Depletion", subtitle = "(b)") + 
   theme_minimal()
 
-c <- ggplot(all_stocks) + geom_boxplot(aes(x = region, y = autocorrR), fill = "#00A1B7") + 
+c <- ggplot(all_stocks, aes(x = region, y = autocorrR)) + 
+  geom_violin(fill = "#00A1B7", alpha = 0.5) +
+  geom_point(position = position_jitter(seed = 1, width = 0.15)) +
   labs(x = "Management region", y = "Recruitment autocorrelation\n Lag 1", subtitle = "(c)") + 
   theme_minimal()
 
-d <- ggplot(all_stocks) + geom_boxplot(aes(x = region, y = log_sigmaR_full), fill = "#00A1B7") + 
+d <- ggplot(all_stocks, aes(x = region, y = log_sigmaR_full)) + 
+  geom_violin(fill = "#00A1B7", alpha = 0.5) + 
+  geom_point(position = position_jitter(seed = 1, width = 0.15)) +
   labs(x = "Management region", y = expression(log(sigma[r])), subtitle = "(d)") + 
   theme_minimal()
 

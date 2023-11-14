@@ -74,6 +74,10 @@ west_coast_years <- tibble(stock_name = snames,
                 max_yr = c(2012, 2014, 2014, 2015, 2018, 2018, 2018, 2014, 2014, 2016, 2020, 2014, 2020, 2020,
                            2018, 2020, 2008, 2018, 2016))
 
+
+
+
+
 filter_sr_data <- function(df){
   stock_name <- pull(df[1, "stock_name"])
   row_num <- which(west_coast_years[, "stock_name"] == stock_name)

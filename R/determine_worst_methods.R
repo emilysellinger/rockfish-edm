@@ -555,8 +555,7 @@ MASE_freq1 <- freq %>%
 
 
 
-MASE_freq_a <- ggplot(freq, aes(x = region, #factor(period, levels = c('early', 'mid', 'late')), 
-                                y = freq, color = region)) + 
+MASE_freq_a <- ggplot(freq, aes(x = region, y = freq, color = region)) + 
   geom_point(size = 2) + 
   scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
   facet_wrap(~ method) + labs(x = 'Region', y = 'Frequency MASE < 1', subtitle = '(a)') +
@@ -607,7 +606,7 @@ mase_freq <- rbind(freq, freq2)
 
 mase_freq_all <- mase_freq %>% 
   ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
-  scale_fill_manual(values = c("#00A1B7", "#898928")) +
+  scale_fill_manual(values = c("#898928", "#00A1B7")) +
   facet_wrap(~region, nrow = 3) + ylim(0, 1) + geom_hline(yintercept = 0.5, linetype = 'dashed') +
   labs(x = 'Forecast method', y = 'Frequency\n MASE < 1', fill = 'Forecast\n length') + 
   theme_minimal()

@@ -59,11 +59,14 @@ pop_goa <- read_csv(here("data/alaska_stocks", "pop_goa.csv"))
 
 pop_goa_sims_short <- readRDS(here('results/simulation_results/alaska/short_forecasts/pop_goa_short.Rds'))
 pop_goa_sims_long <- readRDS(here('results/simulation_results/alaska/long_forecasts/pop_goa_long.Rds'))
+# want to change the order of the plots
+a <- c(names(pop_goa_sims_short[1:4]), names(pop_goa_sims_short)[6], names(pop_goa_sims_short)[5])
+pop_goa_sims_short2 <- pop_goa_sims_short[a]
+pop_goa_sims_long2 <- pop_goa_sims_long[a]
 
-
-pdf(here('results/figures/pop_goa_paper_forecast_plots.pdf'))
-print(sim_quants_plots(pop_goa_sims_short, pop_goa$year, pop_goa$recruits, "short"))
-print(sim_quants_plots(pop_goa_sims_long, pop_goa$year, pop_goa$recruits, "long"))
+pdf(here('results/figures/pop_goa_paper_forecast_plots2.pdf'))
+print(sim_quants_plots(pop_goa_sims_short2, pop_goa$year, pop_goa$recruits, "short"))
+print(sim_quants_plots(pop_goa_sims_long2, pop_goa$year, pop_goa$recruits, "long"))
 dev.off()
 
 
@@ -256,7 +259,7 @@ a <- coverage_probs_all %>%
   xlim(-0.5, 1) + ylim(0, 1) + 
   theme(axis.text.x = element_text(angle = 45)) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 b <- coverage_probs_all %>%
@@ -269,7 +272,7 @@ b <- coverage_probs_all %>%
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(-0.5, 1) + ylim(0,1) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(axis.text.x = element_text(angle = 45)) +
   theme(legend.position = "none")
 
@@ -286,7 +289,7 @@ c <- coverage_probs_all %>%
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 d <- coverage_probs_all %>%
@@ -298,7 +301,7 @@ d <- coverage_probs_all %>%
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1) + ylim(0, 1) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 pdf(file = here("results/figures/coverage_prob_vs_depletion.pdf"), width = 11)
@@ -314,7 +317,7 @@ e <- coverage_probs_all %>%
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1.25) + ylim(0,1) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 f <- coverage_probs_all %>%
@@ -326,7 +329,7 @@ f <- coverage_probs_all %>%
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   xlim(0, 1.25) + ylim(0, 1) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 pdf(file = here("results/figures/coverage_prob_vs_sigmaR.pdf"), width = 11)
@@ -341,7 +344,7 @@ g <- coverage_probs_all %>%
   labs(x = "Detectable SR\n relationship", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
-  theme_minimal()
+  theme_bw()
 
 h <- coverage_probs_all %>% 
   filter(type == "long") %>% 
@@ -351,7 +354,7 @@ h <- coverage_probs_all %>%
   labs(x = "Detectable SR\n relationship", y = element_blank(), subtitle = "(b)", fill = "Method") +
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
-  theme_minimal()
+  theme_bw()
 
 pdf(file = here("results/figures/coverage_prob_vs_detectableSR.pdf"), width = 11)
 print(g + h + plot_layout(guides = 'collect'))
@@ -365,7 +368,7 @@ i <- coverage_probs_all %>%
   labs(x = "Detectable\n regime shift", y = "Coverage probability", subtitle = "(a)", fill = "Method") +
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
-  theme_minimal()
+  theme_bw()
 j <- coverage_probs_all %>% 
   filter(type == "long") %>% 
   mutate(regime_shift = recode(regime_shift, `1` = "Yes", `0` = "No")) %>% 
@@ -374,7 +377,7 @@ j <- coverage_probs_all %>%
   labs(x = "Detectable\n regime shift", y = element_blank(), subtitle = "(b)", fill = "Method") +
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
-  theme_minimal()
+  theme_bw()
 
 pdf(file = here("results/figures/coverage_prob_vs_regime_shift.pdf"), width = 11)
 print(i + j + plot_layout(guides = 'collect'))
@@ -390,7 +393,7 @@ k <- coverage_probs_all %>%
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 l <- coverage_probs_all %>%
@@ -402,7 +405,7 @@ l <- coverage_probs_all %>%
   ylim(0,1) +
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.957, linetype = 2) +
   facet_wrap(~ method) +
-  theme_minimal() +
+  theme_bw() +
   theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
 
 pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"), width = 11)
