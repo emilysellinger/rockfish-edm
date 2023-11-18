@@ -52,7 +52,7 @@ rec_BH <- function(x, df1, df2, nsims){
   # subset spawning and recruit data to window size
   datr <- df1[1:(x-1)]
   dats <- df2[1:(x-1)]
-  s_x <- df2[x]
+  s_x <- df2[(x-1)]
   
   # Likelihood function
   BHminusLL <- function(loga, logb, logsigmaR){
@@ -263,7 +263,7 @@ lrec_BH <- function(x, df1, df2, nsims){
   # subset spawning and recruit data to window size
   datr <- df1[1:(x-5)]
   dats <- df2[1:(x-5)]
-  s_x <- df2[x]
+  s_x <- df2[(x-5)]
   
   # Likelihood function
   BHminusLL <- function(loga, logb, logsigmaR){

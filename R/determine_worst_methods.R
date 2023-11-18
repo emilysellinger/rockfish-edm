@@ -313,37 +313,6 @@ alaska_mase_short <- alaska_mase_short %>%
     year > 20 ~ 'late'
   ))
 
-a <- alaska_mase_short %>%
-  filter(period == 'early') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
-  theme_minimal() + theme(legend.position = "none")
-b <- alaska_mase_short %>%
-  filter(period == 'mid') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
-  theme_minimal() + theme(legend.position = "none")
-
-c <- alaska_mase_short %>%
-  filter(period == 'late') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
-  theme_minimal() + theme(legend.position = "none")
-
-pdf(here('results/figures/alaska_MASE_1step_violin_plots.pdf'), width = 10, height = 10)
-print(a + b + c + plot_layout(nrow = 3))
-dev.off()
-
-
 # West Coast
 wc_mase_short <- wc_mase_short %>% 
   mutate(period = case_when(
@@ -352,35 +321,6 @@ wc_mase_short <- wc_mase_short %>%
     year > 20 ~ 'late'
   ))
 
-a <- wc_mase_short %>%
-  filter(period == 'early') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a)') +
-  theme_minimal() + theme(legend.position = "none")
-b <- wc_mase_short %>%
-  filter(period == 'mid') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b)') +
-  theme_minimal() + theme(legend.position = "none")
-
-c <- wc_mase_short %>%
-  filter(period == 'late') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c)') +
-  theme_minimal() + theme(legend.position = "none")
-
-pdf(here('results/figures/west_coast_MASE_1step_violin_plots.pdf'), width = 10, height = 10)
-print(a + b + c + plot_layout(nrow = 3))
-dev.off()
 
 
 ## Long forecasts ----------------------------------------------------------
@@ -426,7 +366,6 @@ wc_mase_long$stock_name <- c(rep("aurora", nrow(aurora_stats$mase_long)), rep("b
 
 
 # will look at MASE values for first 10 years, then later 10 years
-# going to look at non-summarized violin plots 
 # Alaska
 alaska_mase_long <- alaska_mase_long %>% 
   mutate(period = case_when(
@@ -434,36 +373,6 @@ alaska_mase_long <- alaska_mase_long %>%
     year <= 20 ~ 'mid',
     year > 20 ~ 'late'
   ))
-
-a <- alaska_mase_long %>%
-  filter(period == 'early') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
-  theme_minimal() + theme(legend.position = "none")
-b <- alaska_mase_long %>%
-  filter(period == 'mid') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
-  theme_minimal() + theme(legend.position = "none")
-
-c <- alaska_mase_long %>%
-  filter(period == 'late') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
-  theme_minimal() + theme(legend.position = "none")
-
-pdf(here('results/figures/alaska_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
-print(a + b + c + plot_layout(nrow = 3))
-dev.off()
 
 
 # West Coast
@@ -474,37 +383,30 @@ wc_mase_long <- wc_mase_long %>%
     year > 20 ~ 'late'
   ))
 
-a <- wc_mase_long %>%
-  filter(period == 'early') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = element_blank(), subtitle = '(a) Forecast years 1-10') +
-  theme_minimal() + theme(legend.position = "none")
-b <- wc_mase_long %>%
-  filter(period == 'mid') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = element_blank(), y = 'Forecast method', subtitle = '(b) Forecast years 11-20') +
-  theme_minimal() + theme(legend.position = "none")
+## Save data frames --------------------------------------------------------
+# short forecasts
+alaska_mase_short <- left_join(alaska_mase_short, alaska_ts_characteristics)
+wc_mase_short <- left_join(wc_mase_short, west_coast_ts_characteristics)
+wc_mase_short$region <- rep("West Coast", nrow(wc_mase_short))
 
-c <- wc_mase_long %>%
-  filter(period == 'late') %>% 
-  ggplot(aes(x = mase, y = method, fill = method)) + geom_violin() + 
-  geom_boxplot(width = 0.1, color = "black") + 
-  scale_fill_manual(values = c("#006475","#00A1B7", "#55CFD8", "#586028", "#898928", "#9DA7BF")) +
-  scale_y_discrete(limits = rev) +
-  labs(x = 'MASE', y = element_blank(), subtitle = '(c) Forecast years > 20') +
-  theme_minimal() + theme(legend.position = "none")
+MASE_short <- rbind(alaska_mase_short, wc_mase_short)
 
-pdf(here('results/figures/west_coast_MASE_5step_violin_plots.pdf'), width = 10, height = 10)
-print(a + b + c + plot_layout(nrow = 3))
-dev.off()
+write_csv(MASE_short, here('results/simulation_results/all_stocks_short_MASE.csv'))
+
+# long forecasts
+alaska_mase_long <- left_join(alaska_mase_long, alaska_ts_characteristics)
+wc_mase_long <- left_join(wc_mase_long, west_coast_ts_characteristics)
+wc_mase_long$region <- rep("West Coast", nrow(wc_mase_long))
+
+MASE_long <- rbind(alaska_mase_long, wc_mase_long)
+
+write_csv(MASE_long, here('results/simulation_results/all_stocks_long_MASE.csv'))
 
 
+
+# MASE paper figures ------------------------------------------------------
+
+## Boxplot by period -------------------------------------------------------
 # want boxplots of MASE for each method without dividing by period
 a <- MASE_short %>% 
   group_by(stock_name, method, period) %>% 
@@ -530,7 +432,7 @@ dev.off()
 
 
 
-# % MASE below 1 ----------------------------------------------------------
+## % MASE below 1 ----------------------------------------------------------
 # 1 step forecasts
 tots <- MASE_short %>% 
   group_by(region, stock_name, method) %>% 
@@ -601,11 +503,11 @@ dev.off()
 
 # look at short/long in 1 boxplot
 freq$type <- rep('short', nrow(freq))
-freq2$type <- rep('long', nrow(freq2))
+freq2$type <- rep('mid', nrow(freq2))
 mase_freq <- rbind(freq, freq2)
 
 mase_freq_all <- mase_freq %>% 
-  ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
+  ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'mid')))) + 
   scale_fill_manual(values = c("#898928", "#00A1B7")) +
   facet_wrap(~region, nrow = 3) + ylim(0, 1) + geom_hline(yintercept = 0.5, linetype = 'dashed') +
   labs(x = 'Forecast method', y = 'Frequency\n MASE < 1', fill = 'Forecast\n length') + 
@@ -614,24 +516,4 @@ mase_freq_all <- mase_freq %>%
 pdf(here('results/figures/frequency_MASE_below_1_region_length.pdf'))
 print(mase_freq_all)
 dev.off()
-
-
-## Save data frames --------------------------------------------------------
-# short forecasts
-alaska_mase_short <- left_join(alaska_mase_short, alaska_ts_characteristics)
-wc_mase_short <- left_join(wc_mase_short, west_coast_ts_characteristics)
-wc_mase_short$region <- rep("West Coast", nrow(wc_mase_short))
-
-MASE_short <- rbind(alaska_mase_short, wc_mase_short)
-
-write_csv(MASE_short, here('results/simulation_results/all_stocks_short_MASE.csv'))
-
-# long forecasts
-alaska_mase_long <- left_join(alaska_mase_long, alaska_ts_characteristics)
-wc_mase_long <- left_join(wc_mase_long, west_coast_ts_characteristics)
-wc_mase_long$region <- rep("West Coast", nrow(wc_mase_long))
-
-MASE_long <- rbind(alaska_mase_long, wc_mase_long)
-
-write_csv(MASE_long, here('results/simulation_results/all_stocks_long_MASE.csv'))
 

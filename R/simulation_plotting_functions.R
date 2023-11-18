@@ -39,7 +39,8 @@ mase_plot <- function(preds, obs, ts_vec, type){
   }
   
   
-  plot_mase <- ggplot(mase_df) + geom_line(aes(x = year, y = mase, color = method)) + 
+  plot_mase <- ggplot(mase_df) + geom_line(aes(x = year, y = mase, color = method), alpha = 0.6) + 
+    geom_point(aes(x = year, y = mase, color = method)) +
     ylab("Mean absolute scaled error") + xlab("Years added to training set")
   
   return(list(plot_mase, as.data.frame(mase_df)))
