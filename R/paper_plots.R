@@ -101,6 +101,8 @@ print(pop_goa_a + pop_goa_b + plot_layout(ncol = 1))
 dev.off()
 
 
+pop_goa_stats <- readRDS(here('results/simulation_results/alaska/performance_stats/pop_goa_stats.Rds'))
+
 pop_goa_short_mase <- pop_goa_stats$mase_short
 pop_goa_long_mase <- pop_goa_stats$mase_long
 
@@ -167,13 +169,13 @@ b <- hits_target_long %>% group_by(method) %>%
 hits_target_df <- rbind(a, b)
 hits_target_df$type <- c(rep("short", 6), rep("long", 6))
 
-hits_target_plot <- ggplot(data = hits_target_df, aes(x = method, y = freq, fill = type)) + 
+hits_target_plot <- ggplot(data = hits_target_df, aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Forecast method", y = "Frequency in target\n coverage probability range",
        fill = "Forecast length", subtitle = "(a)") +
   scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
                               "Simplex\n projection")) +
-  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  ylim(0,1) + scale_fill_manual(values = c("#586028","#00A1B7"), labels = c("1 year", "5 years")) +
   theme_minimal()
 
 # will also create plots by region just to see if there is a difference
@@ -195,6 +197,8 @@ d <- as_tibble(hits_target_long %>%
   group_by(region, method) %>% 
   summarise(n = n()))
 d <- d %>% add_row(region = "GOA", method = "AR(1)", n = 0, .before = 7)
+d <- d %>% add_row(region = "GOA", method = "HMM", n = 0, .before = 9)
+d <- d %>% add_row(region = "west coast", method = "HMM", n = 0, .before = 15)
 d$type <- rep("long", nrow(d))
 d$freq <- d$n/long_totals_region$n
 
@@ -203,34 +207,34 @@ hits_target_region <- rbind(c, d)
 
 hits_target_plot2_b <- hits_target_region %>% 
   filter(region == "BSAI") %>% 
-  ggplot(aes(x = method, y = freq, fill = type)) + 
+  ggplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = element_blank(), y = element_blank(),
        fill = "Forecast length", subtitle = "(b)") +
   scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
                               "Simplex\n projection")) +
-  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  ylim(0,1) + scale_fill_manual(values = c("#586028", "#00A1B7"), labels = c("1 year", "5 years")) +
   theme_minimal() + theme(axis.text.x = element_text(angle = 45))
 
 hits_target_plot2_c <- hits_target_region %>% 
   filter(region == "GOA") %>% 
-  ggplot(aes(x = method, y = freq, fill = type)) + 
+  ggplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = element_blank(), y = element_blank(),
        fill = "Forecast length", subtitle = "(c)") +
   scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
                               "Simplex\n projection")) +
-  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  ylim(0,1) + scale_fill_manual(values = c("#586028", "#00A1B7"), labels = c("1 year", "5 years")) +
   theme_minimal() + theme(axis.text.x = element_text(angle = 45))
 
 hits_target_plot2_d <- hits_target_region %>% 
   filter(region == "west coast") %>% 
-  ggplot(aes(x = method, y = freq, fill = type)) + 
+  ggplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'long')))) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Forecast method", fill = "Forecast length", subtitle = "(d)", y = element_blank()) +
   scale_x_discrete(labels = c("AR(1)", "Beverton-\nHolt", "HMM\n sampling", "Mean", "PELT\n sampling",
                               "Simplex\n projection")) +
-  ylim(0,1) + scale_fill_manual(values = c("#00A1B7", "#586028")) +
+  ylim(0,1) + scale_fill_manual(values = c("#586028", "#00A1B7"), labels = c("1 year", "5 years")) +
   theme_minimal() + 
   theme(axis.text.x = element_text(angle = 45))
   
@@ -411,53 +415,3 @@ l <- coverage_probs_all %>%
 pdf(file = here("results/figures/coverage_prob_vs_num_yrs.pdf"), width = 11)
 print(k + l)
 dev.off()
-
-
-# MASE by stock characteristics -------------------------------------------
-MASE_meds <- all_stocks_short_MASE %>% 
-  group_by(stock_name, method, period) %>% 
-  summarise(med_mase = median(mase))
-
-MASE_meds <- left_join(MASE_meds, all_stocks)
-
-# recruitment autocorrelation
-a <- MASE_meds %>%
-  filter(period == 'early') %>% 
-  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
-  geom_smooth(method = lm, formula = y ~ poly(x, 2),
-              aes(x = autocorrR, y = med_mase, color = method)) +
-  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(a)") +
-  xlim(-0.5, 1) +
-  theme(axis.text.x = element_text(angle = 45)) +
-  facet_wrap(~ method) +
-  theme_minimal() +
-  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
-
-b <- MASE_meds %>%
-  filter(period == 'mid') %>% 
-  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
-  geom_smooth(method = lm, formula = y ~ poly(x, 2),
-              aes(x = autocorrR, y = med_mase, color = method)) +
-  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(b)") +
-  xlim(-0.5, 1) +
-  theme(axis.text.x = element_text(angle = 45)) +
-  facet_wrap(~ method) +
-  theme_minimal() +
-  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
-c <- MASE_meds %>%
-  filter(period == 'late') %>% 
-  ggplot() + geom_point(aes(x = autocorrR, y = med_mase, color = method), alpha = 0.5) +
-  geom_smooth(method = lm, formula = y ~ poly(x, 2),
-              aes(x = autocorrR, y = med_mase, color = method)) +
-  scale_color_manual(values = c("#006475","#00A1B7","#55CFD8","#586028","#898928","#616571")) +
-  labs(x = "Recruitment autocorrelation\n at lag = 1", y = "Median stock MASE", subtitle = "(c)") +
-  xlim(-0.5, 1) +
-  theme(axis.text.x = element_text(angle = 45)) +
-  facet_wrap(~ method) +
-  theme_minimal() +
-  theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 45))
-
-pdf(here('results/figures'))
-a + b + c + plot_layout(nrow = 2)

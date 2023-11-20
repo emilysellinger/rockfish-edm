@@ -304,7 +304,6 @@ wc_mase_short$stock_name <- c(rep("aurora", nrow(aurora_stats$mase_short)), rep(
 
 
 # will look at MASE values for first 10 years, then later 10 years
-# going to look at non-summarized violin plots 
 # Alaska
 alaska_mase_short <- alaska_mase_short %>% 
   mutate(period = case_when(
@@ -407,7 +406,7 @@ write_csv(MASE_long, here('results/simulation_results/all_stocks_long_MASE.csv')
 # MASE paper figures ------------------------------------------------------
 
 ## Boxplot by period -------------------------------------------------------
-# want boxplots of MASE for each method without dividing by period
+# want boxplots of MASE for each method by period
 a <- MASE_short %>% 
   group_by(stock_name, method, period) %>% 
   summarise(median_mase = median(mase)) %>% 
@@ -457,11 +456,11 @@ MASE_freq1 <- freq %>%
 
 
 
-MASE_freq_a <- ggplot(freq, aes(x = region, y = freq, color = region)) + 
-  geom_point(size = 2) + 
-  scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
-  facet_wrap(~ method) + labs(x = 'Region', y = 'Frequency MASE < 1', subtitle = '(a)') +
-  ylim(0, 1) + theme_minimal() + theme(legend.position = 'none')
+# MASE_freq_a <- ggplot(freq, aes(x = region, y = freq, color = region)) + 
+#   geom_point(size = 2) + 
+#   scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
+#   facet_wrap(~ method) + labs(x = 'Region', y = 'Frequency MASE < 1', subtitle = '(a)') +
+#   ylim(0, 1) + theme_minimal() + theme(legend.position = 'none')
 
 # 5 step forecasts
 tots2 <- MASE_long %>% 
@@ -485,16 +484,16 @@ MASE_freq2 <- freq2 %>%
   theme_minimal() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 
-MASE_freq_b <- ggplot(freq2, aes(x = factor(period, levels = c('early', 'mid', 'late')), 
-                                y = freq, color = period)) + 
-  geom_point(size = 2) + 
-  scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
-  facet_wrap(~ method) + labs(x = 'Forecast period', y = 'Frequency MASE < 1', subtitle = '(b)') +
-  ylim(0,1) + theme_minimal() + theme(legend.position = 'none')
+# MASE_freq_b <- ggplot(freq2, aes(x = factor(period, levels = c('early', 'mid', 'late')), 
+#                                 y = freq, color = period)) + 
+#   geom_point(size = 2) + 
+#   scale_color_manual(values = c("#006475", "#55CFD8", "#00A1B7")) +
+#   facet_wrap(~ method) + labs(x = 'Forecast period', y = 'Frequency MASE < 1', subtitle = '(b)') +
+#   ylim(0,1) + theme_minimal() + theme(legend.position = 'none')
 
-pdf(here('results/figures/frequency_MASE_below_1.pdf'), height = 8.5)
-print(MASE_freq_a + MASE_freq_b + plot_layout(nrow = 2))
-dev.off()
+# pdf(here('results/figures/frequency_MASE_below_1.pdf'), height = 8.5)
+# print(MASE_freq_a + MASE_freq_b + plot_layout(nrow = 2))
+# dev.off()
 
 pdf(here('results/figures/frequency_MASE_below_1_region.pdf'), height = 9.5, width = 10)
 print(MASE_freq1 + MASE_freq2 + plot_layout(ncol = 2))
@@ -508,7 +507,7 @@ mase_freq <- rbind(freq, freq2)
 
 mase_freq_all <- mase_freq %>% 
   ggplot() + geom_boxplot(aes(x = method, y = freq, fill = factor(type, levels = c('short', 'mid')))) + 
-  scale_fill_manual(values = c("#898928", "#00A1B7")) +
+  scale_fill_manual(values = c("#898928", "#00A1B7"), labels = c('1 year', '5 years')) +
   facet_wrap(~region, nrow = 3) + ylim(0, 1) + geom_hline(yintercept = 0.5, linetype = 'dashed') +
   labs(x = 'Forecast method', y = 'Frequency\n MASE < 1', fill = 'Forecast\n length') + 
   theme_minimal()

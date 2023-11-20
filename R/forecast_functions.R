@@ -193,7 +193,7 @@ rec_HMM_sample <- function(x, df1, df2, nsims){
   rec_preds <- rep(NA, nsims) 
   for(i in 1:nsims){
     rec_preds[i] <- pred.rec(future_state, mu1 = mean(est_state_1$logRS), mu2 = mean(est_state_2$logRS),
-                             sd1 = sd(est_state_1$logRS), sd2 = sd(est_state_2$logRS),df2, x)
+                             sd1 = sd(est_state_1$logRS), sd2 = sd(est_state_2$logRS),df2, (x-1))
   }  
   
   # return forecasts
@@ -330,7 +330,7 @@ lrec_HMM_sample <- function(x, df1, df2, nsims){
   rec_preds <- rep(NA, nsims)  
   for(i in 1:nsims){
     rec_preds[i] <- pred.rec(future_state, mu1 = mean(est_state_1$logRS), mu2 = mean(est_state_2$logRS),
-                             sd1 = sd(est_state_1$logRS), sd2 = sd(est_state_2$logRS),df2, x)
+                             sd1 = sd(est_state_1$logRS), sd2 = sd(est_state_2$logRS),df2, (x-5))
   }  
   
   # return forecasts

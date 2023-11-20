@@ -3,7 +3,7 @@
 hasSR <- all_stocks %>% 
   filter(detectable_SR == 1)
 
-hasSR <- left_join(hasSR, coverage_probs, multiple = "all")
+hasSR <- left_join(hasSR, coverage_probs_all, multiple = "all")
 
 might_haveSR <- all_stocks %>% 
   filter(detectable_SR == 2)
@@ -49,7 +49,7 @@ a <- has_regime_shift %>%
                              "northern_rock_sole", "pollock_goa", "pop_goa"))) %>% 
   ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = factor(type, levels = c('short', 'long')))) + 
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  scale_fill_manual(values = c("#586028", "#00A1B7")) +
+  scale_fill_manual(values = c("#586028", "#00A1B7"), labels = c('1 year', '5 years')) +
   labs(y = "Coverage probability", x = "Method", fill = "Forecast\nlength", subtitle = "(a)") +
   ylim(0,1) +
   theme_minimal()
@@ -61,7 +61,7 @@ b <- has_regime_shift %>%
                              "northern_rock_sole", "pollock_goa", "pop_goa", "lingcod_s"))) %>% 
   ggplot() + geom_boxplot(aes(x = method, y = coverage_prob, fill = factor(type, levels = c('short', 'long')))) + 
   geom_hline(yintercept = 0.8, linetype = 2) + geom_hline(yintercept = 0.95, linetype = 2) +
-  scale_fill_manual(values = c("#586028", "#00A1B7")) +
+  scale_fill_manual(values = c("#586028", "#00A1B7"), labels = c('1 year', '5 years')) +
   labs(y = element_blank(), x = "Method", fill = "Forecast\nlength", subtitle = "(b)") +
   ylim(0,1) +
   theme_minimal()
