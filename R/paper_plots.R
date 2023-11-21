@@ -64,11 +64,13 @@ a <- c(names(pop_goa_sims_short[1:4]), names(pop_goa_sims_short)[6], names(pop_g
 pop_goa_sims_short2 <- pop_goa_sims_short[a]
 pop_goa_sims_long2 <- pop_goa_sims_long[a]
 
-pdf(here('results/figures/pop_goa_paper_forecast_plots2.pdf'))
+pdf(here('results/figures/pop_goa_paper_forecast_plots_short.pdf'))
 print(sim_quants_plots(pop_goa_sims_short2, pop_goa$year, pop_goa$recruits, "short"))
-print(sim_quants_plots(pop_goa_sims_long2, pop_goa$year, pop_goa$recruits, "long"))
 dev.off()
 
+pdf(here('results/figures/pop_goa_paper_forecast_plots_long.pdf'))
+print(sim_quants_plots(pop_goa_sims_long2, pop_goa$year, pop_goa$recruits, "long"))
+dev.off()
 
 pop_goa <- coverage_probs_all %>% 
   filter(stock_name == 'pop_goa') %>% 
