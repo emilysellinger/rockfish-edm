@@ -8,6 +8,7 @@ library(here)
 
 arrowtooth_flounder_bsai <- read_csv(here("data/alaska_stocks", "arrowtooth_flounder_bsai.csv"))
 atka_mackerel_bsai <- read_csv(here("data/alaska_stocks", "atka_mackerel_bsai.csv"))
+blackspotted_rougheye_bsai <- read_csv(here("data/alaska_stocks", "blackspotted_rougheye_bsai.csv"))
 blackspotted_rougheye_goa <- read_csv(here("data/alaska_stocks", "blackspotted_rougheye_goa.csv"))
 dusky_goa <- read_csv(here("data/alaska_stocks", "dusky_goa.csv"))
 greenland_turbot <- read_csv(here("data/alaska_stocks", "greenland_turbot.csv"))
@@ -40,7 +41,7 @@ add_name <- function(df){
 
 arrowtooth_flounder_bsai <- add_name(arrowtooth_flounder_bsai)
 atka_mackerel_bsai <- add_name(atka_mackerel_bsai) 
-#blackspotted_rougheye_bsai <- add_name(blackspotted_rougheye_bsai) 
+blackspotted_rougheye_bsai <- add_name(blackspotted_rougheye_bsai) 
 blackspotted_rougheye_goa <- add_name(blackspotted_rougheye_goa)
 dusky_goa <- add_name(dusky_goa)
 greenland_turbot <- add_name(greenland_turbot) 

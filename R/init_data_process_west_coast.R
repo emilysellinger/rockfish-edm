@@ -94,6 +94,8 @@ filter_sr_data <- function(df){
 
 # Time Series Characteristics -------------------------------------------------------------------------
 library(FSA)
+library(changepoint)
+library(stats4)
 
 ts_range <- west_coast_years[,"max_yr"] - west_coast_years[,"min_yr"]
 quantile(ts_range[,"max_yr"], probs = c(0.25, 0.5, 0.75))
